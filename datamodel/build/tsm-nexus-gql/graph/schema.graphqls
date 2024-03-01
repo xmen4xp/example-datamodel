@@ -1,0 +1,39 @@
+
+
+type Root_Root @nexus(group:"root.example.com",version:"v1",kind:"Root",resource:"roots",name:"Root",crdName:"roots.root.example.com",singleton:"true"){
+    id: ID
+    tenant(id: ID): [Tenant_Tenant!]
+}
+
+type Tenant_Tenant @nexus(group:"tenant.example.com",version:"v1",kind:"Tenant",resource:"tenants",name:"Tenant",crdName:"tenants.tenant.example.com",singleton:"false"){
+    id: ID
+    config: Config_Config
+    interest(id: ID): [Interest_Interest!]
+}
+
+type Config_Config @nexus(group:"config.example.com",version:"v1",kind:"Config",resource:"configs",name:"Config",crdName:"configs.config.example.com",singleton:"true"){
+    id: ID
+    user(id: ID): [User_User!]
+}
+
+type User_User @nexus(group:"user.example.com",version:"v1",kind:"User",resource:"users",name:"User",crdName:"users.user.example.com",singleton:"false"){
+    id: ID
+    wanna(id: ID): [Wanna_Wanna!]
+    username: String
+    mail: String
+    firstName: String
+    lastName: String
+    password: String
+    realm: String
+}
+
+type Wanna_Wanna @nexus(group:"wanna.example.com",version:"v1",kind:"Wanna",resource:"wannas",name:"Wanna",crdName:"wannas.wanna.example.com",singleton:"false"){
+    id: ID
+    interest: Interest_Interest @relation(softlink: "true")
+    name: String
+}
+
+type Interest_Interest @nexus(group:"interest.example.com",version:"v1",kind:"Interest",resource:"interests",name:"Interest",crdName:"interests.interest.example.com",singleton:"false"){
+    id: ID
+    name: String
+}

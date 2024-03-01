@@ -1,0 +1,75 @@
+scalar Map
+type Query {
+    root: root_Root
+}
+
+type root_Root {
+    Id: ID
+	ParentLabels: Map
+
+    Tenant(Id: ID): [tenant_Tenant!]
+}
+
+type tenant_Tenant {
+    Id: ID
+	ParentLabels: Map
+
+    Interest(Id: ID): [interest_Interest!]
+    Config: config_Config!
+}
+
+type config_Config {
+    Id: ID
+	ParentLabels: Map
+
+    User(Id: ID): [user_User!]
+}
+
+type user_User {
+    Id: ID
+	ParentLabels: Map
+
+    Wanna(Id: ID): [wanna_Wanna!]
+    Username: String
+    Mail: String
+    FirstName: String
+    LastName: String
+    Password: String
+    Realm: String
+}
+
+type wanna_Wanna {
+    Id: ID
+	ParentLabels: Map
+
+    Interest: interest_Interest!
+    Name: String
+}
+
+type interest_Interest {
+    Id: ID
+	ParentLabels: Map
+
+    Name: String
+}
+
+type NexusGraphqlResponse {
+  Code: Int
+  Message: String
+  Data: String
+  Last: String
+  TotalRecords: Int
+}
+
+type TimeSeriesData {
+  Code: Int
+  Message: String
+  Data: String
+  Last: String
+  TotalRecords: Int
+}
+
+directive @jsonencoded(file: String, gofile: String, name: String) on FIELD_DEFINITION
+directive @relation(name: String, parameters: String, softlink: String, uuidkey: String) on FIELD_DEFINITION
+directive @timeseriesAPI(file: String!, handler: String!) on FIELD_DEFINITION
+directive @protobuf(file: String!, name: String!) on FIELD_DEFINITION
