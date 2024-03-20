@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"log"
+	"sync"
 
 	// sockshopv1 "datamodel/build/apis/root.sockshop.com/v1"
 	baseconfigdatamodelv1 "example/build/apis/config.example.com/v1"
@@ -18,6 +19,9 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"example-app/pkg/server"
+	"example-app/pkg/token"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
@@ -114,6 +118,17 @@ func main() {
 
 	nexusClient.RootRoot().Tenant("*").Config().User("*").Wanna("*").RegisterAddCallback(ProcessWanna)
 
+	// Create server
+	server.CreateServer()
+
+	// Register token related handlers in the server
+	token.RegisterHandlers()
+
+	// start the server
+	httpWaitGroup := sync.WaitGroup{}
+	httpWaitGroup.Add(1)
+	server.StartServer(&httpWaitGroup)
+
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 	done := make(chan bool, 1)
@@ -121,7 +136,13 @@ func main() {
 	go func() {
 		<-sigs
 		done <- true
+
 	}()
 	<-done
+
+	// stop http server
+	server.StopServer()
+	httpWaitGroup.Wait()
+
 	fmt.Println("exiting")
 }
