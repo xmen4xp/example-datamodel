@@ -20,12 +20,15 @@ import (
 	"os"
 	"reflect"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	types "k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
@@ -3755,6 +3758,80 @@ func (group *EventExampleV1) CreateEventByName(ctx context.Context,
 	}, nil
 }
 
+// SetEventStatusByName sets user defined status
+func (group *EventExampleV1) SetEventStatusByName(ctx context.Context,
+	objToUpdate *baseeventexamplecomv1.Event, status *baseeventexamplecomv1.Status) (*EventEvent, error) {
+	log.Debugf("[SetEventStatusByName] Received objToUpdate:%s", objToUpdate.GetName())
+
+	gvr := schema.GroupVersionResource{
+		Group:    "event.example.com",
+		Version:  "v1",
+		Resource: strings.ToLower("Events"),
+	}
+
+	hashedName := objToUpdate.ObjectMeta.Name
+	obj := baseeventexamplecomv1.Event{}
+	obj.Kind = strings.ToLower("Events")
+	obj.APIVersion = "event.example.com/v1"
+	obj.ObjectMeta = objToUpdate.ObjectMeta
+	obj.Status.Status = *status
+
+	var mapInterface map[string]interface{}
+	marshalledObj, _ := json.Marshal(&obj)
+	json.Unmarshal(marshalledObj, &mapInterface)
+
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		_, err := group.client.dynamicClient.Resource(gvr).UpdateStatus(ctx, &unstructured.Unstructured{Object: mapInterface}, metav1.UpdateOptions{})
+		if err == nil {
+			log.Debugf("[SetEventStatusByName] Updating status for Event node %s successful", hashedName)
+			break
+		}
+
+		log.Errorf("[SetEventStatusByName] Updating status for Event node: %s failed with error %v. Retrying...", hashedName, err)
+
+		updatedObj, err := group.ForceReadEventByName(newCtx, hashedName)
+		if err == nil {
+			obj.ObjectMeta = updatedObj.ObjectMeta
+			marshalledObj, _ := json.Marshal(&obj)
+			json.Unmarshal(marshalledObj, &mapInterface)
+		}
+
+		retryCount += 1
+		if retryCount == maxRetryCount1SecSleep {
+			log.Fatalf("[SetEventStatusByName] Max retry exceeded for updating status for Event node: %s", hashedName)
+			return nil, err
+		}
+		time.Sleep(time.Second)
+	}
+
+	/*
+		if s, ok := subscriptionMap.Load("events.event.example.com"); ok {
+			resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+			var objectToWrite *baseeventexamplecomv1.Event
+			if inWrCache {
+				objectToWrite = resWrCache.(*baseeventexamplecomv1.Event)
+				objectToWrite.Status.Status = *status
+			} else {
+				// Object is not in write cache. Populate the write cache with last "known" object.
+				// TBD: Is this right ???
+				//      Can we expect ObjectToUpdate to the latest version of the object ?
+				//      What if we received the object spec but only want to update the status ?
+				//      Get on the object will return a object form cache if the cache has newer version.
+				// 		So proceeding with assumption that if newer version is available, user will get the newer version anyways.
+				objectToWrite = objToUpdate
+				objToUpdate.Status.Status = *status
+			}
+			s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), objectToWrite)
+		}
+	*/
+	return &EventEvent{
+		client: group.client,
+		Event:  objToUpdate, // TBD: To be fixed to return back the "result"
+	}, nil
+}
+
 // UpdateEventByName updates object stored in the database under the hashedName which is a hash of
 // display name and parents names.
 func (group *EventExampleV1) UpdateEventByName(ctx context.Context,
@@ -3839,25 +3916,25 @@ func (group *EventExampleV1) UpdateEventByName(ctx context.Context,
 		patch = append(patch, patchOpMeetingLink)
 	}
 
-	rt = reflect.TypeOf(objToUpdate.Spec.DateTime)
+	rt = reflect.TypeOf(objToUpdate.Spec.Time)
 	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
-		if !reflect.ValueOf(objToUpdate.Spec.DateTime).IsNil() {
-			patchValueDateTime := objToUpdate.Spec.DateTime
-			patchOpDateTime := PatchOp{
+		if !reflect.ValueOf(objToUpdate.Spec.Time).IsNil() {
+			patchValueTime := objToUpdate.Spec.Time
+			patchOpTime := PatchOp{
 				Op:    "replace",
-				Path:  "/spec/dateTime",
-				Value: patchValueDateTime,
+				Path:  "/spec/time",
+				Value: patchValueTime,
 			}
-			patch = append(patch, patchOpDateTime)
+			patch = append(patch, patchOpTime)
 		}
 	} else {
-		patchValueDateTime := objToUpdate.Spec.DateTime
-		patchOpDateTime := PatchOp{
+		patchValueTime := objToUpdate.Spec.Time
+		patchOpTime := PatchOp{
 			Op:    "replace",
-			Path:  "/spec/dateTime",
-			Value: patchValueDateTime,
+			Path:  "/spec/time",
+			Value: patchValueTime,
 		}
-		patch = append(patch, patchOpDateTime)
+		patch = append(patch, patchOpTime)
 	}
 
 	rt = reflect.TypeOf(objToUpdate.Spec.Public)
@@ -3992,6 +4069,35 @@ func (obj *EventEvent) Delete(ctx context.Context) error {
 // Update updates spec of object in database. Children and Link can not be updated using this function.
 func (obj *EventEvent) Update(ctx context.Context) error {
 	result, err := obj.client.Event().UpdateEventByName(ctx, obj.Event)
+	if err != nil {
+		return err
+	}
+	obj.Event = result.Event
+	return nil
+}
+
+// SetStatus sets user defined status
+func (obj *EventEvent) SetStatus(ctx context.Context, status *baseeventexamplecomv1.Status) error {
+	result, err := obj.client.Event().SetEventStatusByName(ctx, obj.Event, status)
+	if err != nil {
+		return err
+	}
+	obj.Event = result.Event
+	return nil
+}
+
+// GetStatus to get user defined status
+func (obj *EventEvent) GetStatus(ctx context.Context) (*baseeventexamplecomv1.Status, error) {
+	getObj, err := obj.client.Event().GetEventByName(ctx, obj.GetName())
+	if err != nil {
+		return nil, err
+	}
+	return &getObj.Status.Status, nil
+}
+
+// ClearStatus to clear user defined status
+func (obj *EventEvent) ClearStatus(ctx context.Context) error {
+	result, err := obj.client.Event().SetEventStatusByName(ctx, obj.Event, &baseeventexamplecomv1.Status{})
 	if err != nil {
 		return err
 	}
@@ -4332,6 +4438,38 @@ func (c *eventEventExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Event
 	})
 
 	return registrationId, err
+}
+
+// ClearStatus to clear user defined status
+func (c *eventEventExampleV1Chainer) ClearStatus(ctx context.Context) (err error) {
+	hashedName := helper.GetHashedName("events.event.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Event().GetEventByName(ctx, hashedName)
+	if err != nil {
+		return err
+	}
+	_, err = c.client.Event().SetEventStatusByName(ctx, obj.Event, nil)
+	return err
+}
+
+// GetStatus to get user defined status
+func (c *eventEventExampleV1Chainer) GetStatus(ctx context.Context) (result *baseeventexamplecomv1.Status, err error) {
+	hashedName := helper.GetHashedName("events.event.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Event().GetEventByName(ctx, hashedName)
+	if err != nil {
+		return nil, err
+	}
+	return &obj.Status.Status, nil
+}
+
+// SetStatus sets user defined status
+func (c *eventEventExampleV1Chainer) SetStatus(ctx context.Context, status *baseeventexamplecomv1.Status) (err error) {
+	hashedName := helper.GetHashedName("events.event.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Event().GetEventByName(ctx, hashedName)
+	if err != nil {
+		return err
+	}
+	_, err = c.client.Event().SetEventStatusByName(ctx, obj.Event, status)
+	return err
 }
 
 func (group *UserExampleV1) GetUserChildrenMap() map[string]baseuserexamplecomv1.Child {

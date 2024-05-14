@@ -30,7 +30,7 @@ type EventEvent struct {
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
 	Description  *string                `json:"Description"`
 	MeetingLink  *string                `json:"MeetingLink"`
-	DateTime     *string                `json:"DateTime"`
+	Time         *string                `json:"Time"`
 	Public       *bool                  `json:"Public"`
 }
 

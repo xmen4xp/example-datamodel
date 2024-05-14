@@ -80,12 +80,12 @@ type ComplexityRoot struct {
 	}
 
 	Event_Event struct {
-		DateTime     func(childComplexity int) int
 		Description  func(childComplexity int) int
 		Id           func(childComplexity int) int
 		MeetingLink  func(childComplexity int) int
 		ParentLabels func(childComplexity int) int
 		Public       func(childComplexity int) int
+		Time         func(childComplexity int) int
 	}
 
 	Interest_Interest struct {
@@ -278,13 +278,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Config_Config.User(childComplexity, args["Id"].(*string)), true
 
-	case "event_Event.DateTime":
-		if e.complexity.Event_Event.DateTime == nil {
-			break
-		}
-
-		return e.complexity.Event_Event.DateTime(childComplexity), true
-
 	case "event_Event.Description":
 		if e.complexity.Event_Event.Description == nil {
 			break
@@ -319,6 +312,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Event_Event.Public(childComplexity), true
+
+	case "event_Event.Time":
+		if e.complexity.Event_Event.Time == nil {
+			break
+		}
+
+		return e.complexity.Event_Event.Time(childComplexity), true
 
 	case "interest_Interest.Id":
 		if e.complexity.Interest_Interest.Id == nil {
@@ -582,7 +582,7 @@ type event_Event {
 
     Description: String
     MeetingLink: String
-    DateTime: String
+    Time: String
     Public: Boolean
 }
 
@@ -3448,8 +3448,8 @@ func (ec *executionContext) fieldContext_config_Config_Event(ctx context.Context
 				return ec.fieldContext_event_Event_Description(ctx, field)
 			case "MeetingLink":
 				return ec.fieldContext_event_Event_MeetingLink(ctx, field)
-			case "DateTime":
-				return ec.fieldContext_event_Event_DateTime(ctx, field)
+			case "Time":
+				return ec.fieldContext_event_Event_Time(ctx, field)
 			case "Public":
 				return ec.fieldContext_event_Event_Public(ctx, field)
 			}
@@ -3634,8 +3634,8 @@ func (ec *executionContext) fieldContext_event_Event_MeetingLink(ctx context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _event_Event_DateTime(ctx context.Context, field graphql.CollectedField, obj *model.EventEvent) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_event_Event_DateTime(ctx, field)
+func (ec *executionContext) _event_Event_Time(ctx context.Context, field graphql.CollectedField, obj *model.EventEvent) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_event_Event_Time(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -3648,7 +3648,7 @@ func (ec *executionContext) _event_Event_DateTime(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.DateTime, nil
+		return obj.Time, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3662,7 +3662,7 @@ func (ec *executionContext) _event_Event_DateTime(ctx context.Context, field gra
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_event_Event_DateTime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_event_Event_Time(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "event_Event",
 		Field:      field,
@@ -5303,9 +5303,9 @@ func (ec *executionContext) _event_Event(ctx context.Context, sel ast.SelectionS
 
 			out.Values[i] = ec._event_Event_MeetingLink(ctx, field, obj)
 
-		case "DateTime":
+		case "Time":
 
-			out.Values[i] = ec._event_Event_DateTime(ctx, field, obj)
+			out.Values[i] = ec._event_Event_Time(ctx, field, obj)
 
 		case "Public":
 

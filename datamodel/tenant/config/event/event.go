@@ -17,12 +17,29 @@ var EventRestAPISpec = nexus.RestAPISpec{
 	},
 }
 
+type Time struct {
+	Year   int
+	Month  int
+	Day    int
+	Hour   int
+	Min    int
+	Second int
+	Zone   string
+}
+
 // nexus-rest-api-gen:EventRestAPISpec
 type Event struct {
 	nexus.Node
 
 	Description string
 	MeetingLink string
-	DateTime    string
+	Time        Time
 	Public      bool
+
+	Status Status `nexus:"status"`
+}
+
+type Status struct {
+	Time                string
+	AssignedMeetingLink string
 }

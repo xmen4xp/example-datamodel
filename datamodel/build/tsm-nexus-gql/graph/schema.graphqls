@@ -21,7 +21,7 @@ type Event_Event @nexus(group:"event.example.com",version:"v1",kind:"Event",reso
     id: ID
     description: String
     meetingLink: String
-    dateTime: String
+    time: String @jsonencoded(gofile:"model.go", name:"Time", goname:"nexus_event.Time")
     public: Boolean
 }
 

@@ -51,7 +51,8 @@ type Event struct {
 
 // +k8s:openapi-gen=true
 type EventNexusStatus struct {
-	Nexus NexusStatus `json:"nexus,omitempty" yaml:"nexus,omitempty"`
+	Status Status      `json:"status,omitempty" yaml:"status,omitempty"`
+	Nexus  NexusStatus `json:"nexus,omitempty" yaml:"nexus,omitempty"`
 }
 
 func (c *Event) CRDName() string {
@@ -69,7 +70,7 @@ func (c *Event) DisplayName() string {
 type EventSpec struct {
 	Description string `json:"description" yaml:"description"`
 	MeetingLink string `json:"meetingLink" yaml:"meetingLink"`
-	DateTime    string `json:"dateTime" yaml:"dateTime"`
+	Time        Time   `json:"time" yaml:"time"`
 	Public      bool   `json:"public" yaml:"public"`
 }
 
@@ -78,4 +79,21 @@ type EventList struct {
 	metav1.TypeMeta `json:",inline" yaml:",inline"`
 	metav1.ListMeta `json:"metadata" yaml:"metadata"`
 	Items           []Event `json:"items" yaml:"items"`
+}
+
+// +k8s:openapi-gen=true
+type Time struct {
+	Year   int    `json:"year" yaml:"year"`
+	Month  int    `json:"month" yaml:"month"`
+	Day    int    `json:"day" yaml:"day"`
+	Hour   int    `json:"hour" yaml:"hour"`
+	Min    int    `json:"min" yaml:"min"`
+	Second int    `json:"second" yaml:"second"`
+	Zone   string `json:"zone" yaml:"zone"`
+}
+
+// +k8s:openapi-gen=true
+type Status struct {
+	Time                string `json:"time" yaml:"time"`
+	AssignedMeetingLink string `json:"assignedMeetingLink" yaml:"assignedMeetingLink"`
 }

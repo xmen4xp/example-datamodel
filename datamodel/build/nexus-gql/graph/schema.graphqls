@@ -32,7 +32,7 @@ type event_Event {
 
     Description: String
     MeetingLink: String
-    DateTime: String
+    Time: String
     Public: Boolean
 }
 

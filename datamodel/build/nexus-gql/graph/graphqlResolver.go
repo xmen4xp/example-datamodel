@@ -2,6 +2,7 @@ package graph
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 	"sync"
@@ -367,7 +368,8 @@ func getConfigConfigEventResolver(obj *model.ConfigConfig, id *string) ([]*model
 		parentLabels := map[string]interface{}{"events.event.example.com": dn}
 		vDescription := string(vEvent.Spec.Description)
 		vMeetingLink := string(vEvent.Spec.MeetingLink)
-		vDateTime := string(vEvent.Spec.DateTime)
+		Time, _ := json.Marshal(vEvent.Spec.Time)
+		TimeData := string(Time)
 		vPublic := bool(vEvent.Spec.Public)
 
 		for k, v := range obj.ParentLabels {
@@ -378,7 +380,7 @@ func getConfigConfigEventResolver(obj *model.ConfigConfig, id *string) ([]*model
 			ParentLabels: parentLabels,
 			Description:  &vDescription,
 			MeetingLink:  &vMeetingLink,
-			DateTime:     &vDateTime,
+			Time:         &TimeData,
 			Public:       &vPublic,
 		}
 		vEventEventList = append(vEventEventList, ret)
@@ -410,7 +412,8 @@ func getConfigConfigEventResolver(obj *model.ConfigConfig, id *string) ([]*model
 		parentLabels := map[string]interface{}{"events.event.example.com": dn}
 		vDescription := string(vEvent.Spec.Description)
 		vMeetingLink := string(vEvent.Spec.MeetingLink)
-		vDateTime := string(vEvent.Spec.DateTime)
+		Time, _ := json.Marshal(vEvent.Spec.Time)
+		TimeData := string(Time)
 		vPublic := bool(vEvent.Spec.Public)
 
 		for k, v := range obj.ParentLabels {
@@ -421,7 +424,7 @@ func getConfigConfigEventResolver(obj *model.ConfigConfig, id *string) ([]*model
 			ParentLabels: parentLabels,
 			Description:  &vDescription,
 			MeetingLink:  &vMeetingLink,
-			DateTime:     &vDateTime,
+			Time:         &TimeData,
 			Public:       &vPublic,
 		}
 		vEventEventList = append(vEventEventList, ret)
