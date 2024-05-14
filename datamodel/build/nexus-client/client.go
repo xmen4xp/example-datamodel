@@ -37,6 +37,7 @@ import (
 	"example/build/helper"
 
 	baseconfigexamplecomv1 "example/build/apis/config.example.com/v1"
+	baseeventexamplecomv1 "example/build/apis/event.example.com/v1"
 	baseinterestexamplecomv1 "example/build/apis/interest.example.com/v1"
 	baserootexamplecomv1 "example/build/apis/root.example.com/v1"
 	basetenantexamplecomv1 "example/build/apis/tenant.example.com/v1"
@@ -44,6 +45,7 @@ import (
 	basewannaexamplecomv1 "example/build/apis/wanna.example.com/v1"
 
 	informerconfigexamplecomv1 "example/build/client/informers/externalversions/config.example.com/v1"
+	informereventexamplecomv1 "example/build/client/informers/externalversions/event.example.com/v1"
 	informerinterestexamplecomv1 "example/build/client/informers/externalversions/interest.example.com/v1"
 	informerrootexamplecomv1 "example/build/client/informers/externalversions/root.example.com/v1"
 	informertenantexamplecomv1 "example/build/client/informers/externalversions/tenant.example.com/v1"
@@ -68,6 +70,7 @@ type Clientset struct {
 	rootExampleV1     *RootExampleV1
 	tenantExampleV1   *TenantExampleV1
 	configExampleV1   *ConfigExampleV1
+	eventExampleV1    *EventExampleV1
 	userExampleV1     *UserExampleV1
 	wannaExampleV1    *WannaExampleV1
 	interestExampleV1 *InterestExampleV1
@@ -100,36 +103,85 @@ func (c *Clientset) SubscribeAll() {
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerrootexamplecomv1.NewRootInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
 	}
 
 	key = "tenants.tenant.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informertenantexamplecomv1.NewTenantInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		chainer := tenantTenantExampleV1Chainer{
+			client: c,
+		}
+		chainer.RegisterAddCallback(chainer.addCallback)
+		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+
 	}
 
 	key = "configs.config.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerconfigexamplecomv1.NewConfigInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		chainer := configConfigExampleV1Chainer{
+			client: c,
+		}
+		chainer.RegisterAddCallback(chainer.addCallback)
+		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+
+	}
+
+	key = "events.event.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informereventexamplecomv1.NewEventInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		chainer := eventEventExampleV1Chainer{
+			client: c,
+		}
+		chainer.RegisterAddCallback(chainer.addCallback)
+		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+
 	}
 
 	key = "users.user.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informeruserexamplecomv1.NewUserInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		chainer := userUserExampleV1Chainer{
+			client: c,
+		}
+		chainer.RegisterAddCallback(chainer.addCallback)
+		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+
 	}
 
 	key = "wannas.wanna.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerwannaexamplecomv1.NewWannaInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		chainer := wannaWannaExampleV1Chainer{
+			client: c,
+		}
+		chainer.RegisterAddCallback(chainer.addCallback)
+		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+
 	}
 
 	key = "interests.interest.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerinterestexamplecomv1.NewInterestInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		chainer := interestInterestExampleV1Chainer{
+			client: c,
+		}
+		chainer.RegisterAddCallback(chainer.addCallback)
+		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+
 	}
 
 }
@@ -176,6 +228,7 @@ func NewForConfig(config *rest.Config) (*Clientset, error) {
 	client.rootExampleV1 = newRootExampleV1(client)
 	client.tenantExampleV1 = newTenantExampleV1(client)
 	client.configExampleV1 = newConfigExampleV1(client)
+	client.eventExampleV1 = newEventExampleV1(client)
 	client.userExampleV1 = newUserExampleV1(client)
 	client.wannaExampleV1 = newWannaExampleV1(client)
 	client.interestExampleV1 = newInterestExampleV1(client)
@@ -190,6 +243,7 @@ func NewFakeClient() *Clientset {
 	client.rootExampleV1 = newRootExampleV1(client)
 	client.tenantExampleV1 = newTenantExampleV1(client)
 	client.configExampleV1 = newConfigExampleV1(client)
+	client.eventExampleV1 = newEventExampleV1(client)
 	client.userExampleV1 = newUserExampleV1(client)
 	client.wannaExampleV1 = newWannaExampleV1(client)
 	client.interestExampleV1 = newInterestExampleV1(client)
@@ -217,6 +271,9 @@ func (c *Clientset) Tenant() *TenantExampleV1 {
 }
 func (c *Clientset) Config() *ConfigExampleV1 {
 	return c.configExampleV1
+}
+func (c *Clientset) Event() *EventExampleV1 {
+	return c.eventExampleV1
 }
 func (c *Clientset) User() *UserExampleV1 {
 	return c.userExampleV1
@@ -254,6 +311,16 @@ type ConfigExampleV1 struct {
 
 func newConfigExampleV1(client *Clientset) *ConfigExampleV1 {
 	return &ConfigExampleV1{
+		client: client,
+	}
+}
+
+type EventExampleV1 struct {
+	client *Clientset
+}
+
+func newEventExampleV1(client *Clientset) *EventExampleV1 {
+	return &EventExampleV1{
 		client: client,
 	}
 }
@@ -943,6 +1010,7 @@ func (c *rootRootExampleV1Chainer) RegisterEventHandler(addCB func(obj *RootRoot
 		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
 		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -983,37 +1051,32 @@ func (c *rootRootExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RootRoot))
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "roots.root.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterAddCallback] RootRoot Use Subscription Informer")
+		fmt.Println("Informer exists for RootRoot")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &RootRoot{
-					client: c.client,
-					Root:   obj.(*baserootexamplecomv1.Root),
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterAddCallback] RootRoot Create New Informer")
-		informer := informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &RootRoot{
-					client: c.client,
-					Root:   obj.(*baserootexamplecomv1.Root),
-				}
+		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
+		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &RootRoot{
+				client: c.client,
+				Root:   obj.(*baserootexamplecomv1.Root),
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -1022,43 +1085,35 @@ func (c *rootRootExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "roots.root.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterUpdateCallback] RootRoot Use Subscription Informer")
+		fmt.Println("Informer exists for RootRoot")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &RootRoot{
-					client: c.client,
-					Root:   oldObj.(*baserootexamplecomv1.Root),
-				}
-				newData := &RootRoot{
-					client: c.client,
-					Root:   newObj.(*baserootexamplecomv1.Root),
-				}
-				cbfn(oldData, newData)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterUpdateCallback] RootRoot Create New Informer")
-		informer := informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &RootRoot{
-					client: c.client,
-					Root:   oldObj.(*baserootexamplecomv1.Root),
-				}
-				newData := &RootRoot{
-					client: c.client,
-					Root:   newObj.(*baserootexamplecomv1.Root),
-				}
-				cbfn(oldData, newData)
-			},
-		})
-		go informer.Run(stopper)
+		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
+		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &RootRoot{
+				client: c.client,
+				Root:   oldObj.(*baserootexamplecomv1.Root),
+			}
+			newData := &RootRoot{
+				client: c.client,
+				Root:   newObj.(*baserootexamplecomv1.Root),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -1067,37 +1122,32 @@ func (c *rootRootExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RootRoo
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "roots.root.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterDeleteCallback] RootRoot Use Subscription Informer")
+		fmt.Println("Informer exists for RootRoot")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &RootRoot{
-					client: c.client,
-					Root:   obj.(*baserootexamplecomv1.Root),
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterDeleteCallback] RootRoot Create New Informer")
-		informer := informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &RootRoot{
-					client: c.client,
-					Root:   obj.(*baserootexamplecomv1.Root),
-				}
+		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
+		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &RootRoot{
+				client: c.client,
+				Root:   obj.(*baserootexamplecomv1.Root),
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -1888,6 +1938,10 @@ func (c *tenantTenantExampleV1Chainer) RegisterEventHandler(addCB func(obj *Tena
 		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
 		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -1917,6 +1971,9 @@ func (c *tenantTenantExampleV1Chainer) RegisterEventHandler(addCB func(obj *Tena
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if !IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
+				AddChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -1963,6 +2020,10 @@ func (c *tenantTenantExampleV1Chainer) RegisterEventHandler(addCB func(obj *Tena
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
+			if IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
+				RemoveChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
+			}
+
 			deleteCB(nc)
 		},
 	})
@@ -1974,87 +2035,63 @@ func (c *tenantTenantExampleV1Chainer) RegisterAddCallback(cbfn func(obj *Tenant
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "tenants.tenant.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterAddCallback] TenantTenant Use Subscription Informer")
+		fmt.Println("Informer exists for TenantTenant")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &TenantTenant{
-					client: c.client,
-					Tenant: obj.(*basetenantexamplecomv1.Tenant),
-				}
-
-				var parent *RootRoot
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterAddCallback] TenantTenant Create New Informer")
-		informer := informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &TenantTenant{
-					client: c.client,
-					Tenant: obj.(*basetenantexamplecomv1.Tenant),
-				}
+		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
+		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *RootRoot
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &TenantTenant{
+				client: c.client,
+				Tenant: obj.(*basetenantexamplecomv1.Tenant),
+			}
+
+			var parent *RootRoot
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+				parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if !IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
+				AddChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -2063,43 +2100,38 @@ func (c *tenantTenantExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, 
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "tenants.tenant.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterUpdateCallback] TenantTenant Use Subscription Informer")
+		fmt.Println("Informer exists for TenantTenant")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &TenantTenant{
-					client: c.client,
-					Tenant: oldObj.(*basetenantexamplecomv1.Tenant),
-				}
-				newData := &TenantTenant{
-					client: c.client,
-					Tenant: newObj.(*basetenantexamplecomv1.Tenant),
-				}
-				cbfn(oldData, newData)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterUpdateCallback] TenantTenant Create New Informer")
-		informer := informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &TenantTenant{
-					client: c.client,
-					Tenant: oldObj.(*basetenantexamplecomv1.Tenant),
-				}
-				newData := &TenantTenant{
-					client: c.client,
-					Tenant: newObj.(*basetenantexamplecomv1.Tenant),
-				}
-				cbfn(oldData, newData)
-			},
-		})
-		go informer.Run(stopper)
+		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
+		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &TenantTenant{
+				client: c.client,
+				Tenant: oldObj.(*basetenantexamplecomv1.Tenant),
+			}
+			newData := &TenantTenant{
+				client: c.client,
+				Tenant: newObj.(*basetenantexamplecomv1.Tenant),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -2108,87 +2140,63 @@ func (c *tenantTenantExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Ten
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "tenants.tenant.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterDeleteCallback] TenantTenant Use Subscription Informer")
+		fmt.Println("Informer exists for TenantTenant")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &TenantTenant{
-					client: c.client,
-					Tenant: obj.(*basetenantexamplecomv1.Tenant),
-				}
-
-				var parent *RootRoot
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterDeleteCallback] TenantTenant Create New Informer")
-		informer := informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &TenantTenant{
-					client: c.client,
-					Tenant: obj.(*basetenantexamplecomv1.Tenant),
-				}
+		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
+		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *RootRoot
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &TenantTenant{
+				client: c.client,
+				Tenant: obj.(*basetenantexamplecomv1.Tenant),
+			}
+
+			var parent *RootRoot
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+
+			if parent == nil {
+				hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+				parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
+				RemoveChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -2467,6 +2475,14 @@ func (group *ConfigExampleV1) DeleteConfigByName(ctx context.Context, hashedName
 		RemoveChild("configs.config.example.com", hashedName, "users.user.example.com", child)
 	}
 
+	for _, child := range GetChildren("configs.config.example.com", hashedName, "events.event.example.com") {
+		err := group.client.Event().DeleteEventByName(ctx, child)
+		if err != nil && errors.IsNotFound(err) == false {
+			return err
+		}
+		RemoveChild("configs.config.example.com", hashedName, "events.event.example.com", child)
+	}
+
 	retryCount = 0
 	for {
 		err = group.client.baseClient.
@@ -2542,6 +2558,7 @@ func (group *ConfigExampleV1) CreateConfigByName(ctx context.Context,
 	}
 
 	objToCreate.Spec.UserGvk = nil
+	objToCreate.Spec.EventGvk = nil
 
 	var (
 		retryCount int
@@ -2894,6 +2911,132 @@ func (obj *ConfigConfig) DeleteUser(ctx context.Context, displayName string) (er
 	return
 }
 
+type ConfigConfigEvent struct {
+	client *Clientset
+	Event  []baseconfigexamplecomv1.Child
+}
+
+func (n *ConfigConfigEvent) Next(ctx context.Context) (*EventEvent, error) {
+	for index, child := range n.Event {
+		obj, err := n.client.Event().GetEventByName(ctx, child.Name)
+		if err == nil {
+			if index == len(n.Event)-1 {
+				n.Event = nil
+			} else {
+				n.Event = n.Event[index+1:]
+			}
+			return obj, nil
+		} else if errors.IsNotFound(err) {
+			continue
+		} else {
+			return nil, err
+		}
+	}
+	return nil, nil
+}
+
+// GetAllEventIter returns an iterator for all children of given type
+func (obj *ConfigConfig) GetAllEventIter(ctx context.Context) (
+	result ConfigConfigEvent) {
+	result.client = obj.client
+	for _, v := range GetChildren("configs.config.example.com", obj.Name, "events.event.example.com") {
+		result.Event = append(result.Event, baseconfigexamplecomv1.Child{
+			Group: "event.example.com",
+			Kind:  "Event",
+			Name:  v,
+		})
+	}
+	return
+}
+
+// GetAllEvent returns all children of a given type
+func (obj *ConfigConfig) GetAllEvent(ctx context.Context) (
+	result []*EventEvent, err error) {
+	for _, v := range GetChildren("configs.config.example.com", obj.Name, "events.event.example.com") {
+		l, err := obj.client.Event().GetEventByName(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, l)
+	}
+	return
+}
+
+// GetEvent returns child which has given displayName
+func (obj *ConfigConfig) GetEvent(ctx context.Context,
+	displayName string) (result *EventEvent, err error) {
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["configs.config.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("events.event.example.com", parentLabels, displayName)
+	if IsChildExists("configs.config.example.com", obj.Name, "events.event.example.com", childHashName) == false {
+		return nil, NewChildNotFound(obj.DisplayName(), "Config.Config", "Event", displayName)
+	}
+
+	result, err = obj.client.Event().GetEventByName(ctx, childHashName)
+	return
+}
+
+// AddEvent calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (obj *ConfigConfig) AddEvent(ctx context.Context,
+	objToCreate *baseeventexamplecomv1.Event) (result *EventEvent, err error) {
+	log.Debugf("[AddEvent] Received objToAdd: %s", objToCreate.GetName())
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for _, v := range helper.GetCRDParentsMap()["configs.config.example.com"] {
+		objToCreate.Labels[v] = obj.Labels[v]
+	}
+	objToCreate.Labels["configs.config.example.com"] = obj.DisplayName()
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	result, err = obj.client.Event().CreateEventByName(ctx, objToCreate)
+	log.Debugf("[AddEvent] Event created successfully: %s", objToCreate.GetName())
+	updatedObj, getErr := obj.client.Config().GetConfigByName(ctx, obj.GetName())
+	if getErr == nil {
+		obj.Config = updatedObj.Config
+	}
+	log.Debugf("[AddEvent] Executed Successfully: %s", objToCreate.GetName())
+	return
+}
+
+// DeleteEvent calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+
+func (obj *ConfigConfig) DeleteEvent(ctx context.Context, displayName string) (err error) {
+	log.Debugf("[ DeleteEvent] Received for Event object: %s to delete", displayName)
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["configs.config.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("events.event.example.com", parentLabels, displayName)
+	if IsChildExists("configs.config.example.com", obj.Name, "events.event.example.com", childHashName) == false {
+		return NewChildNotFound(obj.DisplayName(), "Config.Config", "Event", displayName)
+	}
+
+	err = obj.client.Event().DeleteEventByName(ctx, childHashName)
+	if err != nil {
+		return err
+	}
+	log.Debugf("[ DeleteEvent] Event object: %s deleted successfully", displayName)
+	updatedObj, err := obj.client.Config().GetConfigByName(ctx, obj.GetName())
+	if err == nil {
+		obj.Config = updatedObj.Config
+	}
+	return
+}
+
 type configConfigExampleV1Chainer struct {
 	client       *Clientset
 	name         string
@@ -2962,6 +3105,10 @@ func (c *configConfigExampleV1Chainer) RegisterEventHandler(addCB func(obj *Conf
 		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
 		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -2991,6 +3138,9 @@ func (c *configConfigExampleV1Chainer) RegisterEventHandler(addCB func(obj *Conf
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if !IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
+				AddChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -3037,6 +3187,10 @@ func (c *configConfigExampleV1Chainer) RegisterEventHandler(addCB func(obj *Conf
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
+			if IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
+				RemoveChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
+			}
+
 			deleteCB(nc)
 		},
 	})
@@ -3048,87 +3202,63 @@ func (c *configConfigExampleV1Chainer) RegisterAddCallback(cbfn func(obj *Config
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "configs.config.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterAddCallback] ConfigConfig Use Subscription Informer")
+		fmt.Println("Informer exists for ConfigConfig")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &ConfigConfig{
-					client: c.client,
-					Config: obj.(*baseconfigexamplecomv1.Config),
-				}
-
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterAddCallback] ConfigConfig Create New Informer")
-		informer := informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &ConfigConfig{
-					client: c.client,
-					Config: obj.(*baseconfigexamplecomv1.Config),
-				}
+		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
+		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &ConfigConfig{
+				client: c.client,
+				Config: obj.(*baseconfigexamplecomv1.Config),
+			}
+
+			var parent *TenantTenant
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if !IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
+				AddChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -3137,43 +3267,38 @@ func (c *configConfigExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, 
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "configs.config.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterUpdateCallback] ConfigConfig Use Subscription Informer")
+		fmt.Println("Informer exists for ConfigConfig")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &ConfigConfig{
-					client: c.client,
-					Config: oldObj.(*baseconfigexamplecomv1.Config),
-				}
-				newData := &ConfigConfig{
-					client: c.client,
-					Config: newObj.(*baseconfigexamplecomv1.Config),
-				}
-				cbfn(oldData, newData)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterUpdateCallback] ConfigConfig Create New Informer")
-		informer := informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &ConfigConfig{
-					client: c.client,
-					Config: oldObj.(*baseconfigexamplecomv1.Config),
-				}
-				newData := &ConfigConfig{
-					client: c.client,
-					Config: newObj.(*baseconfigexamplecomv1.Config),
-				}
-				cbfn(oldData, newData)
-			},
-		})
-		go informer.Run(stopper)
+		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
+		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &ConfigConfig{
+				client: c.client,
+				Config: oldObj.(*baseconfigexamplecomv1.Config),
+			}
+			newData := &ConfigConfig{
+				client: c.client,
+				Config: newObj.(*baseconfigexamplecomv1.Config),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -3182,87 +3307,63 @@ func (c *configConfigExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Con
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "configs.config.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterDeleteCallback] ConfigConfig Use Subscription Informer")
+		fmt.Println("Informer exists for ConfigConfig")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &ConfigConfig{
-					client: c.client,
-					Config: obj.(*baseconfigexamplecomv1.Config),
-				}
-
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterDeleteCallback] ConfigConfig Create New Informer")
-		informer := informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &ConfigConfig{
-					client: c.client,
-					Config: obj.(*baseconfigexamplecomv1.Config),
-				}
+		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
+		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &ConfigConfig{
+				client: c.client,
+				Config: obj.(*baseconfigexamplecomv1.Config),
+			}
+
+			var parent *TenantTenant
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+
+			if parent == nil {
+				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
+				RemoveChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -3311,6 +3412,926 @@ func (c *configConfigExampleV1Chainer) DeleteUser(ctx context.Context, name stri
 	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
 	hashedName := helper.GetHashedName("users.user.example.com", c.parentLabels, name)
 	return c.client.User().DeleteUserByName(ctx, hashedName)
+}
+
+func (c *configConfigExampleV1Chainer) Event(name string) *eventEventExampleV1Chainer {
+	parentLabels := c.parentLabels
+	parentLabels["events.event.example.com"] = name
+	return &eventEventExampleV1Chainer{
+		client:       c.client,
+		name:         name,
+		parentLabels: parentLabels,
+	}
+}
+
+// GetEvent calculates hashed name of the object based on displayName and it's parents and returns the object
+func (c *configConfigExampleV1Chainer) GetEvent(ctx context.Context, displayName string) (result *EventEvent, err error) {
+	hashedName := helper.GetHashedName("events.event.example.com", c.parentLabels, displayName)
+	return c.client.Event().GetEventByName(ctx, hashedName)
+}
+
+// AddEvent calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (c *configConfigExampleV1Chainer) AddEvent(ctx context.Context,
+	objToCreate *baseeventexamplecomv1.Event) (result *EventEvent, err error) {
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for k, v := range c.parentLabels {
+		objToCreate.Labels[k] = v
+	}
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName("events.event.example.com", c.parentLabels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	return c.client.Event().CreateEventByName(ctx, objToCreate)
+}
+
+// DeleteEvent calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+func (c *configConfigExampleV1Chainer) DeleteEvent(ctx context.Context, name string) (err error) {
+	if c.parentLabels == nil {
+		c.parentLabels = map[string]string{}
+	}
+	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
+	hashedName := helper.GetHashedName("events.event.example.com", c.parentLabels, name)
+	return c.client.Event().DeleteEventByName(ctx, hashedName)
+}
+
+func (group *EventExampleV1) GetEventChildrenMap() map[string]baseeventexamplecomv1.Child {
+	return map[string]baseeventexamplecomv1.Child{}
+}
+
+func (group *EventExampleV1) GetEventChild(grp, kind, name string) baseeventexamplecomv1.Child {
+	return baseeventexamplecomv1.Child{
+		Group: grp,
+		Kind:  kind,
+		Name:  name,
+	}
+}
+
+// GetEventByName returns object stored in the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *EventExampleV1) GetEventByName(ctx context.Context, hashedName string) (*EventEvent, error) {
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		// Check if the object is in write cache.
+		resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+		item, exists, _ := s.(subscription).informer.GetStore().GetByKey(hashedName)
+		if exists {
+			log.Debugf("[GetEventByName] Object: %s exists in cache", hashedName)
+			resultCache, _ := item.(*baseeventexamplecomv1.Event)
+			subsCacheVersion, subsCacheVersionErr := strconv.Atoi(resultCache.ResourceVersion)
+			if subsCacheVersionErr != nil {
+				log.Fatalf("[GetEventByName] Getting version of Object: %s failed with error %v", hashedName, subsCacheVersionErr)
+			}
+
+			writeCacheVersion := 0
+			var writeCacheVersionErr error
+			if inWrCache {
+				writeCacheVersion, writeCacheVersionErr = strconv.Atoi(resWrCache.(*baseeventexamplecomv1.Event).ResourceVersion)
+				if writeCacheVersionErr != nil {
+					log.Fatalf("[GetEventByName] Getting version of Object: %s in write cache failed with error %v", hashedName, writeCacheVersionErr)
+				}
+			}
+
+			if !inWrCache || subsCacheVersion >= writeCacheVersion {
+				if inWrCache {
+					s.(subscription).WriteCacheObjects.Delete(hashedName)
+				}
+				return &EventEvent{
+					client: group.client,
+					Event:  resultCache,
+				}, nil
+			}
+		}
+		if inWrCache {
+			return &EventEvent{
+				client: group.client,
+				Event:  resWrCache.(*baseeventexamplecomv1.Event),
+			}, nil
+		}
+	}
+
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			EventExampleV1().
+			Events().Get(ctx, hashedName, metav1.GetOptions{})
+		if err == nil {
+			return &EventEvent{
+				client: group.client,
+				Event:  result,
+			}, nil
+		} else if errors.IsNotFound(err) {
+			log.Debugf("[GetEventByName]: object %v not found", hashedName)
+			return nil, err
+		} else {
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on Get Events: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[GetEventByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[GetEventByName]: %+v", err)
+				return nil, err
+			}
+		}
+	}
+}
+
+// ForceReadEventByName read object directly from the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *EventExampleV1) ForceReadEventByName(ctx context.Context, hashedName string) (*EventEvent, error) {
+	log.Debugf("[ForceReadEventByName] Received object :%s to read from DB", hashedName)
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			EventExampleV1().
+			Events().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[ForceReadEventByName] Failed to Get Events: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Errorf("[Retry Count: %d ] %+v", retryCount, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max Retry exceed on Get Events: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[ForceReadEventByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[ForceReadEventByName]: %+v", err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[ForceReadEventByName] Executed Successfully :%s", hashedName)
+			return &EventEvent{
+				client: group.client,
+				Event:  result,
+			}, nil
+		}
+	}
+}
+
+// DeleteEventByName deletes object stored in the database under the hashedName which is a hash of
+// display name and parents names. Use it when you know hashed name of object.
+func (group *EventExampleV1) DeleteEventByName(ctx context.Context, hashedName string) (err error) {
+	log.Debugf("[DeleteEventByName] Received objectToDelete: %s", hashedName)
+	var (
+		retryCount int
+		result     *baseeventexamplecomv1.Event
+	)
+
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			EventExampleV1().
+			Events().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[DeleteEventByName] Failed to get Events: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on get Events: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteEventByName] context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteEventByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteEventByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	if result == nil {
+		return err
+	}
+
+	retryCount = 0
+	for {
+		err = group.client.baseClient.
+			EventExampleV1().
+			Events().Delete(ctx, hashedName, metav1.DeleteOptions{})
+		if err != nil {
+			log.Errorf("[DeleteEventByName] failed to delete Events: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on delete Events: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteEventByName]: context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteEventByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteEventByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			if s, ok := subscriptionMap.Load("events.event.example.com"); ok {
+				s.(subscription).WriteCacheObjects.Delete(hashedName)
+			}
+			break
+		}
+	}
+	// Get Parent Node and check if gvk present before patch
+
+	log.Debugf("[DeleteEventByName] Get parent details for object: %s", hashedName)
+	// var patch Patch
+	parents := result.GetLabels()
+	if parents == nil {
+		parents = make(map[string]string)
+	}
+	parentName, ok := parents["configs.config.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	if result.GetLabels() != nil {
+		if parents[common.IS_NAME_HASHED_LABEL] == "true" {
+			parentName = helper.GetHashedName("configs.config.example.com", parents, parentName)
+		}
+	} else {
+		parentName = helper.GetHashedName("configs.config.example.com", parents, parentName)
+	}
+	RemoveChild("configs.config.example.com", parentName, "events.event.example.com", hashedName)
+
+	return nil
+}
+
+// CreateEventByName creates object in the database without hashing the name.
+// Use it directly ONLY when objToCreate.Name is hashed name of the object.
+func (group *EventExampleV1) CreateEventByName(ctx context.Context,
+	objToCreate *baseeventexamplecomv1.Event) (*EventEvent, error) {
+	log.Debugf("[CreateEventByName] Received objToCreate: %s", objToCreate.GetName())
+	if objToCreate.GetLabels() == nil {
+		objToCreate.Labels = make(map[string]string)
+	}
+	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+	}
+
+	var (
+		retryCount int
+		result     *baseeventexamplecomv1.Event
+		err        error
+	)
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			EventExampleV1().
+			Events().Create(ctx, objToCreate, metav1.CreateOptions{})
+		if err != nil {
+			log.Errorf("[CreateEventByName] Failed to create Event: %s, error: %+v", objToCreate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToCreate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on create Event: %s", objToCreate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[CreateEventByName] context canceled while creating Event: %s", objToCreate.GetName())
+				return nil, context.Canceled
+			} else if errors.IsAlreadyExists(err) {
+				log.Debugf("[CreateEventByName] Event: %s already exists, error: %+v", objToCreate.GetName(), err)
+				result, err = group.client.baseClient.EventExampleV1().Events().Get(ctx, objToCreate.GetName(), metav1.GetOptions{})
+				if err != nil {
+					log.Fatalf("[CreateEventByName] Unable to Get Event %s after it was flagged as already exists, error: %+v", objToCreate.GetName(), err)
+				}
+				break
+			} else {
+				log.Errorf("[CreateEventByName] found unexpected error while creating Event: %s, error: %+v", objToCreate.GetName(), err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[CreateEventByName] Event: %s created successfully", objToCreate.GetName())
+			if s, ok := subscriptionMap.Load("events.event.example.com"); ok {
+				log.Debugf("[CreateEventByName] Event: %s stored in wr-cache", objToCreate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToCreate.GetName(), result)
+			}
+			break
+		}
+	}
+
+	parentName, ok := objToCreate.GetLabels()["configs.config.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	parentHashedName := helper.GetHashedName("configs.config.example.com", objToCreate.GetLabels(), parentName)
+
+	AddChild("configs.config.example.com", parentHashedName, "events.event.example.com", objToCreate.Name)
+
+	log.Debugf("[CreateEventByName] Executed Successfully: %s", objToCreate.GetName())
+	return &EventEvent{
+		client: group.client,
+		Event:  result,
+	}, nil
+}
+
+// UpdateEventByName updates object stored in the database under the hashedName which is a hash of
+// display name and parents names.
+func (group *EventExampleV1) UpdateEventByName(ctx context.Context,
+	objToUpdate *baseeventexamplecomv1.Event) (*EventEvent, error) {
+	log.Debugf("[UpdateEventByName] Received objToUpdate: %s", objToUpdate.GetName())
+
+	var patch Patch
+
+	if objToUpdate.Annotations != nil || objToUpdate.Labels != nil {
+		current, err := group.client.Event().GetEventByName(ctx, objToUpdate.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		if objToUpdate.Annotations != nil {
+			if current.Annotations[ownershipAnnotation] != "" {
+				objToUpdate.Annotations[ownershipAnnotation] = current.Annotations[ownershipAnnotation]
+			}
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/annotations",
+				Value: objToUpdate.Annotations,
+			})
+		}
+
+		if objToUpdate.Labels != nil {
+			parentsList := helper.GetCRDParentsMap()["events.event.example.com"]
+			for _, k := range parentsList {
+				objToUpdate.Labels[k] = current.Labels[k]
+			}
+			objToUpdate.Labels[common.IS_NAME_HASHED_LABEL] = current.Labels[common.IS_NAME_HASHED_LABEL]
+			objToUpdate.Labels[common.DISPLAY_NAME_LABEL] = current.Labels[common.DISPLAY_NAME_LABEL]
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/labels",
+				Value: objToUpdate.Labels,
+			})
+		}
+	}
+
+	var rt reflect.Type
+
+	rt = reflect.TypeOf(objToUpdate.Spec.Description)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.Description).IsNil() {
+			patchValueDescription := objToUpdate.Spec.Description
+			patchOpDescription := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/description",
+				Value: patchValueDescription,
+			}
+			patch = append(patch, patchOpDescription)
+		}
+	} else {
+		patchValueDescription := objToUpdate.Spec.Description
+		patchOpDescription := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/description",
+			Value: patchValueDescription,
+		}
+		patch = append(patch, patchOpDescription)
+	}
+
+	rt = reflect.TypeOf(objToUpdate.Spec.MeetingLink)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.MeetingLink).IsNil() {
+			patchValueMeetingLink := objToUpdate.Spec.MeetingLink
+			patchOpMeetingLink := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/meetingLink",
+				Value: patchValueMeetingLink,
+			}
+			patch = append(patch, patchOpMeetingLink)
+		}
+	} else {
+		patchValueMeetingLink := objToUpdate.Spec.MeetingLink
+		patchOpMeetingLink := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/meetingLink",
+			Value: patchValueMeetingLink,
+		}
+		patch = append(patch, patchOpMeetingLink)
+	}
+
+	rt = reflect.TypeOf(objToUpdate.Spec.DateTime)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.DateTime).IsNil() {
+			patchValueDateTime := objToUpdate.Spec.DateTime
+			patchOpDateTime := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/dateTime",
+				Value: patchValueDateTime,
+			}
+			patch = append(patch, patchOpDateTime)
+		}
+	} else {
+		patchValueDateTime := objToUpdate.Spec.DateTime
+		patchOpDateTime := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/dateTime",
+			Value: patchValueDateTime,
+		}
+		patch = append(patch, patchOpDateTime)
+	}
+
+	rt = reflect.TypeOf(objToUpdate.Spec.Public)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.Public).IsNil() {
+			patchValuePublic := objToUpdate.Spec.Public
+			patchOpPublic := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/public",
+				Value: patchValuePublic,
+			}
+			patch = append(patch, patchOpPublic)
+		}
+	} else {
+		patchValuePublic := objToUpdate.Spec.Public
+		patchOpPublic := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/public",
+			Value: patchValuePublic,
+		}
+		patch = append(patch, patchOpPublic)
+	}
+
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		result *baseeventexamplecomv1.Event
+	)
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		result, err = group.client.baseClient.
+			EventExampleV1().
+			Events().Patch(newCtx, objToUpdate.GetName(), types.JSONPatchType, marshaled, metav1.PatchOptions{}, "")
+		if err != nil {
+			log.Errorf("[UpdateEventByName] Failed to patch Event %s with error: %+v", objToUpdate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToUpdate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on patching: %s", objToUpdate.GetName())
+					log.Debugf("Trigger Event Delete: %s", objToUpdate.GetName())
+					delErr := group.DeleteEventByName(newCtx, objToUpdate.GetName())
+					if delErr != nil {
+						log.Debugf("Error occur while deleting Event: %s", objToUpdate.GetName())
+						return nil, delErr
+					}
+					log.Debugf("Event deleted: %s", objToUpdate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[UpdateEventByName]: context canceled: %s", objToUpdate.GetName())
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[UpdateEventByName] Object: %s unexpected error: %+v", objToUpdate.GetName(), err)
+				log.Debugf("Trigger Event Delete: %s", objToUpdate.GetName())
+				delErr := group.DeleteEventByName(newCtx, objToUpdate.GetName())
+				if delErr != nil {
+					log.Debugf("Error occur while deleting Event: %+v", objToUpdate.GetName())
+					return nil, delErr
+				}
+				log.Debugf("Event Deleted: %s", objToUpdate.GetName())
+				return nil, err
+			}
+		} else {
+			log.Debugf("[UpdateEventByName] Patch Event Success :%s", objToUpdate.GetName())
+			if s, ok := subscriptionMap.Load("events.event.example.com"); ok {
+				log.Debugf("[UpdateEventByName] %s stored in wr-cache", objToUpdate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), result)
+			}
+			break
+		}
+	}
+	log.Debugf("[UpdateEventByName] Executed Successfully %s", objToUpdate.GetName())
+	return &EventEvent{
+		client: group.client,
+		Event:  result,
+	}, nil
+}
+
+// ListEvents returns slice of all existing objects of this type. Selectors can be provided in opts parameter.
+func (group *EventExampleV1) ListEvents(ctx context.Context,
+	opts metav1.ListOptions) (result []*EventEvent, err error) {
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		items := s.(subscription).informer.GetStore().List()
+		result = make([]*EventEvent, len(items))
+		for k, v := range items {
+			item, _ := v.(*baseeventexamplecomv1.Event)
+			result[k] = &EventEvent{
+				client: group.client,
+				Event:  item,
+			}
+		}
+	} else {
+		list, err := group.client.baseClient.EventExampleV1().
+			Events().List(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		result = make([]*EventEvent, len(list.Items))
+		for k, v := range list.Items {
+			item := v
+			result[k] = &EventEvent{
+				client: group.client,
+				Event:  &item,
+			}
+		}
+	}
+	return
+}
+
+type EventEvent struct {
+	client *Clientset
+	*baseeventexamplecomv1.Event
+}
+
+// Delete removes obj and all it's children from the database.
+func (obj *EventEvent) Delete(ctx context.Context) error {
+	err := obj.client.Event().DeleteEventByName(ctx, obj.GetName())
+	if err != nil {
+		return err
+	}
+	obj.Event = nil
+	return nil
+}
+
+// Update updates spec of object in database. Children and Link can not be updated using this function.
+func (obj *EventEvent) Update(ctx context.Context) error {
+	result, err := obj.client.Event().UpdateEventByName(ctx, obj.Event)
+	if err != nil {
+		return err
+	}
+	obj.Event = result.Event
+	return nil
+}
+
+func (obj *EventEvent) GetParent(ctx context.Context) (result *ConfigConfig, err error) {
+	hashedName := helper.GetHashedName("configs.config.example.com", obj.Labels, obj.Labels["configs.config.example.com"])
+	return obj.client.Config().GetConfigByName(ctx, hashedName)
+}
+
+type eventEventExampleV1Chainer struct {
+	client       *Clientset
+	name         string
+	parentLabels map[string]string
+}
+
+func (c *eventEventExampleV1Chainer) Subscribe() {
+	key := "events.event.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+}
+
+func (c *eventEventExampleV1Chainer) Unsubscribe() {
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		close(s.(subscription).stop)
+		subscriptionMap.Delete(key)
+	}
+}
+
+func (c *eventEventExampleV1Chainer) IsSubscribed() bool {
+	key := "events.event.example.com"
+	_, ok := subscriptionMap.Load(key)
+	return ok
+}
+
+func (c *eventEventExampleV1Chainer) addCallback(obj *EventEvent) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["configs.config.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("configs.config.example.com", obj.Labels, parentDisplayName)
+
+	AddChild("configs.config.example.com", parentHashName, "events.event.example.com", obj.Name)
+}
+
+func (c *eventEventExampleV1Chainer) deleteCallback(obj *EventEvent) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["configs.config.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("configs.config.example.com", obj.Labels, parentDisplayName)
+
+	RemoveChild("configs.config.example.com", parentHashName, "events.event.example.com", obj.Name)
+}
+
+func (c *eventEventExampleV1Chainer) RegisterEventHandler(addCB func(obj *EventEvent), updateCB func(oldObj, newObj *EventEvent), deleteCB func(obj *EventEvent)) (cache.ResourceEventHandlerRegistration, error) {
+	fmt.Println("RegisterEventHandler for EventEvent")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for EventEvent")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
+		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &EventEvent{
+				client: c.client,
+				Event:  obj.(*baseeventexamplecomv1.Event),
+			}
+
+			var parent *ConfigConfig
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if !IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
+				AddChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
+			}
+
+			addCB(nc)
+		},
+
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &EventEvent{
+				client: c.client,
+				Event:  oldObj.(*baseeventexamplecomv1.Event),
+			}
+			newData := &EventEvent{
+				client: c.client,
+				Event:  newObj.(*baseeventexamplecomv1.Event),
+			}
+			updateCB(oldData, newData)
+		},
+
+		DeleteFunc: func(obj interface{}) {
+			nc := &EventEvent{
+				client: c.client,
+				Event:  obj.(*baseeventexamplecomv1.Event),
+			}
+
+			var parent *ConfigConfig
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
+				RemoveChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
+			}
+
+			deleteCB(nc)
+		},
+	})
+	return registrationId, err
+}
+
+func (c *eventEventExampleV1Chainer) RegisterAddCallback(cbfn func(obj *EventEvent)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterAddCallback] Received for EventEvent")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for EventEvent")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
+		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &EventEvent{
+				client: c.client,
+				Event:  obj.(*baseeventexamplecomv1.Event),
+			}
+
+			var parent *ConfigConfig
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if !IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
+				AddChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
+	return registrationId, err
+}
+
+func (c *eventEventExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newObj *EventEvent)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterUpdateCallback] Received for EventEvent")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for EventEvent")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
+		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &EventEvent{
+				client: c.client,
+				Event:  oldObj.(*baseeventexamplecomv1.Event),
+			}
+			newData := &EventEvent{
+				client: c.client,
+				Event:  newObj.(*baseeventexamplecomv1.Event),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
+	return registrationId, err
+}
+
+func (c *eventEventExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *EventEvent)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterDeleteCallback] Received for EventEvent")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+
+	key := "events.event.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for EventEvent")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
+		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &EventEvent{
+				client: c.client,
+				Event:  obj.(*baseeventexamplecomv1.Event),
+			}
+
+			var parent *ConfigConfig
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+
+			if parent == nil {
+				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
+				RemoveChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
+	return registrationId, err
 }
 
 func (group *UserExampleV1) GetUserChildrenMap() map[string]baseuserexamplecomv1.Child {
@@ -4102,6 +5123,10 @@ func (c *userUserExampleV1Chainer) RegisterEventHandler(addCB func(obj *UserUser
 		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
 		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -4131,6 +5156,9 @@ func (c *userUserExampleV1Chainer) RegisterEventHandler(addCB func(obj *UserUser
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if !IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
+				AddChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -4177,6 +5205,10 @@ func (c *userUserExampleV1Chainer) RegisterEventHandler(addCB func(obj *UserUser
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
+			if IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
+				RemoveChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
+			}
+
 			deleteCB(nc)
 		},
 	})
@@ -4188,87 +5220,63 @@ func (c *userUserExampleV1Chainer) RegisterAddCallback(cbfn func(obj *UserUser))
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "users.user.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterAddCallback] UserUser Use Subscription Informer")
+		fmt.Println("Informer exists for UserUser")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &UserUser{
-					client: c.client,
-					User:   obj.(*baseuserexamplecomv1.User),
-				}
-
-				var parent *ConfigConfig
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterAddCallback] UserUser Create New Informer")
-		informer := informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &UserUser{
-					client: c.client,
-					User:   obj.(*baseuserexamplecomv1.User),
-				}
+		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
+		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *ConfigConfig
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &UserUser{
+				client: c.client,
+				User:   obj.(*baseuserexamplecomv1.User),
+			}
+
+			var parent *ConfigConfig
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if !IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
+				AddChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -4277,43 +5285,38 @@ func (c *userUserExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "users.user.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterUpdateCallback] UserUser Use Subscription Informer")
+		fmt.Println("Informer exists for UserUser")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &UserUser{
-					client: c.client,
-					User:   oldObj.(*baseuserexamplecomv1.User),
-				}
-				newData := &UserUser{
-					client: c.client,
-					User:   newObj.(*baseuserexamplecomv1.User),
-				}
-				cbfn(oldData, newData)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterUpdateCallback] UserUser Create New Informer")
-		informer := informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &UserUser{
-					client: c.client,
-					User:   oldObj.(*baseuserexamplecomv1.User),
-				}
-				newData := &UserUser{
-					client: c.client,
-					User:   newObj.(*baseuserexamplecomv1.User),
-				}
-				cbfn(oldData, newData)
-			},
-		})
-		go informer.Run(stopper)
+		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
+		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &UserUser{
+				client: c.client,
+				User:   oldObj.(*baseuserexamplecomv1.User),
+			}
+			newData := &UserUser{
+				client: c.client,
+				User:   newObj.(*baseuserexamplecomv1.User),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -4322,87 +5325,63 @@ func (c *userUserExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *UserUse
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "users.user.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterDeleteCallback] UserUser Use Subscription Informer")
+		fmt.Println("Informer exists for UserUser")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &UserUser{
-					client: c.client,
-					User:   obj.(*baseuserexamplecomv1.User),
-				}
-
-				var parent *ConfigConfig
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterDeleteCallback] UserUser Create New Informer")
-		informer := informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &UserUser{
-					client: c.client,
-					User:   obj.(*baseuserexamplecomv1.User),
-				}
+		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
+		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *ConfigConfig
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &UserUser{
+				client: c.client,
+				User:   obj.(*baseuserexamplecomv1.User),
+			}
+
+			var parent *ConfigConfig
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+
+			if parent == nil {
+				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
+				RemoveChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -5064,6 +6043,10 @@ func (c *wannaWannaExampleV1Chainer) RegisterEventHandler(addCB func(obj *WannaW
 		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
 		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -5093,6 +6076,9 @@ func (c *wannaWannaExampleV1Chainer) RegisterEventHandler(addCB func(obj *WannaW
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if !IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
+				AddChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -5139,6 +6125,10 @@ func (c *wannaWannaExampleV1Chainer) RegisterEventHandler(addCB func(obj *WannaW
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
+			if IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
+				RemoveChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
+			}
+
 			deleteCB(nc)
 		},
 	})
@@ -5150,87 +6140,63 @@ func (c *wannaWannaExampleV1Chainer) RegisterAddCallback(cbfn func(obj *WannaWan
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "wannas.wanna.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterAddCallback] WannaWanna Use Subscription Informer")
+		fmt.Println("Informer exists for WannaWanna")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &WannaWanna{
-					client: c.client,
-					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
-				}
-
-				var parent *UserUser
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
-					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterAddCallback] WannaWanna Create New Informer")
-		informer := informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &WannaWanna{
-					client: c.client,
-					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
-				}
+		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
+		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *UserUser
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
-					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &WannaWanna{
+				client: c.client,
+				Wanna:  obj.(*basewannaexamplecomv1.Wanna),
+			}
+
+			var parent *UserUser
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
+				parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if !IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
+				AddChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -5239,43 +6205,38 @@ func (c *wannaWannaExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, ne
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "wannas.wanna.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterUpdateCallback] WannaWanna Use Subscription Informer")
+		fmt.Println("Informer exists for WannaWanna")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &WannaWanna{
-					client: c.client,
-					Wanna:  oldObj.(*basewannaexamplecomv1.Wanna),
-				}
-				newData := &WannaWanna{
-					client: c.client,
-					Wanna:  newObj.(*basewannaexamplecomv1.Wanna),
-				}
-				cbfn(oldData, newData)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterUpdateCallback] WannaWanna Create New Informer")
-		informer := informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &WannaWanna{
-					client: c.client,
-					Wanna:  oldObj.(*basewannaexamplecomv1.Wanna),
-				}
-				newData := &WannaWanna{
-					client: c.client,
-					Wanna:  newObj.(*basewannaexamplecomv1.Wanna),
-				}
-				cbfn(oldData, newData)
-			},
-		})
-		go informer.Run(stopper)
+		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
+		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &WannaWanna{
+				client: c.client,
+				Wanna:  oldObj.(*basewannaexamplecomv1.Wanna),
+			}
+			newData := &WannaWanna{
+				client: c.client,
+				Wanna:  newObj.(*basewannaexamplecomv1.Wanna),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -5284,87 +6245,63 @@ func (c *wannaWannaExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Wanna
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "wannas.wanna.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterDeleteCallback] WannaWanna Use Subscription Informer")
+		fmt.Println("Informer exists for WannaWanna")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &WannaWanna{
-					client: c.client,
-					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
-				}
-
-				var parent *UserUser
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
-					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterDeleteCallback] WannaWanna Create New Informer")
-		informer := informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &WannaWanna{
-					client: c.client,
-					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
-				}
+		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
+		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *UserUser
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
-					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &WannaWanna{
+				client: c.client,
+				Wanna:  obj.(*basewannaexamplecomv1.Wanna),
+			}
+
+			var parent *UserUser
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+
+			if parent == nil {
+				hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
+				parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
+				RemoveChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -5916,6 +6853,10 @@ func (c *interestInterestExampleV1Chainer) RegisterEventHandler(addCB func(obj *
 		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
 		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -5945,6 +6886,9 @@ func (c *interestInterestExampleV1Chainer) RegisterEventHandler(addCB func(obj *
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if !IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
+				AddChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -5991,6 +6935,10 @@ func (c *interestInterestExampleV1Chainer) RegisterEventHandler(addCB func(obj *
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
+			if IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
+				RemoveChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
+			}
+
 			deleteCB(nc)
 		},
 	})
@@ -6002,87 +6950,63 @@ func (c *interestInterestExampleV1Chainer) RegisterAddCallback(cbfn func(obj *In
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "interests.interest.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterAddCallback] InterestInterest Use Subscription Informer")
+		fmt.Println("Informer exists for InterestInterest")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &InterestInterest{
-					client:   c.client,
-					Interest: obj.(*baseinterestexamplecomv1.Interest),
-				}
-
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterAddCallback] InterestInterest Create New Informer")
-		informer := informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			AddFunc: func(obj interface{}) {
-				nc := &InterestInterest{
-					client:   c.client,
-					Interest: obj.(*baseinterestexamplecomv1.Interest),
-				}
+		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
+		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &InterestInterest{
+				client:   c.client,
+				Interest: obj.(*baseinterestexamplecomv1.Interest),
+			}
+
+			var parent *TenantTenant
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			if !IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
+				AddChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -6091,43 +7015,38 @@ func (c *interestInterestExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "interests.interest.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterUpdateCallback] InterestInterest Use Subscription Informer")
+		fmt.Println("Informer exists for InterestInterest")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &InterestInterest{
-					client:   c.client,
-					Interest: oldObj.(*baseinterestexamplecomv1.Interest),
-				}
-				newData := &InterestInterest{
-					client:   c.client,
-					Interest: newObj.(*baseinterestexamplecomv1.Interest),
-				}
-				cbfn(oldData, newData)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterUpdateCallback] InterestInterest Create New Informer")
-		informer := informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			UpdateFunc: func(oldObj, newObj interface{}) {
-				oldData := &InterestInterest{
-					client:   c.client,
-					Interest: oldObj.(*baseinterestexamplecomv1.Interest),
-				}
-				newData := &InterestInterest{
-					client:   c.client,
-					Interest: newObj.(*baseinterestexamplecomv1.Interest),
-				}
-				cbfn(oldData, newData)
-			},
-		})
-		go informer.Run(stopper)
+		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
+		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &InterestInterest{
+				client:   c.client,
+				Interest: oldObj.(*baseinterestexamplecomv1.Interest),
+			}
+			newData := &InterestInterest{
+				client:   c.client,
+				Interest: newObj.(*baseinterestexamplecomv1.Interest),
+			}
+			cbfn(oldData, newData)
+		},
+	})
+
 	return registrationId, err
 }
 
@@ -6136,86 +7055,62 @@ func (c *interestInterestExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj 
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
+		informer       cache.SharedIndexInformer
 	)
+
 	key := "interests.interest.example.com"
-	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		log.Debugf("[RegisterDeleteCallback] InterestInterest Use Subscription Informer")
+		fmt.Println("Informer exists for InterestInterest")
 		sub := s.(subscription)
-		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &InterestInterest{
-					client:   c.client,
-					Interest: obj.(*baseinterestexamplecomv1.Interest),
-				}
-
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
-
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
+		informer = sub.informer
 	} else {
-		log.Debugf("[RegisterDeleteCallback] InterestInterest Create New Informer")
-		informer := informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-			DeleteFunc: func(obj interface{}) {
-				nc := &InterestInterest{
-					client:   c.client,
-					Interest: obj.(*baseinterestexamplecomv1.Interest),
-				}
+		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
+		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 
-				var parent *TenantTenant
-				for i := 0; i < 600; i++ {
-					// Check if parent exists
-					p, err := nc.GetParent(context.TODO())
-					if err != nil || p == nil {
-						time.Sleep(500 * time.Millisecond)
-						continue
-					}
-					parent = p
-					break
-				}
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
 
-				if parent == nil {
-					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-					if err != nil {
-						if errors.IsNotFound(err) {
-							return
-						}
-
-						panic("error occurred while fetching parent " + err.Error())
-					}
-					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-				}
-
-				cbfn(nc)
-			},
-		})
-		go informer.Run(stopper)
 	}
+
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		DeleteFunc: func(obj interface{}) {
+			nc := &InterestInterest{
+				client:   c.client,
+				Interest: obj.(*baseinterestexamplecomv1.Interest),
+			}
+
+			var parent *TenantTenant
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+
+			if parent == nil {
+				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+			if IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
+				RemoveChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
+			}
+
+			cbfn(nc)
+		},
+	})
+
 	return registrationId, err
 }

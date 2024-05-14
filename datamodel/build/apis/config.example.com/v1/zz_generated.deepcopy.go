@@ -129,6 +129,13 @@ func (in *ConfigSpec) DeepCopyInto(out *ConfigSpec) {
 			(*out)[key] = val
 		}
 	}
+	if in.EventGvk != nil {
+		in, out := &in.EventGvk, &out.EventGvk
+		*out = make(map[string]Child, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+	}
 	return
 }
 

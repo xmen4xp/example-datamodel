@@ -3,7 +3,7 @@ CRD_MODULE_PATH ?= $(shell go list -m)/${BUILD_DIR}/
 CONTAINER_ID ?= ""
 DATAMODEL_LOCAL_PATH ?= $(realpath .)
 BUCKET ?= nexus-template-downloads
-COMPILER_TAG ?= "latest"
+COMPILER_TAG ?= latest
 COMPILER_DOCKER_REPO ?=
 VERSION ?= $(shell git rev-parse --verify HEAD 2>/dev/null)
 DATAMODEL_DOCKER_REPO ?= $(shell cat nexus.yaml | grep dockerRepo | awk '{print $$2}' | tr -d '"')
@@ -13,6 +13,7 @@ NAMESPACE ?= "default"
 HOST_KUBECONFIG ?= ${HOME}/.kube/config
 MOUNTED_KUBECONFIG ?= /etc/config/kubeconfig
 NEXUS_API_GW_K8S_NAMESPACE ?= default
+GOARCH ?= $(shell go env GOARCH)
 
 # values for nexus datamodel upgrade
 FORCE ?= true
@@ -77,7 +78,7 @@ datamodel_build:
 			-e GOPRIVATE=*.eng.vmware.com \
 			-e GOINSECURE=*.eng.vmware.com \
 			-e FORCE=$(FORCE) \
-			${COMPILER_DOCKER_REPO}nexus/compiler:$(COMPILER_TAG) /bin/bash -c 'make generate_code && chown -R $(shell id -u):$(shell id -g) .;'; \
+			${COMPILER_DOCKER_REPO}/nexus/compiler/${GOARCH}:$(COMPILER_TAG) /bin/bash -c 'make generate_code && chown -R $(shell id -u):$(shell id -g) .;'; \
 	else \
 		docker run --pull=missing\
 			--volumes-from=$(CONTAINER_ID) \
@@ -91,7 +92,7 @@ datamodel_build:
 			-e FORCE=${FORCE} \
 			--user root:root \
 			-e FORCE=$(FORCE) \
-			${COMPILER_DOCKER_REPO}nexus/compiler:$(COMPILER_TAG); \
+			${COMPILER_DOCKER_REPO}/nexus/compiler/${GOARCH}:$(COMPILER_TAG); \
 	fi
 
 docker_build:

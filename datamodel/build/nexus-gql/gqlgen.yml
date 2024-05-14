@@ -44,6 +44,8 @@ models:
     fields:
       User:
         resolver: true
+      Event:
+        resolver: true
   user_User:
     fields:
       Wanna:

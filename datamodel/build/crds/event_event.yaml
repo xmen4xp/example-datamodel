@@ -1,0 +1,87 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    nexus: |
+      {"name":"event.Event","hierarchy":["roots.root.example.com","tenants.tenant.example.com","configs.config.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/tenant/${tenant.Tenant}/event/{event.Event}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/tenant/${tenant.Tenant}/events","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
+  creationTimestamp: null
+  name: events.event.example.com
+spec:
+  conversion:
+    strategy: None
+  group: event.example.com
+  names:
+    kind: Event
+    listKind: EventList
+    plural: events
+    shortNames:
+    - event
+    singular: event
+  scope: Cluster
+  versions:
+  - name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              dateTime:
+                type: string
+              description:
+                type: string
+              meetingLink:
+                type: string
+              public:
+                type: boolean
+            required:
+            - description
+            - meetingLink
+            - dateTime
+            - public
+            type: object
+          status:
+            properties:
+              nexus:
+                properties:
+                  remoteGeneration:
+                    format: int64
+                    type: integer
+                  sourceGeneration:
+                    format: int64
+                    type: integer
+                  syncerStatus:
+                    properties:
+                      cRGenerationId:
+                        format: int64
+                        type: integer
+                      etcdVersion:
+                        format: int64
+                        type: integer
+                    type: object
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: null
+  storedVersions:
+  - v1

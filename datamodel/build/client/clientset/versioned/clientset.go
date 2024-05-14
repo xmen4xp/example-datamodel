@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"net/http"
 	configexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1"
+	eventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1"
 	interestexamplev1 "example/build/client/clientset/versioned/typed/interest.example.com/v1"
 	rootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1"
 	tenantexamplev1 "example/build/client/clientset/versioned/typed/tenant.example.com/v1"
@@ -36,6 +37,7 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	ConfigExampleV1() configexamplev1.ConfigExampleV1Interface
+	EventExampleV1() eventexamplev1.EventExampleV1Interface
 	InterestExampleV1() interestexamplev1.InterestExampleV1Interface
 	RootExampleV1() rootexamplev1.RootExampleV1Interface
 	TenantExampleV1() tenantexamplev1.TenantExampleV1Interface
@@ -47,6 +49,7 @@ type Interface interface {
 type Clientset struct {
 	*discovery.DiscoveryClient
 	configExampleV1   *configexamplev1.ConfigExampleV1Client
+	eventExampleV1    *eventexamplev1.EventExampleV1Client
 	interestExampleV1 *interestexamplev1.InterestExampleV1Client
 	rootExampleV1     *rootexamplev1.RootExampleV1Client
 	tenantExampleV1   *tenantexamplev1.TenantExampleV1Client
@@ -57,6 +60,11 @@ type Clientset struct {
 // ConfigExampleV1 retrieves the ConfigExampleV1Client
 func (c *Clientset) ConfigExampleV1() configexamplev1.ConfigExampleV1Interface {
 	return c.configExampleV1
+}
+
+// EventExampleV1 retrieves the EventExampleV1Client
+func (c *Clientset) EventExampleV1() eventexamplev1.EventExampleV1Interface {
+	return c.eventExampleV1
 }
 
 // InterestExampleV1 retrieves the InterestExampleV1Client
@@ -132,6 +140,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.eventExampleV1, err = eventexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.interestExampleV1, err = interestexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -174,6 +186,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.configExampleV1 = configexamplev1.New(c)
+	cs.eventExampleV1 = eventexamplev1.New(c)
 	cs.interestExampleV1 = interestexamplev1.New(c)
 	cs.rootExampleV1 = rootexamplev1.New(c)
 	cs.tenantExampleV1 = tenantexamplev1.New(c)

@@ -67,7 +67,8 @@ func (c *Config) DisplayName() string {
 
 // +k8s:openapi-gen=true
 type ConfigSpec struct {
-	UserGvk map[string]Child `json:"userGvk,omitempty" yaml:"userGvk,omitempty" nexus:"children"`
+	UserGvk  map[string]Child `json:"userGvk,omitempty" yaml:"userGvk,omitempty" nexus:"children"`
+	EventGvk map[string]Child `json:"eventGvk,omitempty" yaml:"eventGvk,omitempty" nexus:"children"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

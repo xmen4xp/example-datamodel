@@ -19,6 +19,11 @@ func (r *config_ConfigResolver) User(ctx context.Context, obj *model.ConfigConfi
 	return getConfigConfigUserResolver(obj, id)
 }
 
+// Event is the resolver for the Event field.
+func (r *config_ConfigResolver) Event(ctx context.Context, obj *model.ConfigConfig, id *string) ([]*model.EventEvent, error) {
+	return getConfigConfigEventResolver(obj, id)
+}
+
 // Tenant is the resolver for the Tenant field.
 func (r *root_RootResolver) Tenant(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.TenantTenant, error) {
 	return getRootRootTenantResolver(obj, id)

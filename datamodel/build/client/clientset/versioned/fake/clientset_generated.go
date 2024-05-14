@@ -22,6 +22,8 @@ import (
 	clientset "example/build/client/clientset/versioned"
 	configexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1"
 	fakeconfigexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1/fake"
+	eventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1"
+	fakeeventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1/fake"
 	interestexamplev1 "example/build/client/clientset/versioned/typed/interest.example.com/v1"
 	fakeinterestexamplev1 "example/build/client/clientset/versioned/typed/interest.example.com/v1/fake"
 	rootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1"
@@ -93,6 +95,11 @@ var (
 // ConfigExampleV1 retrieves the ConfigExampleV1Client
 func (c *Clientset) ConfigExampleV1() configexamplev1.ConfigExampleV1Interface {
 	return &fakeconfigexamplev1.FakeConfigExampleV1{Fake: &c.Fake}
+}
+
+// EventExampleV1 retrieves the EventExampleV1Client
+func (c *Clientset) EventExampleV1() eventexamplev1.EventExampleV1Interface {
+	return &fakeeventexamplev1.FakeEventExampleV1{Fake: &c.Fake}
 }
 
 // InterestExampleV1 retrieves the InterestExampleV1Client

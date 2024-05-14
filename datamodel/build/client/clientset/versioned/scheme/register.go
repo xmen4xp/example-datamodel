@@ -20,6 +20,7 @@ package scheme
 
 import (
 	configexamplev1 "example/build/apis/config.example.com/v1"
+	eventexamplev1 "example/build/apis/event.example.com/v1"
 	interestexamplev1 "example/build/apis/interest.example.com/v1"
 	rootexamplev1 "example/build/apis/root.example.com/v1"
 	tenantexamplev1 "example/build/apis/tenant.example.com/v1"
@@ -38,6 +39,7 @@ var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
 	configexamplev1.AddToScheme,
+	eventexamplev1.AddToScheme,
 	interestexamplev1.AddToScheme,
 	rootexamplev1.AddToScheme,
 	tenantexamplev1.AddToScheme,

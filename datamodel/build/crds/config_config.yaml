@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"config.Config","hierarchy":["roots.root.example.com","tenants.tenant.example.com"],"children":{"users.user.example.com":{"fieldName":"User","fieldNameGvk":"userGvk","goFieldNameGvk":"UserGvk","isNamed":true}},"is_singleton":true,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"config.Config","hierarchy":["roots.root.example.com","tenants.tenant.example.com"],"children":{"events.event.example.com":{"fieldName":"Event","fieldNameGvk":"eventGvk","goFieldNameGvk":"EventGvk","isNamed":true},"users.user.example.com":{"fieldName":"User","fieldNameGvk":"userGvk","goFieldNameGvk":"UserGvk","isNamed":true}},"is_singleton":true,"nexus-rest-api-gen":{"uris":null}}
   creationTimestamp: null
   name: configs.config.example.com
 spec:
@@ -38,6 +38,21 @@ spec:
             type: object
           spec:
             properties:
+              eventGvk:
+                additionalProperties:
+                  properties:
+                    group:
+                      type: string
+                    kind:
+                      type: string
+                    name:
+                      type: string
+                  required:
+                  - group
+                  - kind
+                  - name
+                  type: object
+                type: object
               userGvk:
                 additionalProperties:
                   properties:

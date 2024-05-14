@@ -21,6 +21,7 @@ package externalversions
 import (
 	"fmt"
 	v1 "example/build/apis/config.example.com/v1"
+	eventexamplecomv1 "example/build/apis/event.example.com/v1"
 	interestexamplecomv1 "example/build/apis/interest.example.com/v1"
 	rootexamplecomv1 "example/build/apis/root.example.com/v1"
 	tenantexamplecomv1 "example/build/apis/tenant.example.com/v1"
@@ -60,6 +61,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=config.example.com, Version=v1
 	case v1.SchemeGroupVersion.WithResource("configs"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.ConfigExample().V1().Configs().Informer()}, nil
+
+		// Group=event.example.com, Version=v1
+	case eventexamplecomv1.SchemeGroupVersion.WithResource("events"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.EventExample().V1().Events().Informer()}, nil
 
 		// Group=interest.example.com, Version=v1
 	case interestexamplecomv1.SchemeGroupVersion.WithResource("interests"):

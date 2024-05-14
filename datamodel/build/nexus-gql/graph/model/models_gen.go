@@ -22,6 +22,16 @@ type ConfigConfig struct {
 	Id           *string                `json:"Id"`
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
 	User         []*UserUser            `json:"User"`
+	Event        []*EventEvent          `json:"Event"`
+}
+
+type EventEvent struct {
+	Id           *string                `json:"Id"`
+	ParentLabels map[string]interface{} `json:"ParentLabels"`
+	Description  *string                `json:"Description"`
+	MeetingLink  *string                `json:"MeetingLink"`
+	DateTime     *string                `json:"DateTime"`
+	Public       *bool                  `json:"Public"`
 }
 
 type InterestInterest struct {

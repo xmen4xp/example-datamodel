@@ -351,6 +351,89 @@ func getConfigConfigUserResolver(obj *model.ConfigConfig, id *string) ([]*model.
 
 // ////////////////////////////////////
 // CHILDREN RESOLVER
+// FieldName: Event Node: Config PKG: Config
+// ////////////////////////////////////
+func getConfigConfigEventResolver(obj *model.ConfigConfig, id *string) ([]*model.EventEvent, error) {
+	log.Debugf("[getConfigConfigEventResolver]Parent Object %+v", obj)
+	var vEventEventList []*model.EventEvent
+	if id != nil && *id != "" {
+		log.Debugf("[getConfigConfigEventResolver]Id %q", *id)
+		vEvent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Config().GetEvent(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getConfigConfigEventResolver]Error getting Event node %q : %s", *id, err)
+			return vEventEventList, nil
+		}
+		dn := vEvent.DisplayName()
+		parentLabels := map[string]interface{}{"events.event.example.com": dn}
+		vDescription := string(vEvent.Spec.Description)
+		vMeetingLink := string(vEvent.Spec.MeetingLink)
+		vDateTime := string(vEvent.Spec.DateTime)
+		vPublic := bool(vEvent.Spec.Public)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.EventEvent{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Description:  &vDescription,
+			MeetingLink:  &vMeetingLink,
+			DateTime:     &vDateTime,
+			Public:       &vPublic,
+		}
+		vEventEventList = append(vEventEventList, ret)
+
+		log.Debugf("[getConfigConfigEventResolver]Output Event objects %v", vEventEventList)
+
+		return vEventEventList, nil
+	}
+
+	log.Debug("[getConfigConfigEventResolver]Id is empty, process all Events")
+
+	vEventParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).GetConfig(context.TODO())
+	if err != nil {
+		log.Errorf("[getConfigConfigEventResolver]Error getting parent node %s", err)
+		return vEventEventList, nil
+	}
+	vEventAllObj, err := vEventParent.GetAllEvent(context.TODO())
+	if err != nil {
+		log.Errorf("[getConfigConfigEventResolver]Error getting Event objects %s", err)
+		return vEventEventList, nil
+	}
+	for _, i := range vEventAllObj {
+		vEvent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Config().GetEvent(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getConfigConfigEventResolver]Error getting Event node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vEvent.DisplayName()
+		parentLabels := map[string]interface{}{"events.event.example.com": dn}
+		vDescription := string(vEvent.Spec.Description)
+		vMeetingLink := string(vEvent.Spec.MeetingLink)
+		vDateTime := string(vEvent.Spec.DateTime)
+		vPublic := bool(vEvent.Spec.Public)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.EventEvent{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Description:  &vDescription,
+			MeetingLink:  &vMeetingLink,
+			DateTime:     &vDateTime,
+			Public:       &vPublic,
+		}
+		vEventEventList = append(vEventEventList, ret)
+	}
+
+	log.Debugf("[getConfigConfigEventResolver]Output Event objects %v", vEventEventList)
+
+	return vEventEventList, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
 // FieldName: Wanna Node: User PKG: User
 // ////////////////////////////////////
 func getUserUserWannaResolver(obj *model.UserUser, id *string) ([]*model.WannaWanna, error) {

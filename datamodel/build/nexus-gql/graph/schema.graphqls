@@ -23,6 +23,17 @@ type config_Config {
 	ParentLabels: Map
 
     User(Id: ID): [user_User!]
+    Event(Id: ID): [event_Event!]
+}
+
+type event_Event {
+    Id: ID
+	ParentLabels: Map
+
+    Description: String
+    MeetingLink: String
+    DateTime: String
+    Public: Boolean
 }
 
 type user_User {
