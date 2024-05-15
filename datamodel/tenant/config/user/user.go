@@ -9,11 +9,11 @@ import (
 var UserRestAPISpec = nexus.RestAPISpec{
 	Uris: []nexus.RestURIs{
 		{
-			Uri:     "/tenant/${tenant.Tenant}/user/${user.User}",
+			Uri:     "/tenant/{tenant.Tenant}/user/${user.User}",
 			Methods: nexus.DefaultHTTPMethodsResponses,
 		},
 		{
-			Uri:     "/tenant/${tenant.Tenant}/users",
+			Uri:     "/tenant/{tenant.Tenant}/users",
 			Methods: nexus.HTTPListResponse,
 		},
 	},

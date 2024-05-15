@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"event.Event","hierarchy":["roots.root.example.com","tenants.tenant.example.com","configs.config.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/tenant/${tenant.Tenant}/event/{event.Event}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/tenant/${tenant.Tenant}/events","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
+      {"name":"event.Event","hierarchy":["roots.root.example.com","tenants.tenant.example.com","configs.config.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/tenant/{tenant.Tenant}/event/{event.Event}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/tenant/{tenant.Tenant}/events","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
   creationTimestamp: null
   name: events.event.example.com
 spec:

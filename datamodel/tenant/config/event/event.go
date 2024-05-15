@@ -7,11 +7,11 @@ import (
 var EventRestAPISpec = nexus.RestAPISpec{
 	Uris: []nexus.RestURIs{
 		{
-			Uri:     "/tenant/${tenant.Tenant}/event/{event.Event}",
+			Uri:     "/tenant/{tenant.Tenant}/event/{event.Event}",
 			Methods: nexus.DefaultHTTPMethodsResponses,
 		},
 		{
-			Uri:     "/tenant/${tenant.Tenant}/events",
+			Uri:     "/tenant/{tenant.Tenant}/events",
 			Methods: nexus.HTTPListResponse,
 		},
 	},
