@@ -68,7 +68,7 @@ func (c *Root) DisplayName() string {
 // +k8s:openapi-gen=true
 type RootSpec struct {
 	TenantGvk     map[string]Child `json:"tenantGvk,omitempty" yaml:"tenantGvk,omitempty" nexus:"children"`
-	EvaluationGvk map[string]Child `json:"evaluationGvk,omitempty" yaml:"evaluationGvk,omitempty" nexus:"children"`
+	EvaluationGvk *Child           `json:"evaluationGvk,omitempty" yaml:"evaluationGvk,omitempty" nexus:"child"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"quizquestion.QuizQuestion","hierarchy":["roots.root.example.com","evaluations.evaluation.example.com","quizes.quiz.example.com"],"children":{"quizchoices.quizchoice.example.com":{"fieldName":"Choice","fieldNameGvk":"choiceGvk","goFieldNameGvk":"ChoiceGvk","isNamed":true}},"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"quizquestion.QuizQuestion","hierarchy":["roots.root.example.com","evaluations.evaluation.example.com","quizes.quiz.example.com"],"children":{"quizchoices.quizchoice.example.com":{"fieldName":"Choice","fieldNameGvk":"choiceGvk","goFieldNameGvk":"ChoiceGvk","isNamed":true}},"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/eval/quiz/{quiz.Quiz}/question/{quizquestion.QuizQuestion}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/eval/quiz/{quiz.Quiz}/questions","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
   creationTimestamp: null
   name: quizquestions.quizquestion.example.com
 spec:
@@ -38,6 +38,8 @@ spec:
             type: object
           spec:
             properties:
+              animationFilePath:
+                type: string
               choiceGvk:
                 additionalProperties:
                   properties:
@@ -57,6 +59,8 @@ spec:
                 type: string
               hint:
                 type: string
+              pictureFilePath:
+                type: string
               question:
                 type: string
               score:
@@ -67,6 +71,8 @@ spec:
             - hint
             - format
             - score
+            - animationFilePath
+            - pictureFilePath
             type: object
           status:
             properties:

@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"root.Root","children":{"evaluations.evaluation.example.com":{"fieldName":"Evaluation","fieldNameGvk":"evaluationGvk","goFieldNameGvk":"EvaluationGvk","isNamed":true},"tenants.tenant.example.com":{"fieldName":"Tenant","fieldNameGvk":"tenantGvk","goFieldNameGvk":"TenantGvk","isNamed":true}},"is_singleton":true,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"root.Root","children":{"evaluations.evaluation.example.com":{"fieldName":"Evaluation","fieldNameGvk":"evaluationGvk","goFieldNameGvk":"EvaluationGvk","isNamed":false},"tenants.tenant.example.com":{"fieldName":"Tenant","fieldNameGvk":"tenantGvk","goFieldNameGvk":"TenantGvk","isNamed":true}},"is_singleton":true,"nexus-rest-api-gen":{"uris":null}}
   creationTimestamp: null
   name: roots.root.example.com
 spec:
@@ -39,19 +39,17 @@ spec:
           spec:
             properties:
               evaluationGvk:
-                additionalProperties:
-                  properties:
-                    group:
-                      type: string
-                    kind:
-                      type: string
-                    name:
-                      type: string
-                  required:
-                  - group
-                  - kind
-                  - name
-                  type: object
+                properties:
+                  group:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - group
+                - kind
+                - name
                 type: object
               tenantGvk:
                 additionalProperties:

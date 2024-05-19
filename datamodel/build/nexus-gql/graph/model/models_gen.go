@@ -62,21 +62,23 @@ type QuizchoiceQuizChoice struct {
 }
 
 type QuizquestionQuizQuestion struct {
-	Id           *string                 `json:"Id"`
-	ParentLabels map[string]interface{}  `json:"ParentLabels"`
-	Choice       []*QuizchoiceQuizChoice `json:"Choice"`
-	Question     *string                 `json:"Question"`
-	Hint         *string                 `json:"Hint"`
-	Answer       *string                 `json:"Answer"`
-	Format       *string                 `json:"Format"`
-	Score        *int                    `json:"Score"`
+	Id                *string                 `json:"Id"`
+	ParentLabels      map[string]interface{}  `json:"ParentLabels"`
+	Choice            []*QuizchoiceQuizChoice `json:"Choice"`
+	Question          *string                 `json:"Question"`
+	Hint              *string                 `json:"Hint"`
+	Answer            *string                 `json:"Answer"`
+	Format            *string                 `json:"Format"`
+	Score             *int                    `json:"Score"`
+	AnimationFilePath *string                 `json:"AnimationFilePath"`
+	PictureFilePath   *string                 `json:"PictureFilePath"`
 }
 
 type RootRoot struct {
-	Id           *string                 `json:"Id"`
-	ParentLabels map[string]interface{}  `json:"ParentLabels"`
-	Tenant       []*TenantTenant         `json:"Tenant"`
-	Evaluation   []*EvaluationEvaluation `json:"Evaluation"`
+	Id           *string                `json:"Id"`
+	ParentLabels map[string]interface{} `json:"ParentLabels"`
+	Tenant       []*TenantTenant        `json:"Tenant"`
+	Evaluation   *EvaluationEvaluation  `json:"Evaluation"`
 }
 
 type TenantTenant struct {

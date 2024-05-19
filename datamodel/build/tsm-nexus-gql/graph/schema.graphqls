@@ -3,10 +3,10 @@
 type Root_Root @nexus(group:"root.example.com",version:"v1",kind:"Root",resource:"roots",name:"Root",crdName:"roots.root.example.com",singleton:"true"){
     id: ID
     tenant(id: ID): [Tenant_Tenant!]
-    evaluation(id: ID): [Evaluation_Evaluation!]
+    evaluation: Evaluation_Evaluation
 }
 
-type Evaluation_Evaluation @nexus(group:"evaluation.example.com",version:"v1",kind:"Evaluation",resource:"evaluations",name:"Evaluation",crdName:"evaluations.evaluation.example.com",singleton:"false"){
+type Evaluation_Evaluation @nexus(group:"evaluation.example.com",version:"v1",kind:"Evaluation",resource:"evaluations",name:"Evaluation",crdName:"evaluations.evaluation.example.com",singleton:"true"){
     id: ID
     quiz(id: ID): [Quiz_Quiz!]
 }
@@ -25,6 +25,8 @@ type Quizquestion_QuizQuestion @nexus(group:"quizquestion.example.com",version:"
     answer: String
     format: String
     score: Int
+    animationFilePath: String
+    pictureFilePath: String
 }
 
 type Quizchoice_QuizChoice @nexus(group:"quizchoice.example.com",version:"v1",kind:"QuizChoice",resource:"quizchoices",name:"QuizChoice",crdName:"quizchoices.quizchoice.example.com",singleton:"false"){

@@ -6,6 +6,20 @@ import (
 	"github.com/vmware-tanzu/graph-framework-for-microservices/nexus/nexus"
 )
 
+var QuizRestAPISpec = nexus.RestAPISpec{
+	Uris: []nexus.RestURIs{
+		{
+			Uri:     "/eval/quiz/{quiz.Quiz}",
+			Methods: nexus.DefaultHTTPMethodsResponses,
+		},
+		{
+			Uri:     "/eval/quizes",
+			Methods: nexus.HTTPListResponse,
+		},
+	},
+}
+
+// nexus-rest-api-gen:QuizRestAPISpec
 type Quiz struct {
 	nexus.Node
 

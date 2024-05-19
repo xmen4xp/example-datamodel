@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"quizchoice.QuizChoice","hierarchy":["roots.root.example.com","evaluations.evaluation.example.com","quizes.quiz.example.com","quizquestions.quizquestion.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"quizchoice.QuizChoice","hierarchy":["roots.root.example.com","evaluations.evaluation.example.com","quizes.quiz.example.com","quizquestions.quizquestion.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/eval/quiz/{quiz.Quiz}/question/{quizquestion.QuizQuestion}/choice/{quizchoice.QuizChoice}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/eval/quiz/{quiz.Quiz}/question/{quizquestion.QuizQuestion}/choices","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
   creationTimestamp: null
   name: quizchoices.quizchoice.example.com
 spec:

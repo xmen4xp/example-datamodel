@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"quiz.Quiz","hierarchy":["roots.root.example.com","evaluations.evaluation.example.com"],"children":{"quizquestions.quizquestion.example.com":{"fieldName":"Question","fieldNameGvk":"questionGvk","goFieldNameGvk":"QuestionGvk","isNamed":true}},"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"quiz.Quiz","hierarchy":["roots.root.example.com","evaluations.evaluation.example.com"],"children":{"quizquestions.quizquestion.example.com":{"fieldName":"Question","fieldNameGvk":"questionGvk","goFieldNameGvk":"QuestionGvk","isNamed":true}},"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/eval/quiz/{quiz.Quiz}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/eval/quizes","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
   creationTimestamp: null
   name: quizes.quiz.example.com
 spec:

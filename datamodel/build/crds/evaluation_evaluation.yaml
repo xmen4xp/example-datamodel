@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"evaluation.Evaluation","hierarchy":["roots.root.example.com"],"children":{"quizes.quiz.example.com":{"fieldName":"Quiz","fieldNameGvk":"quizGvk","goFieldNameGvk":"QuizGvk","isNamed":true}},"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"evaluation.Evaluation","hierarchy":["roots.root.example.com"],"children":{"quizes.quiz.example.com":{"fieldName":"Quiz","fieldNameGvk":"quizGvk","goFieldNameGvk":"QuizGvk","isNamed":true}},"is_singleton":true,"nexus-rest-api-gen":{"uris":null}}
   creationTimestamp: null
   name: evaluations.evaluation.example.com
 spec:

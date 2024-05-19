@@ -164,10 +164,8 @@ func (in *RootSpec) DeepCopyInto(out *RootSpec) {
 	}
 	if in.EvaluationGvk != nil {
 		in, out := &in.EvaluationGvk, &out.EvaluationGvk
-		*out = make(map[string]Child, len(*in))
-		for key, val := range *in {
-			(*out)[key] = val
-		}
+		*out = new(Child)
+		**out = **in
 	}
 	return
 }

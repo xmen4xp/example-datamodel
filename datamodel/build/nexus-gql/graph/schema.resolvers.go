@@ -45,8 +45,8 @@ func (r *root_RootResolver) Tenant(ctx context.Context, obj *model.RootRoot, id 
 }
 
 // Evaluation is the resolver for the Evaluation field.
-func (r *root_RootResolver) Evaluation(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.EvaluationEvaluation, error) {
-	return getRootRootEvaluationResolver(obj, id)
+func (r *root_RootResolver) Evaluation(ctx context.Context, obj *model.RootRoot) (*model.EvaluationEvaluation, error) {
+	return getRootRootEvaluationResolver(obj)
 }
 
 // Interest is the resolver for the Interest field.

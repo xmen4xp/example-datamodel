@@ -119,18 +119,20 @@ type ComplexityRoot struct {
 	}
 
 	Quizquestion_QuizQuestion struct {
-		Answer       func(childComplexity int) int
-		Choice       func(childComplexity int, id *string) int
-		Format       func(childComplexity int) int
-		Hint         func(childComplexity int) int
-		Id           func(childComplexity int) int
-		ParentLabels func(childComplexity int) int
-		Question     func(childComplexity int) int
-		Score        func(childComplexity int) int
+		AnimationFilePath func(childComplexity int) int
+		Answer            func(childComplexity int) int
+		Choice            func(childComplexity int, id *string) int
+		Format            func(childComplexity int) int
+		Hint              func(childComplexity int) int
+		Id                func(childComplexity int) int
+		ParentLabels      func(childComplexity int) int
+		PictureFilePath   func(childComplexity int) int
+		Question          func(childComplexity int) int
+		Score             func(childComplexity int) int
 	}
 
 	Root_Root struct {
-		Evaluation   func(childComplexity int, id *string) int
+		Evaluation   func(childComplexity int) int
 		Id           func(childComplexity int) int
 		ParentLabels func(childComplexity int) int
 		Tenant       func(childComplexity int, id *string) int
@@ -181,7 +183,7 @@ type Quizquestion_QuizQuestionResolver interface {
 }
 type Root_RootResolver interface {
 	Tenant(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.TenantTenant, error)
-	Evaluation(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.EvaluationEvaluation, error)
+	Evaluation(ctx context.Context, obj *model.RootRoot) (*model.EvaluationEvaluation, error)
 }
 type Tenant_TenantResolver interface {
 	Interest(ctx context.Context, obj *model.TenantTenant, id *string) ([]*model.InterestInterest, error)
@@ -481,6 +483,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Quizchoice_QuizChoice.PictureName(childComplexity), true
 
+	case "quizquestion_QuizQuestion.AnimationFilePath":
+		if e.complexity.Quizquestion_QuizQuestion.AnimationFilePath == nil {
+			break
+		}
+
+		return e.complexity.Quizquestion_QuizQuestion.AnimationFilePath(childComplexity), true
+
 	case "quizquestion_QuizQuestion.Answer":
 		if e.complexity.Quizquestion_QuizQuestion.Answer == nil {
 			break
@@ -528,6 +537,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Quizquestion_QuizQuestion.ParentLabels(childComplexity), true
 
+	case "quizquestion_QuizQuestion.PictureFilePath":
+		if e.complexity.Quizquestion_QuizQuestion.PictureFilePath == nil {
+			break
+		}
+
+		return e.complexity.Quizquestion_QuizQuestion.PictureFilePath(childComplexity), true
+
 	case "quizquestion_QuizQuestion.Question":
 		if e.complexity.Quizquestion_QuizQuestion.Question == nil {
 			break
@@ -547,12 +563,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_root_Root_Evaluation_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Root_Root.Evaluation(childComplexity, args["Id"].(*string)), true
+		return e.complexity.Root_Root.Evaluation(childComplexity), true
 
 	case "root_Root.Id":
 		if e.complexity.Root_Root.Id == nil {
@@ -771,7 +782,7 @@ type root_Root {
 	ParentLabels: Map
 
     Tenant(Id: ID): [tenant_Tenant!]
-    Evaluation(Id: ID): [evaluation_Evaluation!]
+    Evaluation: evaluation_Evaluation!
 }
 
 type evaluation_Evaluation {
@@ -799,6 +810,8 @@ type quizquestion_QuizQuestion {
     Answer: String
     Format: String
     Score: Int
+    AnimationFilePath: String
+    PictureFilePath: String
 }
 
 type quizchoice_QuizChoice {
@@ -1121,21 +1134,6 @@ func (ec *executionContext) field_quiz_Quiz_Question_args(ctx context.Context, r
 }
 
 func (ec *executionContext) field_quizquestion_QuizQuestion_Choice_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *string
-	if tmp, ok := rawArgs["Id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Id"))
-		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["Id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_root_Root_Evaluation_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
@@ -4429,6 +4427,10 @@ func (ec *executionContext) fieldContext_quiz_Quiz_Question(ctx context.Context,
 				return ec.fieldContext_quizquestion_QuizQuestion_Format(ctx, field)
 			case "Score":
 				return ec.fieldContext_quizquestion_QuizQuestion_Score(ctx, field)
+			case "AnimationFilePath":
+				return ec.fieldContext_quizquestion_QuizQuestion_AnimationFilePath(ctx, field)
+			case "PictureFilePath":
+				return ec.fieldContext_quizquestion_QuizQuestion_PictureFilePath(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type quizquestion_QuizQuestion", field.Name)
 		},
@@ -5044,6 +5046,88 @@ func (ec *executionContext) fieldContext_quizquestion_QuizQuestion_Score(ctx con
 	return fc, nil
 }
 
+func (ec *executionContext) _quizquestion_QuizQuestion_AnimationFilePath(ctx context.Context, field graphql.CollectedField, obj *model.QuizquestionQuizQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_quizquestion_QuizQuestion_AnimationFilePath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AnimationFilePath, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_quizquestion_QuizQuestion_AnimationFilePath(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "quizquestion_QuizQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _quizquestion_QuizQuestion_PictureFilePath(ctx context.Context, field graphql.CollectedField, obj *model.QuizquestionQuizQuestion) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_quizquestion_QuizQuestion_PictureFilePath(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.PictureFilePath, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_quizquestion_QuizQuestion_PictureFilePath(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "quizquestion_QuizQuestion",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _root_Root_Id(ctx context.Context, field graphql.CollectedField, obj *model.RootRoot) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_root_Root_Id(ctx, field)
 	if err != nil {
@@ -5202,18 +5286,21 @@ func (ec *executionContext) _root_Root_Evaluation(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Root_Root().Evaluation(rctx, obj, fc.Args["Id"].(*string))
+		return ec.resolvers.Root_Root().Evaluation(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.EvaluationEvaluation)
+	res := resTmp.(*model.EvaluationEvaluation)
 	fc.Result = res
-	return ec.marshalOevaluation_Evaluation2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEvaluationEvaluationᚄ(ctx, field.Selections, res)
+	return ec.marshalNevaluation_Evaluation2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEvaluationEvaluation(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_root_Root_Evaluation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5233,17 +5320,6 @@ func (ec *executionContext) fieldContext_root_Root_Evaluation(ctx context.Contex
 			}
 			return nil, fmt.Errorf("no field named %q was found under type evaluation_Evaluation", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_root_Root_Evaluation_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return
 	}
 	return fc, nil
 }
@@ -6812,6 +6888,14 @@ func (ec *executionContext) _quizquestion_QuizQuestion(ctx context.Context, sel 
 
 			out.Values[i] = ec._quizquestion_QuizQuestion_Score(ctx, field, obj)
 
+		case "AnimationFilePath":
+
+			out.Values[i] = ec._quizquestion_QuizQuestion_AnimationFilePath(ctx, field, obj)
+
+		case "PictureFilePath":
+
+			out.Values[i] = ec._quizquestion_QuizQuestion_PictureFilePath(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6868,6 +6952,9 @@ func (ec *executionContext) _root_Root(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._root_Root_Evaluation(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
 				return res
 			}
 
@@ -7376,6 +7463,10 @@ func (ec *executionContext) marshalNconfig_Config2ᚖnexustempmoduleᚋnexusᚑg
 	return ec._config_Config(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNevaluation_Evaluation2nexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEvaluationEvaluation(ctx context.Context, sel ast.SelectionSet, v model.EvaluationEvaluation) graphql.Marshaler {
+	return ec._evaluation_Evaluation(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNevaluation_Evaluation2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEvaluationEvaluation(ctx context.Context, sel ast.SelectionSet, v *model.EvaluationEvaluation) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7760,53 +7851,6 @@ func (ec *executionContext) marshalO__Type2ᚖgithubᚗcomᚋvmwareᚑtanzuᚋgr
 		return graphql.Null
 	}
 	return ec.___Type(ctx, sel, v)
-}
-
-func (ec *executionContext) marshalOevaluation_Evaluation2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEvaluationEvaluationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.EvaluationEvaluation) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	ret := make(graphql.Array, len(v))
-	var wg sync.WaitGroup
-	isLen1 := len(v) == 1
-	if !isLen1 {
-		wg.Add(len(v))
-	}
-	for i := range v {
-		i := i
-		fc := &graphql.FieldContext{
-			Index:  &i,
-			Result: &v[i],
-		}
-		ctx := graphql.WithFieldContext(ctx, fc)
-		f := func(i int) {
-			defer func() {
-				if r := recover(); r != nil {
-					ec.Error(ctx, ec.Recover(ctx, r))
-					ret = nil
-				}
-			}()
-			if !isLen1 {
-				defer wg.Done()
-			}
-			ret[i] = ec.marshalNevaluation_Evaluation2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEvaluationEvaluation(ctx, sel, v[i])
-		}
-		if isLen1 {
-			f(i)
-		} else {
-			go f(i)
-		}
-
-	}
-	wg.Wait()
-
-	for _, e := range ret {
-		if e == graphql.Null {
-			return graphql.Null
-		}
-	}
-
-	return ret
 }
 
 func (ec *executionContext) marshalOevent_Event2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐEventEventᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.EventEvent) graphql.Marshaler {

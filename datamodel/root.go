@@ -13,7 +13,7 @@ type Root struct {
 
 	Tenant tenant.Tenant `nexus:"children"`
 
-	Evaluation evaluation.Evaluation `nexus:"children"`
+	Evaluation evaluation.Evaluation `nexus:"child"`
 
 	// Soft links specified with annotatation: `nexus:"link"`
 }

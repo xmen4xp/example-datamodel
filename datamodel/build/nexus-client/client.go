@@ -1101,73 +1101,14 @@ func (obj *RootRoot) DeleteTenant(ctx context.Context, displayName string) (err 
 	return
 }
 
-type RootRootEvaluation struct {
-	client     *Clientset
-	Evaluation []baserootexamplecomv1.Child
-}
-
-func (n *RootRootEvaluation) Next(ctx context.Context) (*EvaluationEvaluation, error) {
-	for index, child := range n.Evaluation {
-		obj, err := n.client.Evaluation().GetEvaluationByName(ctx, child.Name)
-		if err == nil {
-			if index == len(n.Evaluation)-1 {
-				n.Evaluation = nil
-			} else {
-				n.Evaluation = n.Evaluation[index+1:]
-			}
-			return obj, nil
-		} else if errors.IsNotFound(err) {
-			continue
-		} else {
-			return nil, err
-		}
+// GetEvaluation returns child of given type
+func (obj *RootRoot) GetEvaluation(ctx context.Context) (
+	result *EvaluationEvaluation, err error) {
+	children := GetChildren("roots.root.example.com", obj.Name, "evaluations.evaluation.example.com")
+	if len(children) == 0 {
+		return nil, NewChildNotFound(obj.DisplayName(), "Root.Root", "Evaluation")
 	}
-	return nil, nil
-}
-
-// GetAllEvaluationIter returns an iterator for all children of given type
-func (obj *RootRoot) GetAllEvaluationIter(ctx context.Context) (
-	result RootRootEvaluation) {
-	result.client = obj.client
-	for _, v := range GetChildren("roots.root.example.com", obj.Name, "evaluations.evaluation.example.com") {
-		result.Evaluation = append(result.Evaluation, baserootexamplecomv1.Child{
-			Group: "evaluation.example.com",
-			Kind:  "Evaluation",
-			Name:  v,
-		})
-	}
-	return
-}
-
-// GetAllEvaluation returns all children of a given type
-func (obj *RootRoot) GetAllEvaluation(ctx context.Context) (
-	result []*EvaluationEvaluation, err error) {
-	for _, v := range GetChildren("roots.root.example.com", obj.Name, "evaluations.evaluation.example.com") {
-		l, err := obj.client.Evaluation().GetEvaluationByName(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, l)
-	}
-	return
-}
-
-// GetEvaluation returns child which has given displayName
-func (obj *RootRoot) GetEvaluation(ctx context.Context,
-	displayName string) (result *EvaluationEvaluation, err error) {
-
-	parentLabels := make(map[string]string)
-	for k, v := range obj.Labels {
-		parentLabels[k] = v
-	}
-	parentLabels["roots.root.example.com"] = obj.DisplayName()
-	childHashName := helper.GetHashedName("evaluations.evaluation.example.com", parentLabels, displayName)
-	if IsChildExists("roots.root.example.com", obj.Name, "evaluations.evaluation.example.com", childHashName) == false {
-		return nil, NewChildNotFound(obj.DisplayName(), "Root.Root", "Evaluation", displayName)
-	}
-
-	result, err = obj.client.Evaluation().GetEvaluationByName(ctx, childHashName)
-	return
+	return obj.client.Evaluation().GetEvaluationByName(ctx, children[0])
 }
 
 // AddEvaluation calculates hashed name of the child to create based on objToCreate.Name
@@ -1184,6 +1125,12 @@ func (obj *RootRoot) AddEvaluation(ctx context.Context,
 	}
 	objToCreate.Labels["roots.root.example.com"] = obj.DisplayName()
 	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		if objToCreate.GetName() == "" {
+			objToCreate.SetName(helper.DEFAULT_KEY)
+		}
+		if objToCreate.GetName() != helper.DEFAULT_KEY {
+			return nil, NewSingletonNameError(objToCreate.GetName())
+		}
 		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
 		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
 		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
@@ -1202,25 +1149,22 @@ func (obj *RootRoot) AddEvaluation(ctx context.Context,
 // DeleteEvaluation calculates hashed name of the child to delete based on displayName
 // and parents names and deletes it.
 
-func (obj *RootRoot) DeleteEvaluation(ctx context.Context, displayName string) (err error) {
-	log.Debugf("[ DeleteEvaluation] Received for Evaluation object: %s to delete", displayName)
-
-	parentLabels := make(map[string]string)
-	for k, v := range obj.Labels {
-		parentLabels[k] = v
-	}
-	parentLabels["roots.root.example.com"] = obj.DisplayName()
-	childHashName := helper.GetHashedName("evaluations.evaluation.example.com", parentLabels, displayName)
-	if IsChildExists("roots.root.example.com", obj.Name, "evaluations.evaluation.example.com", childHashName) == false {
-		return NewChildNotFound(obj.DisplayName(), "Root.Root", "Evaluation", displayName)
+func (obj *RootRoot) DeleteEvaluation(ctx context.Context) (err error) {
+	children := GetChildren("roots.root.example.com", obj.Name, "evaluations.evaluation.example.com")
+	if len(children) > 1 {
+		log.Panicf("[ DeleteEvaluation] Cannot have more than 1 unnamed link for object %s. Current children %d", obj.GetName(), len(children))
 	}
 
-	err = obj.client.Evaluation().DeleteEvaluationByName(ctx, childHashName)
-	if err != nil {
-		return err
+	if len(children) > 0 {
+		err = obj.client.
+			Evaluation().DeleteEvaluationByName(ctx, children[0])
+		if err != nil {
+			return err
+		}
 	}
-	log.Debugf("[ DeleteEvaluation] Evaluation object: %s deleted successfully", displayName)
-	updatedObj, err := obj.client.Root().GetRootByName(ctx, obj.GetName())
+
+	updatedObj, err := obj.client.
+		Root().GetRootByName(ctx, obj.GetName())
 	if err == nil {
 		obj.Root = updatedObj.Root
 	}
@@ -1460,27 +1404,33 @@ func (c *rootRootExampleV1Chainer) DeleteTenant(ctx context.Context, name string
 	return c.client.Tenant().DeleteTenantByName(ctx, hashedName)
 }
 
-func (c *rootRootExampleV1Chainer) Evaluation(name string) *evaluationEvaluationExampleV1Chainer {
+func (c *rootRootExampleV1Chainer) Evaluation() *evaluationEvaluationExampleV1Chainer {
 	parentLabels := c.parentLabels
-	parentLabels["evaluations.evaluation.example.com"] = name
+	parentLabels["evaluations.evaluation.example.com"] = helper.DEFAULT_KEY
 	return &evaluationEvaluationExampleV1Chainer{
 		client:       c.client,
-		name:         name,
+		name:         helper.DEFAULT_KEY,
 		parentLabels: parentLabels,
 	}
 }
 
-// GetEvaluation calculates hashed name of the object based on displayName and it's parents and returns the object
-func (c *rootRootExampleV1Chainer) GetEvaluation(ctx context.Context, displayName string) (result *EvaluationEvaluation, err error) {
-	hashedName := helper.GetHashedName("evaluations.evaluation.example.com", c.parentLabels, displayName)
+// GetEvaluation calculates hashed name of the object based on it's parents and returns the object
+func (c *rootRootExampleV1Chainer) GetEvaluation(ctx context.Context) (result *EvaluationEvaluation, err error) {
+	hashedName := helper.GetHashedName("evaluations.evaluation.example.com", c.parentLabels, helper.DEFAULT_KEY)
 	return c.client.Evaluation().GetEvaluationByName(ctx, hashedName)
 }
 
-// AddEvaluation calculates hashed name of the child to create based on objToCreate.Name
-// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// AddEvaluation calculates hashed name of the child to create based on parents names and creates it.
+// objToCreate.Name is changed to the hashed name. Original name ('default') is preserved in
 // nexus/display_name label and can be obtained using DisplayName() method.
 func (c *rootRootExampleV1Chainer) AddEvaluation(ctx context.Context,
 	objToCreate *baseevaluationexamplecomv1.Evaluation) (result *EvaluationEvaluation, err error) {
+	if objToCreate.GetName() == "" {
+		objToCreate.SetName(helper.DEFAULT_KEY)
+	}
+	if objToCreate.GetName() != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToCreate.GetName())
+	}
 	if objToCreate.Labels == nil {
 		objToCreate.Labels = map[string]string{}
 	}
@@ -1749,6 +1699,12 @@ func (group *EvaluationExampleV1) CreateEvaluationByName(ctx context.Context,
 	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
 		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
 	}
+	if objToCreate.Labels[common.DISPLAY_NAME_LABEL] == "" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = helper.DEFAULT_KEY
+	}
+	if objToCreate.Labels[common.DISPLAY_NAME_LABEL] != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToCreate.Labels[common.DISPLAY_NAME_LABEL])
+	}
 
 	objToCreate.Spec.QuizGvk = nil
 
@@ -1816,6 +1772,9 @@ func (group *EvaluationExampleV1) CreateEvaluationByName(ctx context.Context,
 func (group *EvaluationExampleV1) UpdateEvaluationByName(ctx context.Context,
 	objToUpdate *baseevaluationexamplecomv1.Evaluation) (*EvaluationEvaluation, error) {
 	log.Debugf("[UpdateEvaluationByName] Received objToUpdate: %s", objToUpdate.GetName())
+	if objToUpdate.Labels[common.DISPLAY_NAME_LABEL] != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToUpdate.Labels[common.DISPLAY_NAME_LABEL])
+	}
 
 	var patch Patch
 
@@ -3919,6 +3878,48 @@ func (group *QuizquestionExampleV1) UpdateQuizQuestionByName(ctx context.Context
 			Value: patchValueScore,
 		}
 		patch = append(patch, patchOpScore)
+	}
+
+	rt = reflect.TypeOf(objToUpdate.Spec.AnimationFilePath)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.AnimationFilePath).IsNil() {
+			patchValueAnimationFilePath := objToUpdate.Spec.AnimationFilePath
+			patchOpAnimationFilePath := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/animationFilePath",
+				Value: patchValueAnimationFilePath,
+			}
+			patch = append(patch, patchOpAnimationFilePath)
+		}
+	} else {
+		patchValueAnimationFilePath := objToUpdate.Spec.AnimationFilePath
+		patchOpAnimationFilePath := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/animationFilePath",
+			Value: patchValueAnimationFilePath,
+		}
+		patch = append(patch, patchOpAnimationFilePath)
+	}
+
+	rt = reflect.TypeOf(objToUpdate.Spec.PictureFilePath)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.PictureFilePath).IsNil() {
+			patchValuePictureFilePath := objToUpdate.Spec.PictureFilePath
+			patchOpPictureFilePath := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/pictureFilePath",
+				Value: patchValuePictureFilePath,
+			}
+			patch = append(patch, patchOpPictureFilePath)
+		}
+	} else {
+		patchValuePictureFilePath := objToUpdate.Spec.PictureFilePath
+		patchOpPictureFilePath := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/pictureFilePath",
+			Value: patchValuePictureFilePath,
+		}
+		patch = append(patch, patchOpPictureFilePath)
 	}
 
 	marshaled, err := patch.Marshal()

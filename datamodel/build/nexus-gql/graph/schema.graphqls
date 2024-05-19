@@ -8,7 +8,7 @@ type root_Root {
 	ParentLabels: Map
 
     Tenant(Id: ID): [tenant_Tenant!]
-    Evaluation(Id: ID): [evaluation_Evaluation!]
+    Evaluation: evaluation_Evaluation!
 }
 
 type evaluation_Evaluation {
@@ -36,6 +36,8 @@ type quizquestion_QuizQuestion {
     Answer: String
     Format: String
     Score: Int
+    AnimationFilePath: String
+    PictureFilePath: String
 }
 
 type quizchoice_QuizChoice {
