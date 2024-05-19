@@ -22,10 +22,18 @@ import (
 	clientset "example/build/client/clientset/versioned"
 	configexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1"
 	fakeconfigexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1/fake"
+	evaluationexamplev1 "example/build/client/clientset/versioned/typed/evaluation.example.com/v1"
+	fakeevaluationexamplev1 "example/build/client/clientset/versioned/typed/evaluation.example.com/v1/fake"
 	eventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1"
 	fakeeventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1/fake"
 	interestexamplev1 "example/build/client/clientset/versioned/typed/interest.example.com/v1"
 	fakeinterestexamplev1 "example/build/client/clientset/versioned/typed/interest.example.com/v1/fake"
+	quizexamplev1 "example/build/client/clientset/versioned/typed/quiz.example.com/v1"
+	fakequizexamplev1 "example/build/client/clientset/versioned/typed/quiz.example.com/v1/fake"
+	quizchoiceexamplev1 "example/build/client/clientset/versioned/typed/quizchoice.example.com/v1"
+	fakequizchoiceexamplev1 "example/build/client/clientset/versioned/typed/quizchoice.example.com/v1/fake"
+	quizquestionexamplev1 "example/build/client/clientset/versioned/typed/quizquestion.example.com/v1"
+	fakequizquestionexamplev1 "example/build/client/clientset/versioned/typed/quizquestion.example.com/v1/fake"
 	rootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1"
 	fakerootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1/fake"
 	tenantexamplev1 "example/build/client/clientset/versioned/typed/tenant.example.com/v1"
@@ -97,6 +105,11 @@ func (c *Clientset) ConfigExampleV1() configexamplev1.ConfigExampleV1Interface {
 	return &fakeconfigexamplev1.FakeConfigExampleV1{Fake: &c.Fake}
 }
 
+// EvaluationExampleV1 retrieves the EvaluationExampleV1Client
+func (c *Clientset) EvaluationExampleV1() evaluationexamplev1.EvaluationExampleV1Interface {
+	return &fakeevaluationexamplev1.FakeEvaluationExampleV1{Fake: &c.Fake}
+}
+
 // EventExampleV1 retrieves the EventExampleV1Client
 func (c *Clientset) EventExampleV1() eventexamplev1.EventExampleV1Interface {
 	return &fakeeventexamplev1.FakeEventExampleV1{Fake: &c.Fake}
@@ -105,6 +118,21 @@ func (c *Clientset) EventExampleV1() eventexamplev1.EventExampleV1Interface {
 // InterestExampleV1 retrieves the InterestExampleV1Client
 func (c *Clientset) InterestExampleV1() interestexamplev1.InterestExampleV1Interface {
 	return &fakeinterestexamplev1.FakeInterestExampleV1{Fake: &c.Fake}
+}
+
+// QuizExampleV1 retrieves the QuizExampleV1Client
+func (c *Clientset) QuizExampleV1() quizexamplev1.QuizExampleV1Interface {
+	return &fakequizexamplev1.FakeQuizExampleV1{Fake: &c.Fake}
+}
+
+// QuizchoiceExampleV1 retrieves the QuizchoiceExampleV1Client
+func (c *Clientset) QuizchoiceExampleV1() quizchoiceexamplev1.QuizchoiceExampleV1Interface {
+	return &fakequizchoiceexamplev1.FakeQuizchoiceExampleV1{Fake: &c.Fake}
+}
+
+// QuizquestionExampleV1 retrieves the QuizquestionExampleV1Client
+func (c *Clientset) QuizquestionExampleV1() quizquestionexamplev1.QuizquestionExampleV1Interface {
+	return &fakequizquestionexamplev1.FakeQuizquestionExampleV1{Fake: &c.Fake}
 }
 
 // RootExampleV1 retrieves the RootExampleV1Client

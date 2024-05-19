@@ -20,8 +20,12 @@ package fake
 
 import (
 	configexamplev1 "example/build/apis/config.example.com/v1"
+	evaluationexamplev1 "example/build/apis/evaluation.example.com/v1"
 	eventexamplev1 "example/build/apis/event.example.com/v1"
 	interestexamplev1 "example/build/apis/interest.example.com/v1"
+	quizexamplev1 "example/build/apis/quiz.example.com/v1"
+	quizchoiceexamplev1 "example/build/apis/quizchoice.example.com/v1"
+	quizquestionexamplev1 "example/build/apis/quizquestion.example.com/v1"
 	rootexamplev1 "example/build/apis/root.example.com/v1"
 	tenantexamplev1 "example/build/apis/tenant.example.com/v1"
 	userexamplev1 "example/build/apis/user.example.com/v1"
@@ -39,8 +43,12 @@ var codecs = serializer.NewCodecFactory(scheme)
 
 var localSchemeBuilder = runtime.SchemeBuilder{
 	configexamplev1.AddToScheme,
+	evaluationexamplev1.AddToScheme,
 	eventexamplev1.AddToScheme,
 	interestexamplev1.AddToScheme,
+	quizexamplev1.AddToScheme,
+	quizchoiceexamplev1.AddToScheme,
+	quizquestionexamplev1.AddToScheme,
 	rootexamplev1.AddToScheme,
 	tenantexamplev1.AddToScheme,
 	userexamplev1.AddToScheme,

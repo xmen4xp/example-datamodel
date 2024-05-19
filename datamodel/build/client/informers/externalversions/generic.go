@@ -21,8 +21,12 @@ package externalversions
 import (
 	"fmt"
 	v1 "example/build/apis/config.example.com/v1"
+	evaluationexamplecomv1 "example/build/apis/evaluation.example.com/v1"
 	eventexamplecomv1 "example/build/apis/event.example.com/v1"
 	interestexamplecomv1 "example/build/apis/interest.example.com/v1"
+	quizexamplecomv1 "example/build/apis/quiz.example.com/v1"
+	quizchoiceexamplecomv1 "example/build/apis/quizchoice.example.com/v1"
+	quizquestionexamplecomv1 "example/build/apis/quizquestion.example.com/v1"
 	rootexamplecomv1 "example/build/apis/root.example.com/v1"
 	tenantexamplecomv1 "example/build/apis/tenant.example.com/v1"
 	userexamplecomv1 "example/build/apis/user.example.com/v1"
@@ -62,6 +66,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	case v1.SchemeGroupVersion.WithResource("configs"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.ConfigExample().V1().Configs().Informer()}, nil
 
+		// Group=evaluation.example.com, Version=v1
+	case evaluationexamplecomv1.SchemeGroupVersion.WithResource("evaluations"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.EvaluationExample().V1().Evaluations().Informer()}, nil
+
 		// Group=event.example.com, Version=v1
 	case eventexamplecomv1.SchemeGroupVersion.WithResource("events"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.EventExample().V1().Events().Informer()}, nil
@@ -69,6 +77,18 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		// Group=interest.example.com, Version=v1
 	case interestexamplecomv1.SchemeGroupVersion.WithResource("interests"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.InterestExample().V1().Interests().Informer()}, nil
+
+		// Group=quiz.example.com, Version=v1
+	case quizexamplecomv1.SchemeGroupVersion.WithResource("quizes"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.QuizExample().V1().Quizes().Informer()}, nil
+
+		// Group=quizchoice.example.com, Version=v1
+	case quizchoiceexamplecomv1.SchemeGroupVersion.WithResource("quizchoices"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.QuizchoiceExample().V1().QuizChoices().Informer()}, nil
+
+		// Group=quizquestion.example.com, Version=v1
+	case quizquestionexamplecomv1.SchemeGroupVersion.WithResource("quizquestions"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.QuizquestionExample().V1().QuizQuestions().Informer()}, nil
 
 		// Group=root.example.com, Version=v1
 	case rootexamplecomv1.SchemeGroupVersion.WithResource("roots"):

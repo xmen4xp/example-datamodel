@@ -22,8 +22,12 @@ import (
 	"fmt"
 	"net/http"
 	configexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1"
+	evaluationexamplev1 "example/build/client/clientset/versioned/typed/evaluation.example.com/v1"
 	eventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1"
 	interestexamplev1 "example/build/client/clientset/versioned/typed/interest.example.com/v1"
+	quizexamplev1 "example/build/client/clientset/versioned/typed/quiz.example.com/v1"
+	quizchoiceexamplev1 "example/build/client/clientset/versioned/typed/quizchoice.example.com/v1"
+	quizquestionexamplev1 "example/build/client/clientset/versioned/typed/quizquestion.example.com/v1"
 	rootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1"
 	tenantexamplev1 "example/build/client/clientset/versioned/typed/tenant.example.com/v1"
 	userexamplev1 "example/build/client/clientset/versioned/typed/user.example.com/v1"
@@ -37,8 +41,12 @@ import (
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
 	ConfigExampleV1() configexamplev1.ConfigExampleV1Interface
+	EvaluationExampleV1() evaluationexamplev1.EvaluationExampleV1Interface
 	EventExampleV1() eventexamplev1.EventExampleV1Interface
 	InterestExampleV1() interestexamplev1.InterestExampleV1Interface
+	QuizExampleV1() quizexamplev1.QuizExampleV1Interface
+	QuizchoiceExampleV1() quizchoiceexamplev1.QuizchoiceExampleV1Interface
+	QuizquestionExampleV1() quizquestionexamplev1.QuizquestionExampleV1Interface
 	RootExampleV1() rootexamplev1.RootExampleV1Interface
 	TenantExampleV1() tenantexamplev1.TenantExampleV1Interface
 	UserExampleV1() userexamplev1.UserExampleV1Interface
@@ -48,18 +56,27 @@ type Interface interface {
 // Clientset contains the clients for groups.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	configExampleV1   *configexamplev1.ConfigExampleV1Client
-	eventExampleV1    *eventexamplev1.EventExampleV1Client
-	interestExampleV1 *interestexamplev1.InterestExampleV1Client
-	rootExampleV1     *rootexamplev1.RootExampleV1Client
-	tenantExampleV1   *tenantexamplev1.TenantExampleV1Client
-	userExampleV1     *userexamplev1.UserExampleV1Client
-	wannaExampleV1    *wannaexamplev1.WannaExampleV1Client
+	configExampleV1       *configexamplev1.ConfigExampleV1Client
+	evaluationExampleV1   *evaluationexamplev1.EvaluationExampleV1Client
+	eventExampleV1        *eventexamplev1.EventExampleV1Client
+	interestExampleV1     *interestexamplev1.InterestExampleV1Client
+	quizExampleV1         *quizexamplev1.QuizExampleV1Client
+	quizchoiceExampleV1   *quizchoiceexamplev1.QuizchoiceExampleV1Client
+	quizquestionExampleV1 *quizquestionexamplev1.QuizquestionExampleV1Client
+	rootExampleV1         *rootexamplev1.RootExampleV1Client
+	tenantExampleV1       *tenantexamplev1.TenantExampleV1Client
+	userExampleV1         *userexamplev1.UserExampleV1Client
+	wannaExampleV1        *wannaexamplev1.WannaExampleV1Client
 }
 
 // ConfigExampleV1 retrieves the ConfigExampleV1Client
 func (c *Clientset) ConfigExampleV1() configexamplev1.ConfigExampleV1Interface {
 	return c.configExampleV1
+}
+
+// EvaluationExampleV1 retrieves the EvaluationExampleV1Client
+func (c *Clientset) EvaluationExampleV1() evaluationexamplev1.EvaluationExampleV1Interface {
+	return c.evaluationExampleV1
 }
 
 // EventExampleV1 retrieves the EventExampleV1Client
@@ -70,6 +87,21 @@ func (c *Clientset) EventExampleV1() eventexamplev1.EventExampleV1Interface {
 // InterestExampleV1 retrieves the InterestExampleV1Client
 func (c *Clientset) InterestExampleV1() interestexamplev1.InterestExampleV1Interface {
 	return c.interestExampleV1
+}
+
+// QuizExampleV1 retrieves the QuizExampleV1Client
+func (c *Clientset) QuizExampleV1() quizexamplev1.QuizExampleV1Interface {
+	return c.quizExampleV1
+}
+
+// QuizchoiceExampleV1 retrieves the QuizchoiceExampleV1Client
+func (c *Clientset) QuizchoiceExampleV1() quizchoiceexamplev1.QuizchoiceExampleV1Interface {
+	return c.quizchoiceExampleV1
+}
+
+// QuizquestionExampleV1 retrieves the QuizquestionExampleV1Client
+func (c *Clientset) QuizquestionExampleV1() quizquestionexamplev1.QuizquestionExampleV1Interface {
+	return c.quizquestionExampleV1
 }
 
 // RootExampleV1 retrieves the RootExampleV1Client
@@ -140,11 +172,27 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.evaluationExampleV1, err = evaluationexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.eventExampleV1, err = eventexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
 	}
 	cs.interestExampleV1, err = interestexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.quizExampleV1, err = quizexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.quizchoiceExampleV1, err = quizchoiceexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.quizquestionExampleV1, err = quizquestionexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -186,8 +234,12 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
 	cs.configExampleV1 = configexamplev1.New(c)
+	cs.evaluationExampleV1 = evaluationexamplev1.New(c)
 	cs.eventExampleV1 = eventexamplev1.New(c)
 	cs.interestExampleV1 = interestexamplev1.New(c)
+	cs.quizExampleV1 = quizexamplev1.New(c)
+	cs.quizchoiceExampleV1 = quizchoiceexamplev1.New(c)
+	cs.quizquestionExampleV1 = quizquestionexamplev1.New(c)
 	cs.rootExampleV1 = rootexamplev1.New(c)
 	cs.tenantExampleV1 = tenantexamplev1.New(c)
 	cs.userExampleV1 = userexamplev1.New(c)

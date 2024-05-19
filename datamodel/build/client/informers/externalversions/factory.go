@@ -21,9 +21,13 @@ package externalversions
 import (
 	versioned "example/build/client/clientset/versioned"
 	configexamplecom "example/build/client/informers/externalversions/config.example.com"
+	evaluationexamplecom "example/build/client/informers/externalversions/evaluation.example.com"
 	eventexamplecom "example/build/client/informers/externalversions/event.example.com"
 	interestexamplecom "example/build/client/informers/externalversions/interest.example.com"
 	internalinterfaces "example/build/client/informers/externalversions/internalinterfaces"
+	quizexamplecom "example/build/client/informers/externalversions/quiz.example.com"
+	quizchoiceexamplecom "example/build/client/informers/externalversions/quizchoice.example.com"
+	quizquestionexamplecom "example/build/client/informers/externalversions/quizquestion.example.com"
 	rootexamplecom "example/build/client/informers/externalversions/root.example.com"
 	tenantexamplecom "example/build/client/informers/externalversions/tenant.example.com"
 	userexamplecom "example/build/client/informers/externalversions/user.example.com"
@@ -250,8 +254,12 @@ type SharedInformerFactory interface {
 	InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer
 
 	ConfigExample() configexamplecom.Interface
+	EvaluationExample() evaluationexamplecom.Interface
 	EventExample() eventexamplecom.Interface
 	InterestExample() interestexamplecom.Interface
+	QuizExample() quizexamplecom.Interface
+	QuizchoiceExample() quizchoiceexamplecom.Interface
+	QuizquestionExample() quizquestionexamplecom.Interface
 	RootExample() rootexamplecom.Interface
 	TenantExample() tenantexamplecom.Interface
 	UserExample() userexamplecom.Interface
@@ -262,12 +270,28 @@ func (f *sharedInformerFactory) ConfigExample() configexamplecom.Interface {
 	return configexamplecom.New(f, f.namespace, f.tweakListOptions)
 }
 
+func (f *sharedInformerFactory) EvaluationExample() evaluationexamplecom.Interface {
+	return evaluationexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
 func (f *sharedInformerFactory) EventExample() eventexamplecom.Interface {
 	return eventexamplecom.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) InterestExample() interestexamplecom.Interface {
 	return interestexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) QuizExample() quizexamplecom.Interface {
+	return quizexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) QuizchoiceExample() quizchoiceexamplecom.Interface {
+	return quizchoiceexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) QuizquestionExample() quizquestionexamplecom.Interface {
+	return quizquestionexamplecom.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) RootExample() rootexamplecom.Interface {

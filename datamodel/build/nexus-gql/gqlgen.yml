@@ -34,6 +34,20 @@ models:
     fields:
       Tenant:
         resolver: true
+      Evaluation:
+        resolver: true
+  evaluation_Evaluation:
+    fields:
+      Quiz:
+        resolver: true
+  quiz_Quiz:
+    fields:
+      Question:
+        resolver: true
+  quizquestion_QuizQuestion:
+    fields:
+      Choice:
+        resolver: true
   tenant_Tenant:
     fields:
       Interest:

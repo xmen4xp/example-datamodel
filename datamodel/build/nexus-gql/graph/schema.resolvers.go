@@ -24,9 +24,29 @@ func (r *config_ConfigResolver) Event(ctx context.Context, obj *model.ConfigConf
 	return getConfigConfigEventResolver(obj, id)
 }
 
+// Quiz is the resolver for the Quiz field.
+func (r *evaluation_EvaluationResolver) Quiz(ctx context.Context, obj *model.EvaluationEvaluation, id *string) ([]*model.QuizQuiz, error) {
+	return getEvaluationEvaluationQuizResolver(obj, id)
+}
+
+// Question is the resolver for the Question field.
+func (r *quiz_QuizResolver) Question(ctx context.Context, obj *model.QuizQuiz, id *string) ([]*model.QuizquestionQuizQuestion, error) {
+	return getQuizQuizQuestionResolver(obj, id)
+}
+
+// Choice is the resolver for the Choice field.
+func (r *quizquestion_QuizQuestionResolver) Choice(ctx context.Context, obj *model.QuizquestionQuizQuestion, id *string) ([]*model.QuizchoiceQuizChoice, error) {
+	return getQuizquestionQuizQuestionChoiceResolver(obj, id)
+}
+
 // Tenant is the resolver for the Tenant field.
 func (r *root_RootResolver) Tenant(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.TenantTenant, error) {
 	return getRootRootTenantResolver(obj, id)
+}
+
+// Evaluation is the resolver for the Evaluation field.
+func (r *root_RootResolver) Evaluation(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.EvaluationEvaluation, error) {
+	return getRootRootEvaluationResolver(obj, id)
 }
 
 // Interest is the resolver for the Interest field.
@@ -55,6 +75,19 @@ func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
 // Config_Config returns generated.Config_ConfigResolver implementation.
 func (r *Resolver) Config_Config() generated.Config_ConfigResolver { return &config_ConfigResolver{r} }
 
+// Evaluation_Evaluation returns generated.Evaluation_EvaluationResolver implementation.
+func (r *Resolver) Evaluation_Evaluation() generated.Evaluation_EvaluationResolver {
+	return &evaluation_EvaluationResolver{r}
+}
+
+// Quiz_Quiz returns generated.Quiz_QuizResolver implementation.
+func (r *Resolver) Quiz_Quiz() generated.Quiz_QuizResolver { return &quiz_QuizResolver{r} }
+
+// Quizquestion_QuizQuestion returns generated.Quizquestion_QuizQuestionResolver implementation.
+func (r *Resolver) Quizquestion_QuizQuestion() generated.Quizquestion_QuizQuestionResolver {
+	return &quizquestion_QuizQuestionResolver{r}
+}
+
 // Root_Root returns generated.Root_RootResolver implementation.
 func (r *Resolver) Root_Root() generated.Root_RootResolver { return &root_RootResolver{r} }
 
@@ -69,6 +102,9 @@ func (r *Resolver) Wanna_Wanna() generated.Wanna_WannaResolver { return &wanna_W
 
 type queryResolver struct{ *Resolver }
 type config_ConfigResolver struct{ *Resolver }
+type evaluation_EvaluationResolver struct{ *Resolver }
+type quiz_QuizResolver struct{ *Resolver }
+type quizquestion_QuizQuestionResolver struct{ *Resolver }
 type root_RootResolver struct{ *Resolver }
 type tenant_TenantResolver struct{ *Resolver }
 type user_UserResolver struct{ *Resolver }

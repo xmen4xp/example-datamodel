@@ -8,6 +8,43 @@ type root_Root {
 	ParentLabels: Map
 
     Tenant(Id: ID): [tenant_Tenant!]
+    Evaluation(Id: ID): [evaluation_Evaluation!]
+}
+
+type evaluation_Evaluation {
+    Id: ID
+	ParentLabels: Map
+
+    Quiz(Id: ID): [quiz_Quiz!]
+}
+
+type quiz_Quiz {
+    Id: ID
+	ParentLabels: Map
+
+    Question(Id: ID): [quizquestion_QuizQuestion!]
+    DefaultScorePerQuestion: Int
+}
+
+type quizquestion_QuizQuestion {
+    Id: ID
+	ParentLabels: Map
+
+    Choice(Id: ID): [quizchoice_QuizChoice!]
+    Question: String
+    Hint: String
+    Answer: String
+    Format: String
+    Score: Int
+}
+
+type quizchoice_QuizChoice {
+    Id: ID
+	ParentLabels: Map
+
+    Choice: String
+    Hint: String
+    PictureName: String
 }
 
 type tenant_Tenant {

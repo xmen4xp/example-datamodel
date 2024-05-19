@@ -3,6 +3,35 @@
 type Root_Root @nexus(group:"root.example.com",version:"v1",kind:"Root",resource:"roots",name:"Root",crdName:"roots.root.example.com",singleton:"true"){
     id: ID
     tenant(id: ID): [Tenant_Tenant!]
+    evaluation(id: ID): [Evaluation_Evaluation!]
+}
+
+type Evaluation_Evaluation @nexus(group:"evaluation.example.com",version:"v1",kind:"Evaluation",resource:"evaluations",name:"Evaluation",crdName:"evaluations.evaluation.example.com",singleton:"false"){
+    id: ID
+    quiz(id: ID): [Quiz_Quiz!]
+}
+
+type Quiz_Quiz @nexus(group:"quiz.example.com",version:"v1",kind:"Quiz",resource:"quizes",name:"Quiz",crdName:"quizes.quiz.example.com",singleton:"false"){
+    id: ID
+    question(id: ID): [Quizquestion_QuizQuestion!]
+    defaultScorePerQuestion: Int
+}
+
+type Quizquestion_QuizQuestion @nexus(group:"quizquestion.example.com",version:"v1",kind:"QuizQuestion",resource:"quizquestions",name:"QuizQuestion",crdName:"quizquestions.quizquestion.example.com",singleton:"false"){
+    id: ID
+    choice(id: ID): [Quizchoice_QuizChoice!]
+    question: String
+    hint: String
+    answer: String
+    format: String
+    score: Int
+}
+
+type Quizchoice_QuizChoice @nexus(group:"quizchoice.example.com",version:"v1",kind:"QuizChoice",resource:"quizchoices",name:"QuizChoice",crdName:"quizchoices.quizchoice.example.com",singleton:"false"){
+    id: ID
+    choice: String
+    hint: String
+    pictureName: String
 }
 
 type Tenant_Tenant @nexus(group:"tenant.example.com",version:"v1",kind:"Tenant",resource:"tenants",name:"Tenant",crdName:"tenants.tenant.example.com",singleton:"false"){

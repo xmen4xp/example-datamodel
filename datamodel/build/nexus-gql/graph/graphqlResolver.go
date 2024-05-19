@@ -163,6 +163,310 @@ func getRootRootTenantResolver(obj *model.RootRoot, id *string) ([]*model.Tenant
 }
 
 // ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: Evaluation Node: Root PKG: Root
+// ////////////////////////////////////
+func getRootRootEvaluationResolver(obj *model.RootRoot, id *string) ([]*model.EvaluationEvaluation, error) {
+	log.Debugf("[getRootRootEvaluationResolver]Parent Object %+v", obj)
+	var vEvaluationEvaluationList []*model.EvaluationEvaluation
+	if id != nil && *id != "" {
+		log.Debugf("[getRootRootEvaluationResolver]Id %q", *id)
+		vEvaluation, err := nc.RootRoot().GetEvaluation(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getRootRootEvaluationResolver]Error getting Evaluation node %q : %s", *id, err)
+			return vEvaluationEvaluationList, nil
+		}
+		dn := vEvaluation.DisplayName()
+		parentLabels := map[string]interface{}{"evaluations.evaluation.example.com": dn}
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.EvaluationEvaluation{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+		}
+		vEvaluationEvaluationList = append(vEvaluationEvaluationList, ret)
+
+		log.Debugf("[getRootRootEvaluationResolver]Output Evaluation objects %v", vEvaluationEvaluationList)
+
+		return vEvaluationEvaluationList, nil
+	}
+
+	log.Debug("[getRootRootEvaluationResolver]Id is empty, process all Evaluations")
+
+	vEvaluationParent, err := nc.GetRootRoot(context.TODO())
+	if err != nil {
+		log.Errorf("[getRootRootEvaluationResolver]Error getting parent node %s", err)
+		return vEvaluationEvaluationList, nil
+	}
+	vEvaluationAllObj, err := vEvaluationParent.GetAllEvaluation(context.TODO())
+	if err != nil {
+		log.Errorf("[getRootRootEvaluationResolver]Error getting Evaluation objects %s", err)
+		return vEvaluationEvaluationList, nil
+	}
+	for _, i := range vEvaluationAllObj {
+		vEvaluation, err := nc.RootRoot().GetEvaluation(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getRootRootEvaluationResolver]Error getting Evaluation node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vEvaluation.DisplayName()
+		parentLabels := map[string]interface{}{"evaluations.evaluation.example.com": dn}
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.EvaluationEvaluation{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+		}
+		vEvaluationEvaluationList = append(vEvaluationEvaluationList, ret)
+	}
+
+	log.Debugf("[getRootRootEvaluationResolver]Output Evaluation objects %v", vEvaluationEvaluationList)
+
+	return vEvaluationEvaluationList, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: Quiz Node: Evaluation PKG: Evaluation
+// ////////////////////////////////////
+func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *string) ([]*model.QuizQuiz, error) {
+	log.Debugf("[getEvaluationEvaluationQuizResolver]Parent Object %+v", obj)
+	var vQuizQuizList []*model.QuizQuiz
+	if id != nil && *id != "" {
+		log.Debugf("[getEvaluationEvaluationQuizResolver]Id %q", *id)
+		vQuiz, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).GetQuiz(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getEvaluationEvaluationQuizResolver]Error getting Quiz node %q : %s", *id, err)
+			return vQuizQuizList, nil
+		}
+		dn := vQuiz.DisplayName()
+		parentLabels := map[string]interface{}{"quizes.quiz.example.com": dn}
+		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.QuizQuiz{
+			Id:                      &dn,
+			ParentLabels:            parentLabels,
+			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
+		}
+		vQuizQuizList = append(vQuizQuizList, ret)
+
+		log.Debugf("[getEvaluationEvaluationQuizResolver]Output Quiz objects %v", vQuizQuizList)
+
+		return vQuizQuizList, nil
+	}
+
+	log.Debug("[getEvaluationEvaluationQuizResolver]Id is empty, process all Quizs")
+
+	vQuizParent, err := nc.RootRoot().GetEvaluation(context.TODO(), getParentName(obj.ParentLabels, "evaluations.evaluation.example.com"))
+	if err != nil {
+		log.Errorf("[getEvaluationEvaluationQuizResolver]Error getting parent node %s", err)
+		return vQuizQuizList, nil
+	}
+	vQuizAllObj, err := vQuizParent.GetAllQuiz(context.TODO())
+	if err != nil {
+		log.Errorf("[getEvaluationEvaluationQuizResolver]Error getting Quiz objects %s", err)
+		return vQuizQuizList, nil
+	}
+	for _, i := range vQuizAllObj {
+		vQuiz, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).GetQuiz(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getEvaluationEvaluationQuizResolver]Error getting Quiz node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vQuiz.DisplayName()
+		parentLabels := map[string]interface{}{"quizes.quiz.example.com": dn}
+		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.QuizQuiz{
+			Id:                      &dn,
+			ParentLabels:            parentLabels,
+			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
+		}
+		vQuizQuizList = append(vQuizQuizList, ret)
+	}
+
+	log.Debugf("[getEvaluationEvaluationQuizResolver]Output Quiz objects %v", vQuizQuizList)
+
+	return vQuizQuizList, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: Question Node: Quiz PKG: Quiz
+// ////////////////////////////////////
+func getQuizQuizQuestionResolver(obj *model.QuizQuiz, id *string) ([]*model.QuizquestionQuizQuestion, error) {
+	log.Debugf("[getQuizQuizQuestionResolver]Parent Object %+v", obj)
+	var vQuizquestionQuizQuestionList []*model.QuizquestionQuizQuestion
+	if id != nil && *id != "" {
+		log.Debugf("[getQuizQuizQuestionResolver]Id %q", *id)
+		vQuizQuestion, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).Quiz(getParentName(obj.ParentLabels, "quizes.quiz.example.com")).GetQuestion(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getQuizQuizQuestionResolver]Error getting Question node %q : %s", *id, err)
+			return vQuizquestionQuizQuestionList, nil
+		}
+		dn := vQuizQuestion.DisplayName()
+		parentLabels := map[string]interface{}{"quizquestions.quizquestion.example.com": dn}
+		vQuestion := string(vQuizQuestion.Spec.Question)
+		vHint := string(vQuizQuestion.Spec.Hint)
+		vAnswer := string(vQuizQuestion.Spec.Answer)
+		vFormat := string(vQuizQuestion.Spec.Format)
+		vScore := int(vQuizQuestion.Spec.Score)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.QuizquestionQuizQuestion{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Question:     &vQuestion,
+			Hint:         &vHint,
+			Answer:       &vAnswer,
+			Format:       &vFormat,
+			Score:        &vScore,
+		}
+		vQuizquestionQuizQuestionList = append(vQuizquestionQuizQuestionList, ret)
+
+		log.Debugf("[getQuizQuizQuestionResolver]Output Question objects %v", vQuizquestionQuizQuestionList)
+
+		return vQuizquestionQuizQuestionList, nil
+	}
+
+	log.Debug("[getQuizQuizQuestionResolver]Id is empty, process all Questions")
+
+	vQuizQuestionParent, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).GetQuiz(context.TODO(), getParentName(obj.ParentLabels, "quizes.quiz.example.com"))
+	if err != nil {
+		log.Errorf("[getQuizQuizQuestionResolver]Error getting parent node %s", err)
+		return vQuizquestionQuizQuestionList, nil
+	}
+	vQuizQuestionAllObj, err := vQuizQuestionParent.GetAllQuestion(context.TODO())
+	if err != nil {
+		log.Errorf("[getQuizQuizQuestionResolver]Error getting Question objects %s", err)
+		return vQuizquestionQuizQuestionList, nil
+	}
+	for _, i := range vQuizQuestionAllObj {
+		vQuizQuestion, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).Quiz(getParentName(obj.ParentLabels, "quizes.quiz.example.com")).GetQuestion(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getQuizQuizQuestionResolver]Error getting Question node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vQuizQuestion.DisplayName()
+		parentLabels := map[string]interface{}{"quizquestions.quizquestion.example.com": dn}
+		vQuestion := string(vQuizQuestion.Spec.Question)
+		vHint := string(vQuizQuestion.Spec.Hint)
+		vAnswer := string(vQuizQuestion.Spec.Answer)
+		vFormat := string(vQuizQuestion.Spec.Format)
+		vScore := int(vQuizQuestion.Spec.Score)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.QuizquestionQuizQuestion{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Question:     &vQuestion,
+			Hint:         &vHint,
+			Answer:       &vAnswer,
+			Format:       &vFormat,
+			Score:        &vScore,
+		}
+		vQuizquestionQuizQuestionList = append(vQuizquestionQuizQuestionList, ret)
+	}
+
+	log.Debugf("[getQuizQuizQuestionResolver]Output Question objects %v", vQuizquestionQuizQuestionList)
+
+	return vQuizquestionQuizQuestionList, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: Choice Node: QuizQuestion PKG: Quizquestion
+// ////////////////////////////////////
+func getQuizquestionQuizQuestionChoiceResolver(obj *model.QuizquestionQuizQuestion, id *string) ([]*model.QuizchoiceQuizChoice, error) {
+	log.Debugf("[getQuizquestionQuizQuestionChoiceResolver]Parent Object %+v", obj)
+	var vQuizchoiceQuizChoiceList []*model.QuizchoiceQuizChoice
+	if id != nil && *id != "" {
+		log.Debugf("[getQuizquestionQuizQuestionChoiceResolver]Id %q", *id)
+		vQuizChoice, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).Quiz(getParentName(obj.ParentLabels, "quizes.quiz.example.com")).Question(getParentName(obj.ParentLabels, "quizquestions.quizquestion.example.com")).GetChoice(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getQuizquestionQuizQuestionChoiceResolver]Error getting Choice node %q : %s", *id, err)
+			return vQuizchoiceQuizChoiceList, nil
+		}
+		dn := vQuizChoice.DisplayName()
+		parentLabels := map[string]interface{}{"quizchoices.quizchoice.example.com": dn}
+		vChoice := string(vQuizChoice.Spec.Choice)
+		vHint := string(vQuizChoice.Spec.Hint)
+		vPictureName := string(vQuizChoice.Spec.PictureName)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.QuizchoiceQuizChoice{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Choice:       &vChoice,
+			Hint:         &vHint,
+			PictureName:  &vPictureName,
+		}
+		vQuizchoiceQuizChoiceList = append(vQuizchoiceQuizChoiceList, ret)
+
+		log.Debugf("[getQuizquestionQuizQuestionChoiceResolver]Output Choice objects %v", vQuizchoiceQuizChoiceList)
+
+		return vQuizchoiceQuizChoiceList, nil
+	}
+
+	log.Debug("[getQuizquestionQuizQuestionChoiceResolver]Id is empty, process all Choices")
+
+	vQuizChoiceParent, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).Quiz(getParentName(obj.ParentLabels, "quizes.quiz.example.com")).GetQuestion(context.TODO(), getParentName(obj.ParentLabels, "quizquestions.quizquestion.example.com"))
+	if err != nil {
+		log.Errorf("[getQuizquestionQuizQuestionChoiceResolver]Error getting parent node %s", err)
+		return vQuizchoiceQuizChoiceList, nil
+	}
+	vQuizChoiceAllObj, err := vQuizChoiceParent.GetAllChoice(context.TODO())
+	if err != nil {
+		log.Errorf("[getQuizquestionQuizQuestionChoiceResolver]Error getting Choice objects %s", err)
+		return vQuizchoiceQuizChoiceList, nil
+	}
+	for _, i := range vQuizChoiceAllObj {
+		vQuizChoice, err := nc.RootRoot().Evaluation(getParentName(obj.ParentLabels, "evaluations.evaluation.example.com")).Quiz(getParentName(obj.ParentLabels, "quizes.quiz.example.com")).Question(getParentName(obj.ParentLabels, "quizquestions.quizquestion.example.com")).GetChoice(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getQuizquestionQuizQuestionChoiceResolver]Error getting Choice node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vQuizChoice.DisplayName()
+		parentLabels := map[string]interface{}{"quizchoices.quizchoice.example.com": dn}
+		vChoice := string(vQuizChoice.Spec.Choice)
+		vHint := string(vQuizChoice.Spec.Hint)
+		vPictureName := string(vQuizChoice.Spec.PictureName)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.QuizchoiceQuizChoice{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Choice:       &vChoice,
+			Hint:         &vHint,
+			PictureName:  &vPictureName,
+		}
+		vQuizchoiceQuizChoiceList = append(vQuizchoiceQuizChoiceList, ret)
+	}
+
+	log.Debugf("[getQuizquestionQuizQuestionChoiceResolver]Output Choice objects %v", vQuizchoiceQuizChoiceList)
+
+	return vQuizchoiceQuizChoiceList, nil
+}
+
+// ////////////////////////////////////
 // CHILD RESOLVER (Singleton)
 // FieldName: Config Node: Tenant PKG: Tenant
 // ////////////////////////////////////

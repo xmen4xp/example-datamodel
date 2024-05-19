@@ -25,6 +25,12 @@ type ConfigConfig struct {
 	Event        []*EventEvent          `json:"Event"`
 }
 
+type EvaluationEvaluation struct {
+	Id           *string                `json:"Id"`
+	ParentLabels map[string]interface{} `json:"ParentLabels"`
+	Quiz         []*QuizQuiz            `json:"Quiz"`
+}
+
 type EventEvent struct {
 	Id           *string                `json:"Id"`
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
@@ -40,10 +46,37 @@ type InterestInterest struct {
 	Name         *string                `json:"Name"`
 }
 
-type RootRoot struct {
+type QuizQuiz struct {
+	Id                      *string                     `json:"Id"`
+	ParentLabels            map[string]interface{}      `json:"ParentLabels"`
+	Question                []*QuizquestionQuizQuestion `json:"Question"`
+	DefaultScorePerQuestion *int                        `json:"DefaultScorePerQuestion"`
+}
+
+type QuizchoiceQuizChoice struct {
 	Id           *string                `json:"Id"`
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
-	Tenant       []*TenantTenant        `json:"Tenant"`
+	Choice       *string                `json:"Choice"`
+	Hint         *string                `json:"Hint"`
+	PictureName  *string                `json:"PictureName"`
+}
+
+type QuizquestionQuizQuestion struct {
+	Id           *string                 `json:"Id"`
+	ParentLabels map[string]interface{}  `json:"ParentLabels"`
+	Choice       []*QuizchoiceQuizChoice `json:"Choice"`
+	Question     *string                 `json:"Question"`
+	Hint         *string                 `json:"Hint"`
+	Answer       *string                 `json:"Answer"`
+	Format       *string                 `json:"Format"`
+	Score        *int                    `json:"Score"`
+}
+
+type RootRoot struct {
+	Id           *string                 `json:"Id"`
+	ParentLabels map[string]interface{}  `json:"ParentLabels"`
+	Tenant       []*TenantTenant         `json:"Tenant"`
+	Evaluation   []*EvaluationEvaluation `json:"Evaluation"`
 }
 
 type TenantTenant struct {
