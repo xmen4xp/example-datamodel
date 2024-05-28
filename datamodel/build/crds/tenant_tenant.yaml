@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"tenant.Tenant","hierarchy":["roots.root.example.com"],"children":{"configs.config.example.com":{"fieldName":"Config","fieldNameGvk":"configGvk","goFieldNameGvk":"ConfigGvk","isNamed":false},"interests.interest.example.com":{"fieldName":"Interest","fieldNameGvk":"interestGvk","goFieldNameGvk":"InterestGvk","isNamed":true}},"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"tenant.Tenant","hierarchy":["roots.root.example.com"],"children":{"configs.config.example.com":{"fieldName":"Config","fieldNameGvk":"configGvk","goFieldNameGvk":"ConfigGvk","isNamed":false},"interests.interest.example.com":{"fieldName":"Interest","fieldNameGvk":"interestGvk","goFieldNameGvk":"InterestGvk","isNamed":true},"runtimes.runtime.example.com":{"fieldName":"Runtime","fieldNameGvk":"runtimeGvk","goFieldNameGvk":"RuntimeGvk","isNamed":false}},"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
   creationTimestamp: null
   name: tenants.tenant.example.com
 spec:
@@ -65,6 +65,19 @@ spec:
                   - kind
                   - name
                   type: object
+                type: object
+              runtimeGvk:
+                properties:
+                  group:
+                    type: string
+                  kind:
+                    type: string
+                  name:
+                    type: string
+                required:
+                - group
+                - kind
+                - name
                 type: object
             type: object
           status:

@@ -68,8 +68,9 @@ func (c *QuizChoice) DisplayName() string {
 // +k8s:openapi-gen=true
 type QuizChoiceSpec struct {
 	Choice      string `json:"choice" yaml:"choice"`
-	Hint        string `json:"hint" yaml:"hint"`
-	PictureName string `json:"pictureName" yaml:"pictureName"`
+	Hint        string `json:",omitempty" yaml:",omitempty"`
+	PictureName string `json:",omitempty" yaml:",omitempty"`
+	Answer      bool   `json:"answer" yaml:"answer"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

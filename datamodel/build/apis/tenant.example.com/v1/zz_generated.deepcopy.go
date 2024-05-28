@@ -183,6 +183,11 @@ func (in *TenantSpec) DeepCopyInto(out *TenantSpec) {
 			(*out)[key] = val
 		}
 	}
+	if in.RuntimeGvk != nil {
+		in, out := &in.RuntimeGvk, &out.RuntimeGvk
+		*out = new(Child)
+		**out = **in
+	}
 	return
 }
 

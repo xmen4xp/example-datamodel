@@ -69,6 +69,7 @@ func (c *Tenant) DisplayName() string {
 type TenantSpec struct {
 	ConfigGvk   *Child           `json:"configGvk,omitempty" yaml:"configGvk,omitempty" nexus:"child"`
 	InterestGvk map[string]Child `json:"interestGvk,omitempty" yaml:"interestGvk,omitempty" nexus:"children"`
+	RuntimeGvk  *Child           `json:"runtimeGvk,omitempty" yaml:"runtimeGvk,omitempty" nexus:"child"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

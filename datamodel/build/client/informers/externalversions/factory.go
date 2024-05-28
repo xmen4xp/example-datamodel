@@ -29,6 +29,11 @@ import (
 	quizchoiceexamplecom "example/build/client/informers/externalversions/quizchoice.example.com"
 	quizquestionexamplecom "example/build/client/informers/externalversions/quizquestion.example.com"
 	rootexamplecom "example/build/client/informers/externalversions/root.example.com"
+	runtimeexamplecom "example/build/client/informers/externalversions/runtime.example.com"
+	runtimeanswerexamplecom "example/build/client/informers/externalversions/runtimeanswer.example.com"
+	runtimeevaluationexamplecom "example/build/client/informers/externalversions/runtimeevaluation.example.com"
+	runtimequizexamplecom "example/build/client/informers/externalversions/runtimequiz.example.com"
+	runtimeuserexamplecom "example/build/client/informers/externalversions/runtimeuser.example.com"
 	tenantexamplecom "example/build/client/informers/externalversions/tenant.example.com"
 	userexamplecom "example/build/client/informers/externalversions/user.example.com"
 	wannaexamplecom "example/build/client/informers/externalversions/wanna.example.com"
@@ -261,6 +266,11 @@ type SharedInformerFactory interface {
 	QuizchoiceExample() quizchoiceexamplecom.Interface
 	QuizquestionExample() quizquestionexamplecom.Interface
 	RootExample() rootexamplecom.Interface
+	RuntimeExample() runtimeexamplecom.Interface
+	RuntimeanswerExample() runtimeanswerexamplecom.Interface
+	RuntimeevaluationExample() runtimeevaluationexamplecom.Interface
+	RuntimequizExample() runtimequizexamplecom.Interface
+	RuntimeuserExample() runtimeuserexamplecom.Interface
 	TenantExample() tenantexamplecom.Interface
 	UserExample() userexamplecom.Interface
 	WannaExample() wannaexamplecom.Interface
@@ -296,6 +306,26 @@ func (f *sharedInformerFactory) QuizquestionExample() quizquestionexamplecom.Int
 
 func (f *sharedInformerFactory) RootExample() rootexamplecom.Interface {
 	return rootexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) RuntimeExample() runtimeexamplecom.Interface {
+	return runtimeexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) RuntimeanswerExample() runtimeanswerexamplecom.Interface {
+	return runtimeanswerexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) RuntimeevaluationExample() runtimeevaluationexamplecom.Interface {
+	return runtimeevaluationexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) RuntimequizExample() runtimequizexamplecom.Interface {
+	return runtimequizexamplecom.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) RuntimeuserExample() runtimeuserexamplecom.Interface {
+	return runtimeuserexamplecom.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) TenantExample() tenantexamplecom.Interface {

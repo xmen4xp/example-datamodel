@@ -1,7 +1,7 @@
 package quizquestion
 
 import (
-	quizchoice "example/evaluation/quiz/quizquestion/quizchoices"
+	quizchoice "example/evaluation/quiz/quizquestion/quizchoice"
 
 	"github.com/vmware-tanzu/graph-framework-for-microservices/nexus/nexus"
 )
@@ -23,8 +23,7 @@ var QuizQuestionRestAPISpec = nexus.RestAPISpec{
 type QuizQuestion struct {
 	nexus.Node
 	Question string
-	Hint     string
-	Answer   string `json:",omitempty"`
+	Hint     string `json:",omitempty"`
 
 	// A question may support multiple formats:
 	// a. multiple-choice
@@ -32,10 +31,10 @@ type QuizQuestion struct {
 	// The format field is a enum that specifies the format of the question.
 	Format string
 
-	Score int
+	Score int `json:",omitempty"`
 
-	AnimationFilePath string
-	PictureFilePath   string
+	AnimationFilePath string `json:",omitempty"`
+	PictureFilePath   string `json:",omitempty"`
 
 	// Name for this children will be numerical string to help sequence the choices.
 	Choice quizchoice.QuizChoice `nexus:"children"`

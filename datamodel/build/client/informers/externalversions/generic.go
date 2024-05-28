@@ -28,6 +28,11 @@ import (
 	quizchoiceexamplecomv1 "example/build/apis/quizchoice.example.com/v1"
 	quizquestionexamplecomv1 "example/build/apis/quizquestion.example.com/v1"
 	rootexamplecomv1 "example/build/apis/root.example.com/v1"
+	runtimeexamplecomv1 "example/build/apis/runtime.example.com/v1"
+	runtimeanswerexamplecomv1 "example/build/apis/runtimeanswer.example.com/v1"
+	runtimeevaluationexamplecomv1 "example/build/apis/runtimeevaluation.example.com/v1"
+	runtimequizexamplecomv1 "example/build/apis/runtimequiz.example.com/v1"
+	runtimeuserexamplecomv1 "example/build/apis/runtimeuser.example.com/v1"
 	tenantexamplecomv1 "example/build/apis/tenant.example.com/v1"
 	userexamplecomv1 "example/build/apis/user.example.com/v1"
 	wannaexamplecomv1 "example/build/apis/wanna.example.com/v1"
@@ -93,6 +98,26 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		// Group=root.example.com, Version=v1
 	case rootexamplecomv1.SchemeGroupVersion.WithResource("roots"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.RootExample().V1().Roots().Informer()}, nil
+
+		// Group=runtime.example.com, Version=v1
+	case runtimeexamplecomv1.SchemeGroupVersion.WithResource("runtimes"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.RuntimeExample().V1().Runtimes().Informer()}, nil
+
+		// Group=runtimeanswer.example.com, Version=v1
+	case runtimeanswerexamplecomv1.SchemeGroupVersion.WithResource("runtimeanswers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.RuntimeanswerExample().V1().RuntimeAnswers().Informer()}, nil
+
+		// Group=runtimeevaluation.example.com, Version=v1
+	case runtimeevaluationexamplecomv1.SchemeGroupVersion.WithResource("runtimeevaluations"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.RuntimeevaluationExample().V1().RuntimeEvaluations().Informer()}, nil
+
+		// Group=runtimequiz.example.com, Version=v1
+	case runtimequizexamplecomv1.SchemeGroupVersion.WithResource("runtimequizes"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.RuntimequizExample().V1().RuntimeQuizes().Informer()}, nil
+
+		// Group=runtimeuser.example.com, Version=v1
+	case runtimeuserexamplecomv1.SchemeGroupVersion.WithResource("runtimeusers"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.RuntimeuserExample().V1().RuntimeUsers().Informer()}, nil
 
 		// Group=tenant.example.com, Version=v1
 	case tenantexamplecomv1.SchemeGroupVersion.WithResource("tenants"):

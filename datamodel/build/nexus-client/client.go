@@ -47,6 +47,11 @@ import (
 	basequizchoiceexamplecomv1 "example/build/apis/quizchoice.example.com/v1"
 	basequizquestionexamplecomv1 "example/build/apis/quizquestion.example.com/v1"
 	baserootexamplecomv1 "example/build/apis/root.example.com/v1"
+	baseruntimeexamplecomv1 "example/build/apis/runtime.example.com/v1"
+	baseruntimeanswerexamplecomv1 "example/build/apis/runtimeanswer.example.com/v1"
+	baseruntimeevaluationexamplecomv1 "example/build/apis/runtimeevaluation.example.com/v1"
+	baseruntimequizexamplecomv1 "example/build/apis/runtimequiz.example.com/v1"
+	baseruntimeuserexamplecomv1 "example/build/apis/runtimeuser.example.com/v1"
 	basetenantexamplecomv1 "example/build/apis/tenant.example.com/v1"
 	baseuserexamplecomv1 "example/build/apis/user.example.com/v1"
 	basewannaexamplecomv1 "example/build/apis/wanna.example.com/v1"
@@ -59,6 +64,11 @@ import (
 	informerquizchoiceexamplecomv1 "example/build/client/informers/externalversions/quizchoice.example.com/v1"
 	informerquizquestionexamplecomv1 "example/build/client/informers/externalversions/quizquestion.example.com/v1"
 	informerrootexamplecomv1 "example/build/client/informers/externalversions/root.example.com/v1"
+	informerruntimeexamplecomv1 "example/build/client/informers/externalversions/runtime.example.com/v1"
+	informerruntimeanswerexamplecomv1 "example/build/client/informers/externalversions/runtimeanswer.example.com/v1"
+	informerruntimeevaluationexamplecomv1 "example/build/client/informers/externalversions/runtimeevaluation.example.com/v1"
+	informerruntimequizexamplecomv1 "example/build/client/informers/externalversions/runtimequiz.example.com/v1"
+	informerruntimeuserexamplecomv1 "example/build/client/informers/externalversions/runtimeuser.example.com/v1"
 	informertenantexamplecomv1 "example/build/client/informers/externalversions/tenant.example.com/v1"
 	informeruserexamplecomv1 "example/build/client/informers/externalversions/user.example.com/v1"
 	informerwannaexamplecomv1 "example/build/client/informers/externalversions/wanna.example.com/v1"
@@ -76,19 +86,24 @@ const ownershipAnnotation string = "Ownership"
 var informerResyncPeriod time.Duration = 36000
 
 type Clientset struct {
-	baseClient            baseClientset.Interface
-	dynamicClient         *dynamic.DynamicClient
-	rootExampleV1         *RootExampleV1
-	evaluationExampleV1   *EvaluationExampleV1
-	quizExampleV1         *QuizExampleV1
-	quizquestionExampleV1 *QuizquestionExampleV1
-	quizchoiceExampleV1   *QuizchoiceExampleV1
-	tenantExampleV1       *TenantExampleV1
-	configExampleV1       *ConfigExampleV1
-	eventExampleV1        *EventExampleV1
-	userExampleV1         *UserExampleV1
-	wannaExampleV1        *WannaExampleV1
-	interestExampleV1     *InterestExampleV1
+	baseClient                 baseClientset.Interface
+	dynamicClient              *dynamic.DynamicClient
+	rootExampleV1              *RootExampleV1
+	evaluationExampleV1        *EvaluationExampleV1
+	quizExampleV1              *QuizExampleV1
+	quizquestionExampleV1      *QuizquestionExampleV1
+	quizchoiceExampleV1        *QuizchoiceExampleV1
+	tenantExampleV1            *TenantExampleV1
+	configExampleV1            *ConfigExampleV1
+	eventExampleV1             *EventExampleV1
+	userExampleV1              *UserExampleV1
+	wannaExampleV1             *WannaExampleV1
+	interestExampleV1          *InterestExampleV1
+	runtimeExampleV1           *RuntimeExampleV1
+	runtimeuserExampleV1       *RuntimeuserExampleV1
+	runtimeevaluationExampleV1 *RuntimeevaluationExampleV1
+	runtimequizExampleV1       *RuntimequizExampleV1
+	runtimeanswerExampleV1     *RuntimeanswerExampleV1
 }
 
 type subscription struct {
@@ -118,137 +133,96 @@ func (c *Clientset) SubscribeAll() {
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerrootexamplecomv1.NewRootInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
 	}
 
 	key = "evaluations.evaluation.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerevaluationexamplecomv1.NewEvaluationInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := evaluationEvaluationExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "quizes.quiz.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerquizexamplecomv1.NewQuizInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := quizQuizExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "quizquestions.quizquestion.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := quizquestionQuizquestionExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "quizchoices.quizchoice.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := quizchoiceQuizchoiceExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "tenants.tenant.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informertenantexamplecomv1.NewTenantInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := tenantTenantExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "configs.config.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerconfigexamplecomv1.NewConfigInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := configConfigExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "events.event.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informereventexamplecomv1.NewEventInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := eventEventExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "users.user.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informeruserexamplecomv1.NewUserInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := userUserExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "wannas.wanna.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerwannaexamplecomv1.NewWannaInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		chainer := wannaWannaExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
-
 	}
 
 	key = "interests.interest.example.com"
 	if _, ok := subscriptionMap.Load(key); !ok {
 		informer := informerinterestexamplecomv1.NewInterestInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
+	}
 
-		chainer := interestInterestExampleV1Chainer{
-			client: c,
-		}
-		chainer.RegisterAddCallback(chainer.addCallback)
-		chainer.RegisterDeleteCallback(chainer.deleteCallback)
+	key = "runtimes.runtime.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeexamplecomv1.NewRuntimeInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
 
+	key = "runtimeusers.runtimeuser.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeuserexamplecomv1.NewRuntimeUserInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+
+	key = "runtimeevaluations.runtimeevaluation.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeevaluationexamplecomv1.NewRuntimeEvaluationInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+
+	key = "runtimequizes.runtimequiz.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimequizexamplecomv1.NewRuntimeQuizInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+
+	key = "runtimeanswers.runtimeanswer.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeanswerexamplecomv1.NewRuntimeAnswerInformer(c.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
 	}
 
 }
@@ -303,6 +277,11 @@ func NewForConfig(config *rest.Config) (*Clientset, error) {
 	client.userExampleV1 = newUserExampleV1(client)
 	client.wannaExampleV1 = newWannaExampleV1(client)
 	client.interestExampleV1 = newInterestExampleV1(client)
+	client.runtimeExampleV1 = newRuntimeExampleV1(client)
+	client.runtimeuserExampleV1 = newRuntimeuserExampleV1(client)
+	client.runtimeevaluationExampleV1 = newRuntimeevaluationExampleV1(client)
+	client.runtimequizExampleV1 = newRuntimequizExampleV1(client)
+	client.runtimeanswerExampleV1 = newRuntimeanswerExampleV1(client)
 
 	return client, nil
 }
@@ -322,6 +301,11 @@ func NewFakeClient() *Clientset {
 	client.userExampleV1 = newUserExampleV1(client)
 	client.wannaExampleV1 = newWannaExampleV1(client)
 	client.interestExampleV1 = newInterestExampleV1(client)
+	client.runtimeExampleV1 = newRuntimeExampleV1(client)
+	client.runtimeuserExampleV1 = newRuntimeuserExampleV1(client)
+	client.runtimeevaluationExampleV1 = newRuntimeevaluationExampleV1(client)
+	client.runtimequizExampleV1 = newRuntimequizExampleV1(client)
+	client.runtimeanswerExampleV1 = newRuntimeanswerExampleV1(client)
 
 	return client
 }
@@ -370,6 +354,21 @@ func (c *Clientset) Wanna() *WannaExampleV1 {
 }
 func (c *Clientset) Interest() *InterestExampleV1 {
 	return c.interestExampleV1
+}
+func (c *Clientset) Runtime() *RuntimeExampleV1 {
+	return c.runtimeExampleV1
+}
+func (c *Clientset) Runtimeuser() *RuntimeuserExampleV1 {
+	return c.runtimeuserExampleV1
+}
+func (c *Clientset) Runtimeevaluation() *RuntimeevaluationExampleV1 {
+	return c.runtimeevaluationExampleV1
+}
+func (c *Clientset) Runtimequiz() *RuntimequizExampleV1 {
+	return c.runtimequizExampleV1
+}
+func (c *Clientset) Runtimeanswer() *RuntimeanswerExampleV1 {
+	return c.runtimeanswerExampleV1
 }
 
 type RootExampleV1 struct {
@@ -478,6 +477,56 @@ type InterestExampleV1 struct {
 
 func newInterestExampleV1(client *Clientset) *InterestExampleV1 {
 	return &InterestExampleV1{
+		client: client,
+	}
+}
+
+type RuntimeExampleV1 struct {
+	client *Clientset
+}
+
+func newRuntimeExampleV1(client *Clientset) *RuntimeExampleV1 {
+	return &RuntimeExampleV1{
+		client: client,
+	}
+}
+
+type RuntimeuserExampleV1 struct {
+	client *Clientset
+}
+
+func newRuntimeuserExampleV1(client *Clientset) *RuntimeuserExampleV1 {
+	return &RuntimeuserExampleV1{
+		client: client,
+	}
+}
+
+type RuntimeevaluationExampleV1 struct {
+	client *Clientset
+}
+
+func newRuntimeevaluationExampleV1(client *Clientset) *RuntimeevaluationExampleV1 {
+	return &RuntimeevaluationExampleV1{
+		client: client,
+	}
+}
+
+type RuntimequizExampleV1 struct {
+	client *Clientset
+}
+
+func newRuntimequizExampleV1(client *Clientset) *RuntimequizExampleV1 {
+	return &RuntimequizExampleV1{
+		client: client,
+	}
+}
+
+type RuntimeanswerExampleV1 struct {
+	client *Clientset
+}
+
+func newRuntimeanswerExampleV1(client *Clientset) *RuntimeanswerExampleV1 {
+	return &RuntimeanswerExampleV1{
 		client: client,
 	}
 }
@@ -1216,7 +1265,6 @@ func (c *rootRootExampleV1Chainer) RegisterEventHandler(addCB func(obj *RootRoot
 		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
 		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -1257,32 +1305,37 @@ func (c *rootRootExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RootRoot))
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "roots.root.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for RootRoot")
+		log.Debugf("[RegisterAddCallback] RootRoot Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RootRoot{
+					client: c.client,
+					Root:   obj.(*baserootexamplecomv1.Root),
+				}
+
+				cbfn(nc)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
-		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
+		log.Debugf("[RegisterAddCallback] RootRoot Create New Informer")
+		informer := informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RootRoot{
+					client: c.client,
+					Root:   obj.(*baserootexamplecomv1.Root),
+				}
 
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &RootRoot{
-				client: c.client,
-				Root:   obj.(*baserootexamplecomv1.Root),
-			}
-
-			cbfn(nc)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -1291,35 +1344,43 @@ func (c *rootRootExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "roots.root.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for RootRoot")
+		log.Debugf("[RegisterUpdateCallback] RootRoot Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RootRoot{
+					client: c.client,
+					Root:   oldObj.(*baserootexamplecomv1.Root),
+				}
+				newData := &RootRoot{
+					client: c.client,
+					Root:   newObj.(*baserootexamplecomv1.Root),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
-		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
+		log.Debugf("[RegisterUpdateCallback] RootRoot Create New Informer")
+		informer := informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RootRoot{
+					client: c.client,
+					Root:   oldObj.(*baserootexamplecomv1.Root),
+				}
+				newData := &RootRoot{
+					client: c.client,
+					Root:   newObj.(*baserootexamplecomv1.Root),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &RootRoot{
-				client: c.client,
-				Root:   oldObj.(*baserootexamplecomv1.Root),
-			}
-			newData := &RootRoot{
-				client: c.client,
-				Root:   newObj.(*baserootexamplecomv1.Root),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -1328,32 +1389,37 @@ func (c *rootRootExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RootRoo
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "roots.root.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for RootRoot")
+		log.Debugf("[RegisterDeleteCallback] RootRoot Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RootRoot{
+					client: c.client,
+					Root:   obj.(*baserootexamplecomv1.Root),
+				}
+
+				cbfn(nc)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for RootRoot, so creating a new one")
-		informer = informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
+		log.Debugf("[RegisterDeleteCallback] RootRoot Create New Informer")
+		informer := informerrootexamplecomv1.NewRootInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RootRoot{
+					client: c.client,
+					Root:   obj.(*baserootexamplecomv1.Root),
+				}
 
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &RootRoot{
-				client: c.client,
-				Root:   obj.(*baserootexamplecomv1.Root),
-			}
-
-			cbfn(nc)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -2127,10 +2193,6 @@ func (c *evaluationEvaluationExampleV1Chainer) RegisterEventHandler(addCB func(o
 		fmt.Println("Informer doesn't exists for EvaluationEvaluation, so creating a new one")
 		informer = informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -2160,9 +2222,6 @@ func (c *evaluationEvaluationExampleV1Chainer) RegisterEventHandler(addCB func(o
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name) {
-				AddChild("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -2209,10 +2268,6 @@ func (c *evaluationEvaluationExampleV1Chainer) RegisterEventHandler(addCB func(o
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name) {
-				RemoveChild("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -2224,63 +2279,87 @@ func (c *evaluationEvaluationExampleV1Chainer) RegisterAddCallback(cbfn func(obj
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "evaluations.evaluation.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for EvaluationEvaluation")
+		log.Debugf("[RegisterAddCallback] EvaluationEvaluation Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for EvaluationEvaluation, so creating a new one")
-		informer = informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &EvaluationEvaluation{
-				client:     c.client,
-				Evaluation: obj.(*baseevaluationexamplecomv1.Evaluation),
-			}
-
-			var parent *RootRoot
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: obj.(*baseevaluationexamplecomv1.Evaluation),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-				parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name) {
-				AddChild("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] EvaluationEvaluation Create New Informer")
+		informer := informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: obj.(*baseevaluationexamplecomv1.Evaluation),
+				}
+
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -2289,38 +2368,43 @@ func (c *evaluationEvaluationExampleV1Chainer) RegisterUpdateCallback(cbfn func(
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "evaluations.evaluation.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for EvaluationEvaluation")
+		log.Debugf("[RegisterUpdateCallback] EvaluationEvaluation Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: oldObj.(*baseevaluationexamplecomv1.Evaluation),
+				}
+				newData := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: newObj.(*baseevaluationexamplecomv1.Evaluation),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for EvaluationEvaluation, so creating a new one")
-		informer = informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] EvaluationEvaluation Create New Informer")
+		informer := informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: oldObj.(*baseevaluationexamplecomv1.Evaluation),
+				}
+				newData := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: newObj.(*baseevaluationexamplecomv1.Evaluation),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &EvaluationEvaluation{
-				client:     c.client,
-				Evaluation: oldObj.(*baseevaluationexamplecomv1.Evaluation),
-			}
-			newData := &EvaluationEvaluation{
-				client:     c.client,
-				Evaluation: newObj.(*baseevaluationexamplecomv1.Evaluation),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -2329,63 +2413,87 @@ func (c *evaluationEvaluationExampleV1Chainer) RegisterDeleteCallback(cbfn func(
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "evaluations.evaluation.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for EvaluationEvaluation")
+		log.Debugf("[RegisterDeleteCallback] EvaluationEvaluation Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for EvaluationEvaluation, so creating a new one")
-		informer = informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &EvaluationEvaluation{
-				client:     c.client,
-				Evaluation: obj.(*baseevaluationexamplecomv1.Evaluation),
-			}
-
-			var parent *RootRoot
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: obj.(*baseevaluationexamplecomv1.Evaluation),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-				parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name) {
-				RemoveChild("roots.root.example.com", parent.Name, "evaluations.evaluation.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] EvaluationEvaluation Create New Informer")
+		informer := informerevaluationexamplecomv1.NewEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &EvaluationEvaluation{
+					client:     c.client,
+					Evaluation: obj.(*baseevaluationexamplecomv1.Evaluation),
+				}
+
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -2740,6 +2848,80 @@ func (group *QuizExampleV1) CreateQuizByName(ctx context.Context,
 	}, nil
 }
 
+// SetQuizStatusByName sets user defined status
+func (group *QuizExampleV1) SetQuizStatusByName(ctx context.Context,
+	objToUpdate *basequizexamplecomv1.Quiz, status *basequizexamplecomv1.QuizStatus) (*QuizQuiz, error) {
+	log.Debugf("[SetQuizStatusByName] Received objToUpdate:%s", objToUpdate.GetName())
+
+	gvr := schema.GroupVersionResource{
+		Group:    "quiz.example.com",
+		Version:  "v1",
+		Resource: strings.ToLower("Quizes"),
+	}
+
+	hashedName := objToUpdate.ObjectMeta.Name
+	obj := basequizexamplecomv1.Quiz{}
+	obj.Kind = strings.ToLower("Quizes")
+	obj.APIVersion = "quiz.example.com/v1"
+	obj.ObjectMeta = objToUpdate.ObjectMeta
+	obj.Status.Status = *status
+
+	var mapInterface map[string]interface{}
+	marshalledObj, _ := json.Marshal(&obj)
+	json.Unmarshal(marshalledObj, &mapInterface)
+
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		_, err := group.client.dynamicClient.Resource(gvr).UpdateStatus(ctx, &unstructured.Unstructured{Object: mapInterface}, metav1.UpdateOptions{})
+		if err == nil {
+			log.Debugf("[SetQuizStatusByName] Updating status for Quiz node %s successful", hashedName)
+			break
+		}
+
+		log.Errorf("[SetQuizStatusByName] Updating status for Quiz node: %s failed with error %v. Retrying...", hashedName, err)
+
+		updatedObj, err := group.ForceReadQuizByName(newCtx, hashedName)
+		if err == nil {
+			obj.ObjectMeta = updatedObj.ObjectMeta
+			marshalledObj, _ := json.Marshal(&obj)
+			json.Unmarshal(marshalledObj, &mapInterface)
+		}
+
+		retryCount += 1
+		if retryCount == maxRetryCount1SecSleep {
+			log.Fatalf("[SetQuizStatusByName] Max retry exceeded for updating status for Quiz node: %s", hashedName)
+			return nil, err
+		}
+		time.Sleep(time.Second)
+	}
+
+	/*
+		if s, ok := subscriptionMap.Load("quizes.quiz.example.com"); ok {
+			resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+			var objectToWrite *basequizexamplecomv1.Quiz
+			if inWrCache {
+				objectToWrite = resWrCache.(*basequizexamplecomv1.Quiz)
+				objectToWrite.Status.Status = *status
+			} else {
+				// Object is not in write cache. Populate the write cache with last "known" object.
+				// TBD: Is this right ???
+				//      Can we expect ObjectToUpdate to the latest version of the object ?
+				//      What if we received the object spec but only want to update the status ?
+				//      Get on the object will return a object form cache if the cache has newer version.
+				// 		So proceeding with assumption that if newer version is available, user will get the newer version anyways.
+				objectToWrite = objToUpdate
+				objToUpdate.Status.Status = *status
+			}
+			s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), objectToWrite)
+		}
+	*/
+	return &QuizQuiz{
+		client: group.client,
+		Quiz:   objToUpdate, // TBD: To be fixed to return back the "result"
+	}, nil
+}
+
 // UpdateQuizByName updates object stored in the database under the hashedName which is a hash of
 // display name and parents names.
 func (group *QuizExampleV1) UpdateQuizByName(ctx context.Context,
@@ -2914,6 +3096,35 @@ func (obj *QuizQuiz) Delete(ctx context.Context) error {
 // Update updates spec of object in database. Children and Link can not be updated using this function.
 func (obj *QuizQuiz) Update(ctx context.Context) error {
 	result, err := obj.client.Quiz().UpdateQuizByName(ctx, obj.Quiz)
+	if err != nil {
+		return err
+	}
+	obj.Quiz = result.Quiz
+	return nil
+}
+
+// SetStatus sets user defined status
+func (obj *QuizQuiz) SetStatus(ctx context.Context, status *basequizexamplecomv1.QuizStatus) error {
+	result, err := obj.client.Quiz().SetQuizStatusByName(ctx, obj.Quiz, status)
+	if err != nil {
+		return err
+	}
+	obj.Quiz = result.Quiz
+	return nil
+}
+
+// GetStatus to get user defined status
+func (obj *QuizQuiz) GetStatus(ctx context.Context) (*basequizexamplecomv1.QuizStatus, error) {
+	getObj, err := obj.client.Quiz().GetQuizByName(ctx, obj.GetName())
+	if err != nil {
+		return nil, err
+	}
+	return &getObj.Status.Status, nil
+}
+
+// ClearStatus to clear user defined status
+func (obj *QuizQuiz) ClearStatus(ctx context.Context) error {
+	result, err := obj.client.Quiz().SetQuizStatusByName(ctx, obj.Quiz, &basequizexamplecomv1.QuizStatus{})
 	if err != nil {
 		return err
 	}
@@ -3120,10 +3331,6 @@ func (c *quizQuizExampleV1Chainer) RegisterEventHandler(addCB func(obj *QuizQuiz
 		fmt.Println("Informer doesn't exists for QuizQuiz, so creating a new one")
 		informer = informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -3153,9 +3360,6 @@ func (c *quizQuizExampleV1Chainer) RegisterEventHandler(addCB func(obj *QuizQuiz
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name) {
-				AddChild("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -3202,10 +3406,6 @@ func (c *quizQuizExampleV1Chainer) RegisterEventHandler(addCB func(obj *QuizQuiz
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name) {
-				RemoveChild("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -3217,63 +3417,87 @@ func (c *quizQuizExampleV1Chainer) RegisterAddCallback(cbfn func(obj *QuizQuiz))
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizes.quiz.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizQuiz")
+		log.Debugf("[RegisterAddCallback] QuizQuiz Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for QuizQuiz, so creating a new one")
-		informer = informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &QuizQuiz{
-				client: c.client,
-				Quiz:   obj.(*basequizexamplecomv1.Quiz),
-			}
-
-			var parent *EvaluationEvaluation
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &QuizQuiz{
+					client: c.client,
+					Quiz:   obj.(*basequizexamplecomv1.Quiz),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("evaluations.evaluation.example.com", nc.Labels, nc.Labels["evaluations.evaluation.example.com"])
-				parent, err = c.client.Evaluation().ForceReadEvaluationByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *EvaluationEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name) {
-				AddChild("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("evaluations.evaluation.example.com", nc.Labels, nc.Labels["evaluations.evaluation.example.com"])
+					parent, err = c.client.Evaluation().ForceReadEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] QuizQuiz Create New Informer")
+		informer := informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &QuizQuiz{
+					client: c.client,
+					Quiz:   obj.(*basequizexamplecomv1.Quiz),
+				}
+
+				var parent *EvaluationEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("evaluations.evaluation.example.com", nc.Labels, nc.Labels["evaluations.evaluation.example.com"])
+					parent, err = c.client.Evaluation().ForceReadEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -3282,38 +3506,43 @@ func (c *quizQuizExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizes.quiz.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizQuiz")
+		log.Debugf("[RegisterUpdateCallback] QuizQuiz Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &QuizQuiz{
+					client: c.client,
+					Quiz:   oldObj.(*basequizexamplecomv1.Quiz),
+				}
+				newData := &QuizQuiz{
+					client: c.client,
+					Quiz:   newObj.(*basequizexamplecomv1.Quiz),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for QuizQuiz, so creating a new one")
-		informer = informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] QuizQuiz Create New Informer")
+		informer := informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &QuizQuiz{
+					client: c.client,
+					Quiz:   oldObj.(*basequizexamplecomv1.Quiz),
+				}
+				newData := &QuizQuiz{
+					client: c.client,
+					Quiz:   newObj.(*basequizexamplecomv1.Quiz),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &QuizQuiz{
-				client: c.client,
-				Quiz:   oldObj.(*basequizexamplecomv1.Quiz),
-			}
-			newData := &QuizQuiz{
-				client: c.client,
-				Quiz:   newObj.(*basequizexamplecomv1.Quiz),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -3322,64 +3551,120 @@ func (c *quizQuizExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *QuizQui
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizes.quiz.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizQuiz")
+		log.Debugf("[RegisterDeleteCallback] QuizQuiz Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for QuizQuiz, so creating a new one")
-		informer = informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &QuizQuiz{
-				client: c.client,
-				Quiz:   obj.(*basequizexamplecomv1.Quiz),
-			}
-
-			var parent *EvaluationEvaluation
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &QuizQuiz{
+					client: c.client,
+					Quiz:   obj.(*basequizexamplecomv1.Quiz),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("evaluations.evaluation.example.com", nc.Labels, nc.Labels["evaluations.evaluation.example.com"])
-				parent, err = c.client.Evaluation().ForceReadEvaluationByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *EvaluationEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name) {
-				RemoveChild("evaluations.evaluation.example.com", parent.Name, "quizes.quiz.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("evaluations.evaluation.example.com", nc.Labels, nc.Labels["evaluations.evaluation.example.com"])
+					parent, err = c.client.Evaluation().ForceReadEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] QuizQuiz Create New Informer")
+		informer := informerquizexamplecomv1.NewQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &QuizQuiz{
+					client: c.client,
+					Quiz:   obj.(*basequizexamplecomv1.Quiz),
+				}
+
+				var parent *EvaluationEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("evaluations.evaluation.example.com", nc.Labels, nc.Labels["evaluations.evaluation.example.com"])
+					parent, err = c.client.Evaluation().ForceReadEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
+}
+
+// ClearStatus to clear user defined status
+func (c *quizQuizExampleV1Chainer) ClearStatus(ctx context.Context) (err error) {
+	hashedName := helper.GetHashedName("quizes.quiz.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Quiz().GetQuizByName(ctx, hashedName)
+	if err != nil {
+		return err
+	}
+	_, err = c.client.Quiz().SetQuizStatusByName(ctx, obj.Quiz, nil)
+	return err
+}
+
+// GetStatus to get user defined status
+func (c *quizQuizExampleV1Chainer) GetStatus(ctx context.Context) (result *basequizexamplecomv1.QuizStatus, err error) {
+	hashedName := helper.GetHashedName("quizes.quiz.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Quiz().GetQuizByName(ctx, hashedName)
+	if err != nil {
+		return nil, err
+	}
+	return &obj.Status.Status, nil
+}
+
+// SetStatus sets user defined status
+func (c *quizQuizExampleV1Chainer) SetStatus(ctx context.Context, status *basequizexamplecomv1.QuizStatus) (err error) {
+	hashedName := helper.GetHashedName("quizes.quiz.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Quiz().GetQuizByName(ctx, hashedName)
+	if err != nil {
+		return err
+	}
+	_, err = c.client.Quiz().SetQuizStatusByName(ctx, obj.Quiz, status)
+	return err
 }
 
 func (c *quizQuizExampleV1Chainer) Question(name string) *quizquestionQuizquestionExampleV1Chainer {
@@ -3817,27 +4102,6 @@ func (group *QuizquestionExampleV1) UpdateQuizQuestionByName(ctx context.Context
 		patch = append(patch, patchOpHint)
 	}
 
-	rt = reflect.TypeOf(objToUpdate.Spec.Answer)
-	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
-		if !reflect.ValueOf(objToUpdate.Spec.Answer).IsNil() {
-			patchValueAnswer := objToUpdate.Spec.Answer
-			patchOpAnswer := PatchOp{
-				Op:    "replace",
-				Path:  "/spec/answer",
-				Value: patchValueAnswer,
-			}
-			patch = append(patch, patchOpAnswer)
-		}
-	} else {
-		patchValueAnswer := objToUpdate.Spec.Answer
-		patchOpAnswer := PatchOp{
-			Op:    "replace",
-			Path:  "/spec/answer",
-			Value: patchValueAnswer,
-		}
-		patch = append(patch, patchOpAnswer)
-	}
-
 	rt = reflect.TypeOf(objToUpdate.Spec.Format)
 	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
 		if !reflect.ValueOf(objToUpdate.Spec.Format).IsNil() {
@@ -4239,10 +4503,6 @@ func (c *quizquestionQuizquestionExampleV1Chainer) RegisterEventHandler(addCB fu
 		fmt.Println("Informer doesn't exists for QuizquestionQuizQuestion, so creating a new one")
 		informer = informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -4272,9 +4532,6 @@ func (c *quizquestionQuizquestionExampleV1Chainer) RegisterEventHandler(addCB fu
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name) {
-				AddChild("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -4321,10 +4578,6 @@ func (c *quizquestionQuizquestionExampleV1Chainer) RegisterEventHandler(addCB fu
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name) {
-				RemoveChild("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -4336,63 +4589,87 @@ func (c *quizquestionQuizquestionExampleV1Chainer) RegisterAddCallback(cbfn func
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizquestions.quizquestion.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizquestionQuizQuestion")
+		log.Debugf("[RegisterAddCallback] QuizquestionQuizQuestion Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for QuizquestionQuizQuestion, so creating a new one")
-		informer = informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &QuizquestionQuizQuestion{
-				client:       c.client,
-				QuizQuestion: obj.(*basequizquestionexamplecomv1.QuizQuestion),
-			}
-
-			var parent *QuizQuiz
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: obj.(*basequizquestionexamplecomv1.QuizQuestion),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("quizes.quiz.example.com", nc.Labels, nc.Labels["quizes.quiz.example.com"])
-				parent, err = c.client.Quiz().ForceReadQuizByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *QuizQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name) {
-				AddChild("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizes.quiz.example.com", nc.Labels, nc.Labels["quizes.quiz.example.com"])
+					parent, err = c.client.Quiz().ForceReadQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] QuizquestionQuizQuestion Create New Informer")
+		informer := informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: obj.(*basequizquestionexamplecomv1.QuizQuestion),
+				}
+
+				var parent *QuizQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizes.quiz.example.com", nc.Labels, nc.Labels["quizes.quiz.example.com"])
+					parent, err = c.client.Quiz().ForceReadQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -4401,38 +4678,43 @@ func (c *quizquestionQuizquestionExampleV1Chainer) RegisterUpdateCallback(cbfn f
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizquestions.quizquestion.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizquestionQuizQuestion")
+		log.Debugf("[RegisterUpdateCallback] QuizquestionQuizQuestion Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: oldObj.(*basequizquestionexamplecomv1.QuizQuestion),
+				}
+				newData := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: newObj.(*basequizquestionexamplecomv1.QuizQuestion),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for QuizquestionQuizQuestion, so creating a new one")
-		informer = informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] QuizquestionQuizQuestion Create New Informer")
+		informer := informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: oldObj.(*basequizquestionexamplecomv1.QuizQuestion),
+				}
+				newData := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: newObj.(*basequizquestionexamplecomv1.QuizQuestion),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &QuizquestionQuizQuestion{
-				client:       c.client,
-				QuizQuestion: oldObj.(*basequizquestionexamplecomv1.QuizQuestion),
-			}
-			newData := &QuizquestionQuizQuestion{
-				client:       c.client,
-				QuizQuestion: newObj.(*basequizquestionexamplecomv1.QuizQuestion),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -4441,63 +4723,87 @@ func (c *quizquestionQuizquestionExampleV1Chainer) RegisterDeleteCallback(cbfn f
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizquestions.quizquestion.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizquestionQuizQuestion")
+		log.Debugf("[RegisterDeleteCallback] QuizquestionQuizQuestion Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for QuizquestionQuizQuestion, so creating a new one")
-		informer = informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &QuizquestionQuizQuestion{
-				client:       c.client,
-				QuizQuestion: obj.(*basequizquestionexamplecomv1.QuizQuestion),
-			}
-
-			var parent *QuizQuiz
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: obj.(*basequizquestionexamplecomv1.QuizQuestion),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("quizes.quiz.example.com", nc.Labels, nc.Labels["quizes.quiz.example.com"])
-				parent, err = c.client.Quiz().ForceReadQuizByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *QuizQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name) {
-				RemoveChild("quizes.quiz.example.com", parent.Name, "quizquestions.quizquestion.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizes.quiz.example.com", nc.Labels, nc.Labels["quizes.quiz.example.com"])
+					parent, err = c.client.Quiz().ForceReadQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] QuizquestionQuizQuestion Create New Informer")
+		informer := informerquizquestionexamplecomv1.NewQuizQuestionInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &QuizquestionQuizQuestion{
+					client:       c.client,
+					QuizQuestion: obj.(*basequizquestionexamplecomv1.QuizQuestion),
+				}
+
+				var parent *QuizQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizes.quiz.example.com", nc.Labels, nc.Labels["quizes.quiz.example.com"])
+					parent, err = c.client.Quiz().ForceReadQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -4947,6 +5253,27 @@ func (group *QuizchoiceExampleV1) UpdateQuizChoiceByName(ctx context.Context,
 		patch = append(patch, patchOpPictureName)
 	}
 
+	rt = reflect.TypeOf(objToUpdate.Spec.Answer)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.Answer).IsNil() {
+			patchValueAnswer := objToUpdate.Spec.Answer
+			patchOpAnswer := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/answer",
+				Value: patchValueAnswer,
+			}
+			patch = append(patch, patchOpAnswer)
+		}
+	} else {
+		patchValueAnswer := objToUpdate.Spec.Answer
+		patchOpAnswer := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/answer",
+			Value: patchValueAnswer,
+		}
+		patch = append(patch, patchOpAnswer)
+	}
+
 	marshaled, err := patch.Marshal()
 	if err != nil {
 		return nil, err
@@ -5138,10 +5465,6 @@ func (c *quizchoiceQuizchoiceExampleV1Chainer) RegisterEventHandler(addCB func(o
 		fmt.Println("Informer doesn't exists for QuizchoiceQuizChoice, so creating a new one")
 		informer = informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -5171,9 +5494,6 @@ func (c *quizchoiceQuizchoiceExampleV1Chainer) RegisterEventHandler(addCB func(o
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name) {
-				AddChild("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -5220,10 +5540,6 @@ func (c *quizchoiceQuizchoiceExampleV1Chainer) RegisterEventHandler(addCB func(o
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name) {
-				RemoveChild("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -5235,63 +5551,87 @@ func (c *quizchoiceQuizchoiceExampleV1Chainer) RegisterAddCallback(cbfn func(obj
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizchoices.quizchoice.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizchoiceQuizChoice")
+		log.Debugf("[RegisterAddCallback] QuizchoiceQuizChoice Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for QuizchoiceQuizChoice, so creating a new one")
-		informer = informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &QuizchoiceQuizChoice{
-				client:     c.client,
-				QuizChoice: obj.(*basequizchoiceexamplecomv1.QuizChoice),
-			}
-
-			var parent *QuizquestionQuizQuestion
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: obj.(*basequizchoiceexamplecomv1.QuizChoice),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("quizquestions.quizquestion.example.com", nc.Labels, nc.Labels["quizquestions.quizquestion.example.com"])
-				parent, err = c.client.Quizquestion().ForceReadQuizQuestionByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *QuizquestionQuizQuestion
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name) {
-				AddChild("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizquestions.quizquestion.example.com", nc.Labels, nc.Labels["quizquestions.quizquestion.example.com"])
+					parent, err = c.client.Quizquestion().ForceReadQuizQuestionByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] QuizchoiceQuizChoice Create New Informer")
+		informer := informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: obj.(*basequizchoiceexamplecomv1.QuizChoice),
+				}
+
+				var parent *QuizquestionQuizQuestion
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizquestions.quizquestion.example.com", nc.Labels, nc.Labels["quizquestions.quizquestion.example.com"])
+					parent, err = c.client.Quizquestion().ForceReadQuizQuestionByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -5300,38 +5640,43 @@ func (c *quizchoiceQuizchoiceExampleV1Chainer) RegisterUpdateCallback(cbfn func(
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizchoices.quizchoice.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizchoiceQuizChoice")
+		log.Debugf("[RegisterUpdateCallback] QuizchoiceQuizChoice Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: oldObj.(*basequizchoiceexamplecomv1.QuizChoice),
+				}
+				newData := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: newObj.(*basequizchoiceexamplecomv1.QuizChoice),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for QuizchoiceQuizChoice, so creating a new one")
-		informer = informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] QuizchoiceQuizChoice Create New Informer")
+		informer := informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: oldObj.(*basequizchoiceexamplecomv1.QuizChoice),
+				}
+				newData := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: newObj.(*basequizchoiceexamplecomv1.QuizChoice),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &QuizchoiceQuizChoice{
-				client:     c.client,
-				QuizChoice: oldObj.(*basequizchoiceexamplecomv1.QuizChoice),
-			}
-			newData := &QuizchoiceQuizChoice{
-				client:     c.client,
-				QuizChoice: newObj.(*basequizchoiceexamplecomv1.QuizChoice),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -5340,63 +5685,87 @@ func (c *quizchoiceQuizchoiceExampleV1Chainer) RegisterDeleteCallback(cbfn func(
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "quizchoices.quizchoice.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for QuizchoiceQuizChoice")
+		log.Debugf("[RegisterDeleteCallback] QuizchoiceQuizChoice Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for QuizchoiceQuizChoice, so creating a new one")
-		informer = informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &QuizchoiceQuizChoice{
-				client:     c.client,
-				QuizChoice: obj.(*basequizchoiceexamplecomv1.QuizChoice),
-			}
-
-			var parent *QuizquestionQuizQuestion
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: obj.(*basequizchoiceexamplecomv1.QuizChoice),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("quizquestions.quizquestion.example.com", nc.Labels, nc.Labels["quizquestions.quizquestion.example.com"])
-				parent, err = c.client.Quizquestion().ForceReadQuizQuestionByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *QuizquestionQuizQuestion
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name) {
-				RemoveChild("quizquestions.quizquestion.example.com", parent.Name, "quizchoices.quizchoice.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizquestions.quizquestion.example.com", nc.Labels, nc.Labels["quizquestions.quizquestion.example.com"])
+					parent, err = c.client.Quizquestion().ForceReadQuizQuestionByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] QuizchoiceQuizChoice Create New Informer")
+		informer := informerquizchoiceexamplecomv1.NewQuizChoiceInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &QuizchoiceQuizChoice{
+					client:     c.client,
+					QuizChoice: obj.(*basequizchoiceexamplecomv1.QuizChoice),
+				}
+
+				var parent *QuizquestionQuizQuestion
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("quizquestions.quizquestion.example.com", nc.Labels, nc.Labels["quizquestions.quizquestion.example.com"])
+					parent, err = c.client.Quizquestion().ForceReadQuizQuestionByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -5583,6 +5952,14 @@ func (group *TenantExampleV1) DeleteTenantByName(ctx context.Context, hashedName
 		RemoveChild("tenants.tenant.example.com", hashedName, "interests.interest.example.com", child)
 	}
 
+	for _, child := range GetChildren("tenants.tenant.example.com", hashedName, "runtimes.runtime.example.com") {
+		err := group.client.Runtime().DeleteRuntimeByName(ctx, child)
+		if err != nil && errors.IsNotFound(err) == false {
+			return err
+		}
+		RemoveChild("tenants.tenant.example.com", hashedName, "runtimes.runtime.example.com", child)
+	}
+
 	retryCount = 0
 	for {
 		err = group.client.baseClient.
@@ -5653,6 +6030,7 @@ func (group *TenantExampleV1) CreateTenantByName(ctx context.Context,
 
 	objToCreate.Spec.ConfigGvk = nil
 	objToCreate.Spec.InterestGvk = nil
+	objToCreate.Spec.RuntimeGvk = nil
 
 	var (
 		retryCount int
@@ -6072,6 +6450,76 @@ func (obj *TenantTenant) DeleteInterest(ctx context.Context, displayName string)
 	return
 }
 
+// GetRuntime returns child of given type
+func (obj *TenantTenant) GetRuntime(ctx context.Context) (
+	result *RuntimeRuntime, err error) {
+	children := GetChildren("tenants.tenant.example.com", obj.Name, "runtimes.runtime.example.com")
+	if len(children) == 0 {
+		return nil, NewChildNotFound(obj.DisplayName(), "Tenant.Tenant", "Runtime")
+	}
+	return obj.client.Runtime().GetRuntimeByName(ctx, children[0])
+}
+
+// AddRuntime calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (obj *TenantTenant) AddRuntime(ctx context.Context,
+	objToCreate *baseruntimeexamplecomv1.Runtime) (result *RuntimeRuntime, err error) {
+	log.Debugf("[AddRuntime] Received objToAdd: %s", objToCreate.GetName())
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for _, v := range helper.GetCRDParentsMap()["tenants.tenant.example.com"] {
+		objToCreate.Labels[v] = obj.Labels[v]
+	}
+	objToCreate.Labels["tenants.tenant.example.com"] = obj.DisplayName()
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		if objToCreate.GetName() == "" {
+			objToCreate.SetName(helper.DEFAULT_KEY)
+		}
+		if objToCreate.GetName() != helper.DEFAULT_KEY {
+			return nil, NewSingletonNameError(objToCreate.GetName())
+		}
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	result, err = obj.client.Runtime().CreateRuntimeByName(ctx, objToCreate)
+	log.Debugf("[AddRuntime] Runtime created successfully: %s", objToCreate.GetName())
+	updatedObj, getErr := obj.client.Tenant().GetTenantByName(ctx, obj.GetName())
+	if getErr == nil {
+		obj.Tenant = updatedObj.Tenant
+	}
+	log.Debugf("[AddRuntime] Executed Successfully: %s", objToCreate.GetName())
+	return
+}
+
+// DeleteRuntime calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+
+func (obj *TenantTenant) DeleteRuntime(ctx context.Context) (err error) {
+	children := GetChildren("tenants.tenant.example.com", obj.Name, "runtimes.runtime.example.com")
+	if len(children) > 1 {
+		log.Panicf("[ DeleteRuntime] Cannot have more than 1 unnamed link for object %s. Current children %d", obj.GetName(), len(children))
+	}
+
+	if len(children) > 0 {
+		err = obj.client.
+			Runtime().DeleteRuntimeByName(ctx, children[0])
+		if err != nil {
+			return err
+		}
+	}
+
+	updatedObj, err := obj.client.
+		Tenant().GetTenantByName(ctx, obj.GetName())
+	if err == nil {
+		obj.Tenant = updatedObj.Tenant
+	}
+	return
+}
+
 type tenantTenantExampleV1Chainer struct {
 	client       *Clientset
 	name         string
@@ -6140,10 +6588,6 @@ func (c *tenantTenantExampleV1Chainer) RegisterEventHandler(addCB func(obj *Tena
 		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
 		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -6173,9 +6617,6 @@ func (c *tenantTenantExampleV1Chainer) RegisterEventHandler(addCB func(obj *Tena
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
-				AddChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -6222,10 +6663,6 @@ func (c *tenantTenantExampleV1Chainer) RegisterEventHandler(addCB func(obj *Tena
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
-				RemoveChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -6237,63 +6674,87 @@ func (c *tenantTenantExampleV1Chainer) RegisterAddCallback(cbfn func(obj *Tenant
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "tenants.tenant.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for TenantTenant")
+		log.Debugf("[RegisterAddCallback] TenantTenant Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
-		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &TenantTenant{
-				client: c.client,
-				Tenant: obj.(*basetenantexamplecomv1.Tenant),
-			}
-
-			var parent *RootRoot
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &TenantTenant{
+					client: c.client,
+					Tenant: obj.(*basetenantexamplecomv1.Tenant),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-				parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
-				AddChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] TenantTenant Create New Informer")
+		informer := informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &TenantTenant{
+					client: c.client,
+					Tenant: obj.(*basetenantexamplecomv1.Tenant),
+				}
+
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -6302,38 +6763,43 @@ func (c *tenantTenantExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, 
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "tenants.tenant.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for TenantTenant")
+		log.Debugf("[RegisterUpdateCallback] TenantTenant Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &TenantTenant{
+					client: c.client,
+					Tenant: oldObj.(*basetenantexamplecomv1.Tenant),
+				}
+				newData := &TenantTenant{
+					client: c.client,
+					Tenant: newObj.(*basetenantexamplecomv1.Tenant),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
-		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] TenantTenant Create New Informer")
+		informer := informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &TenantTenant{
+					client: c.client,
+					Tenant: oldObj.(*basetenantexamplecomv1.Tenant),
+				}
+				newData := &TenantTenant{
+					client: c.client,
+					Tenant: newObj.(*basetenantexamplecomv1.Tenant),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &TenantTenant{
-				client: c.client,
-				Tenant: oldObj.(*basetenantexamplecomv1.Tenant),
-			}
-			newData := &TenantTenant{
-				client: c.client,
-				Tenant: newObj.(*basetenantexamplecomv1.Tenant),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -6342,63 +6808,87 @@ func (c *tenantTenantExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Ten
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "tenants.tenant.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for TenantTenant")
+		log.Debugf("[RegisterDeleteCallback] TenantTenant Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for TenantTenant, so creating a new one")
-		informer = informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &TenantTenant{
-				client: c.client,
-				Tenant: obj.(*basetenantexamplecomv1.Tenant),
-			}
-
-			var parent *RootRoot
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &TenantTenant{
+					client: c.client,
+					Tenant: obj.(*basetenantexamplecomv1.Tenant),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
-				parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name) {
-				RemoveChild("roots.root.example.com", parent.Name, "tenants.tenant.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] TenantTenant Create New Informer")
+		informer := informertenantexamplecomv1.NewTenantInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &TenantTenant{
+					client: c.client,
+					Tenant: obj.(*basetenantexamplecomv1.Tenant),
+				}
+
+				var parent *RootRoot
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("roots.root.example.com", nc.Labels, nc.Labels["roots.root.example.com"])
+					parent, err = c.client.Root().ForceReadRootByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -6500,6 +6990,59 @@ func (c *tenantTenantExampleV1Chainer) DeleteInterest(ctx context.Context, name 
 	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
 	hashedName := helper.GetHashedName("interests.interest.example.com", c.parentLabels, name)
 	return c.client.Interest().DeleteInterestByName(ctx, hashedName)
+}
+
+func (c *tenantTenantExampleV1Chainer) Runtime() *runtimeRuntimeExampleV1Chainer {
+	parentLabels := c.parentLabels
+	parentLabels["runtimes.runtime.example.com"] = helper.DEFAULT_KEY
+	return &runtimeRuntimeExampleV1Chainer{
+		client:       c.client,
+		name:         helper.DEFAULT_KEY,
+		parentLabels: parentLabels,
+	}
+}
+
+// GetRuntime calculates hashed name of the object based on it's parents and returns the object
+func (c *tenantTenantExampleV1Chainer) GetRuntime(ctx context.Context) (result *RuntimeRuntime, err error) {
+	hashedName := helper.GetHashedName("runtimes.runtime.example.com", c.parentLabels, helper.DEFAULT_KEY)
+	return c.client.Runtime().GetRuntimeByName(ctx, hashedName)
+}
+
+// AddRuntime calculates hashed name of the child to create based on parents names and creates it.
+// objToCreate.Name is changed to the hashed name. Original name ('default') is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (c *tenantTenantExampleV1Chainer) AddRuntime(ctx context.Context,
+	objToCreate *baseruntimeexamplecomv1.Runtime) (result *RuntimeRuntime, err error) {
+	if objToCreate.GetName() == "" {
+		objToCreate.SetName(helper.DEFAULT_KEY)
+	}
+	if objToCreate.GetName() != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToCreate.GetName())
+	}
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for k, v := range c.parentLabels {
+		objToCreate.Labels[k] = v
+	}
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName("runtimes.runtime.example.com", c.parentLabels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	return c.client.Runtime().CreateRuntimeByName(ctx, objToCreate)
+}
+
+// DeleteRuntime calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+func (c *tenantTenantExampleV1Chainer) DeleteRuntime(ctx context.Context, name string) (err error) {
+	if c.parentLabels == nil {
+		c.parentLabels = map[string]string{}
+	}
+	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
+	hashedName := helper.GetHashedName("runtimes.runtime.example.com", c.parentLabels, name)
+	return c.client.Runtime().DeleteRuntimeByName(ctx, hashedName)
 }
 
 func (group *ConfigExampleV1) GetConfigChildrenMap() map[string]baseconfigexamplecomv1.Child {
@@ -7307,10 +7850,6 @@ func (c *configConfigExampleV1Chainer) RegisterEventHandler(addCB func(obj *Conf
 		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
 		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -7340,9 +7879,6 @@ func (c *configConfigExampleV1Chainer) RegisterEventHandler(addCB func(obj *Conf
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
-				AddChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -7389,10 +7925,6 @@ func (c *configConfigExampleV1Chainer) RegisterEventHandler(addCB func(obj *Conf
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
-				RemoveChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -7404,63 +7936,87 @@ func (c *configConfigExampleV1Chainer) RegisterAddCallback(cbfn func(obj *Config
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "configs.config.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for ConfigConfig")
+		log.Debugf("[RegisterAddCallback] ConfigConfig Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
-		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &ConfigConfig{
-				client: c.client,
-				Config: obj.(*baseconfigexamplecomv1.Config),
-			}
-
-			var parent *TenantTenant
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &ConfigConfig{
+					client: c.client,
+					Config: obj.(*baseconfigexamplecomv1.Config),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
-				AddChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] ConfigConfig Create New Informer")
+		informer := informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &ConfigConfig{
+					client: c.client,
+					Config: obj.(*baseconfigexamplecomv1.Config),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -7469,38 +8025,43 @@ func (c *configConfigExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, 
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "configs.config.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for ConfigConfig")
+		log.Debugf("[RegisterUpdateCallback] ConfigConfig Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &ConfigConfig{
+					client: c.client,
+					Config: oldObj.(*baseconfigexamplecomv1.Config),
+				}
+				newData := &ConfigConfig{
+					client: c.client,
+					Config: newObj.(*baseconfigexamplecomv1.Config),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
-		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] ConfigConfig Create New Informer")
+		informer := informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &ConfigConfig{
+					client: c.client,
+					Config: oldObj.(*baseconfigexamplecomv1.Config),
+				}
+				newData := &ConfigConfig{
+					client: c.client,
+					Config: newObj.(*baseconfigexamplecomv1.Config),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &ConfigConfig{
-				client: c.client,
-				Config: oldObj.(*baseconfigexamplecomv1.Config),
-			}
-			newData := &ConfigConfig{
-				client: c.client,
-				Config: newObj.(*baseconfigexamplecomv1.Config),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -7509,63 +8070,87 @@ func (c *configConfigExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Con
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "configs.config.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for ConfigConfig")
+		log.Debugf("[RegisterDeleteCallback] ConfigConfig Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for ConfigConfig, so creating a new one")
-		informer = informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &ConfigConfig{
-				client: c.client,
-				Config: obj.(*baseconfigexamplecomv1.Config),
-			}
-
-			var parent *TenantTenant
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &ConfigConfig{
+					client: c.client,
+					Config: obj.(*baseconfigexamplecomv1.Config),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name) {
-				RemoveChild("tenants.tenant.example.com", parent.Name, "configs.config.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] ConfigConfig Create New Informer")
+		informer := informerconfigexamplecomv1.NewConfigInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &ConfigConfig{
+					client: c.client,
+					Config: obj.(*baseconfigexamplecomv1.Config),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -8377,10 +8962,6 @@ func (c *eventEventExampleV1Chainer) RegisterEventHandler(addCB func(obj *EventE
 		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
 		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -8410,9 +8991,6 @@ func (c *eventEventExampleV1Chainer) RegisterEventHandler(addCB func(obj *EventE
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
-				AddChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -8459,10 +9037,6 @@ func (c *eventEventExampleV1Chainer) RegisterEventHandler(addCB func(obj *EventE
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
-				RemoveChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -8474,63 +9048,87 @@ func (c *eventEventExampleV1Chainer) RegisterAddCallback(cbfn func(obj *EventEve
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "events.event.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for EventEvent")
+		log.Debugf("[RegisterAddCallback] EventEvent Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
-		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &EventEvent{
-				client: c.client,
-				Event:  obj.(*baseeventexamplecomv1.Event),
-			}
-
-			var parent *ConfigConfig
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &EventEvent{
+					client: c.client,
+					Event:  obj.(*baseeventexamplecomv1.Event),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
-				AddChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] EventEvent Create New Informer")
+		informer := informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &EventEvent{
+					client: c.client,
+					Event:  obj.(*baseeventexamplecomv1.Event),
+				}
+
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -8539,38 +9137,43 @@ func (c *eventEventExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, ne
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "events.event.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for EventEvent")
+		log.Debugf("[RegisterUpdateCallback] EventEvent Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &EventEvent{
+					client: c.client,
+					Event:  oldObj.(*baseeventexamplecomv1.Event),
+				}
+				newData := &EventEvent{
+					client: c.client,
+					Event:  newObj.(*baseeventexamplecomv1.Event),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
-		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] EventEvent Create New Informer")
+		informer := informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &EventEvent{
+					client: c.client,
+					Event:  oldObj.(*baseeventexamplecomv1.Event),
+				}
+				newData := &EventEvent{
+					client: c.client,
+					Event:  newObj.(*baseeventexamplecomv1.Event),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &EventEvent{
-				client: c.client,
-				Event:  oldObj.(*baseeventexamplecomv1.Event),
-			}
-			newData := &EventEvent{
-				client: c.client,
-				Event:  newObj.(*baseeventexamplecomv1.Event),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -8579,63 +9182,87 @@ func (c *eventEventExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Event
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "events.event.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for EventEvent")
+		log.Debugf("[RegisterDeleteCallback] EventEvent Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for EventEvent, so creating a new one")
-		informer = informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &EventEvent{
-				client: c.client,
-				Event:  obj.(*baseeventexamplecomv1.Event),
-			}
-
-			var parent *ConfigConfig
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &EventEvent{
+					client: c.client,
+					Event:  obj.(*baseeventexamplecomv1.Event),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name) {
-				RemoveChild("configs.config.example.com", parent.Name, "events.event.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] EventEvent Create New Informer")
+		informer := informereventexamplecomv1.NewEventInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &EventEvent{
+					client: c.client,
+					Event:  obj.(*baseeventexamplecomv1.Event),
+				}
+
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -9460,10 +10087,6 @@ func (c *userUserExampleV1Chainer) RegisterEventHandler(addCB func(obj *UserUser
 		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
 		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -9493,9 +10116,6 @@ func (c *userUserExampleV1Chainer) RegisterEventHandler(addCB func(obj *UserUser
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
-				AddChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -9542,10 +10162,6 @@ func (c *userUserExampleV1Chainer) RegisterEventHandler(addCB func(obj *UserUser
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
-				RemoveChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -9557,63 +10173,87 @@ func (c *userUserExampleV1Chainer) RegisterAddCallback(cbfn func(obj *UserUser))
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "users.user.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for UserUser")
+		log.Debugf("[RegisterAddCallback] UserUser Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
-		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &UserUser{
-				client: c.client,
-				User:   obj.(*baseuserexamplecomv1.User),
-			}
-
-			var parent *ConfigConfig
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &UserUser{
+					client: c.client,
+					User:   obj.(*baseuserexamplecomv1.User),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
-				AddChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] UserUser Create New Informer")
+		informer := informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &UserUser{
+					client: c.client,
+					User:   obj.(*baseuserexamplecomv1.User),
+				}
+
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -9622,38 +10262,43 @@ func (c *userUserExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "users.user.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for UserUser")
+		log.Debugf("[RegisterUpdateCallback] UserUser Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &UserUser{
+					client: c.client,
+					User:   oldObj.(*baseuserexamplecomv1.User),
+				}
+				newData := &UserUser{
+					client: c.client,
+					User:   newObj.(*baseuserexamplecomv1.User),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
-		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] UserUser Create New Informer")
+		informer := informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &UserUser{
+					client: c.client,
+					User:   oldObj.(*baseuserexamplecomv1.User),
+				}
+				newData := &UserUser{
+					client: c.client,
+					User:   newObj.(*baseuserexamplecomv1.User),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &UserUser{
-				client: c.client,
-				User:   oldObj.(*baseuserexamplecomv1.User),
-			}
-			newData := &UserUser{
-				client: c.client,
-				User:   newObj.(*baseuserexamplecomv1.User),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -9662,63 +10307,87 @@ func (c *userUserExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *UserUse
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "users.user.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for UserUser")
+		log.Debugf("[RegisterDeleteCallback] UserUser Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for UserUser, so creating a new one")
-		informer = informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &UserUser{
-				client: c.client,
-				User:   obj.(*baseuserexamplecomv1.User),
-			}
-
-			var parent *ConfigConfig
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &UserUser{
+					client: c.client,
+					User:   obj.(*baseuserexamplecomv1.User),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
-				parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name) {
-				RemoveChild("configs.config.example.com", parent.Name, "users.user.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] UserUser Create New Informer")
+		informer := informeruserexamplecomv1.NewUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &UserUser{
+					client: c.client,
+					User:   obj.(*baseuserexamplecomv1.User),
+				}
+
+				var parent *ConfigConfig
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("configs.config.example.com", nc.Labels, nc.Labels["configs.config.example.com"])
+					parent, err = c.client.Config().ForceReadConfigByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -10380,10 +11049,6 @@ func (c *wannaWannaExampleV1Chainer) RegisterEventHandler(addCB func(obj *WannaW
 		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
 		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -10413,9 +11078,6 @@ func (c *wannaWannaExampleV1Chainer) RegisterEventHandler(addCB func(obj *WannaW
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
-				AddChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -10462,10 +11124,6 @@ func (c *wannaWannaExampleV1Chainer) RegisterEventHandler(addCB func(obj *WannaW
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
-				RemoveChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -10477,63 +11135,87 @@ func (c *wannaWannaExampleV1Chainer) RegisterAddCallback(cbfn func(obj *WannaWan
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "wannas.wanna.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for WannaWanna")
+		log.Debugf("[RegisterAddCallback] WannaWanna Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
-		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &WannaWanna{
-				client: c.client,
-				Wanna:  obj.(*basewannaexamplecomv1.Wanna),
-			}
-
-			var parent *UserUser
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &WannaWanna{
+					client: c.client,
+					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
-				parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *UserUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
-				AddChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
+					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] WannaWanna Create New Informer")
+		informer := informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &WannaWanna{
+					client: c.client,
+					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
+				}
+
+				var parent *UserUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
+					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -10542,38 +11224,43 @@ func (c *wannaWannaExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, ne
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "wannas.wanna.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for WannaWanna")
+		log.Debugf("[RegisterUpdateCallback] WannaWanna Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &WannaWanna{
+					client: c.client,
+					Wanna:  oldObj.(*basewannaexamplecomv1.Wanna),
+				}
+				newData := &WannaWanna{
+					client: c.client,
+					Wanna:  newObj.(*basewannaexamplecomv1.Wanna),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
-		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] WannaWanna Create New Informer")
+		informer := informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &WannaWanna{
+					client: c.client,
+					Wanna:  oldObj.(*basewannaexamplecomv1.Wanna),
+				}
+				newData := &WannaWanna{
+					client: c.client,
+					Wanna:  newObj.(*basewannaexamplecomv1.Wanna),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &WannaWanna{
-				client: c.client,
-				Wanna:  oldObj.(*basewannaexamplecomv1.Wanna),
-			}
-			newData := &WannaWanna{
-				client: c.client,
-				Wanna:  newObj.(*basewannaexamplecomv1.Wanna),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -10582,63 +11269,87 @@ func (c *wannaWannaExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *Wanna
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "wannas.wanna.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for WannaWanna")
+		log.Debugf("[RegisterDeleteCallback] WannaWanna Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for WannaWanna, so creating a new one")
-		informer = informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &WannaWanna{
-				client: c.client,
-				Wanna:  obj.(*basewannaexamplecomv1.Wanna),
-			}
-
-			var parent *UserUser
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &WannaWanna{
+					client: c.client,
+					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
 				}
-				parent = p
-				break
-			}
 
-			if parent == nil {
-				hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
-				parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+				var parent *UserUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if IsChildExists("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name) {
-				RemoveChild("users.user.example.com", parent.Name, "wannas.wanna.example.com", nc.Name)
-			}
 
-			cbfn(nc)
-		},
-	})
+				if parent == nil {
+					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
+					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] WannaWanna Create New Informer")
+		informer := informerwannaexamplecomv1.NewWannaInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &WannaWanna{
+					client: c.client,
+					Wanna:  obj.(*basewannaexamplecomv1.Wanna),
+				}
+
+				var parent *UserUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("users.user.example.com", nc.Labels, nc.Labels["users.user.example.com"])
+					parent, err = c.client.User().ForceReadUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -11190,10 +11901,6 @@ func (c *interestInterestExampleV1Chainer) RegisterEventHandler(addCB func(obj *
 		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
 		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
 	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
 		AddFunc: func(obj interface{}) {
@@ -11223,9 +11930,6 @@ func (c *interestInterestExampleV1Chainer) RegisterEventHandler(addCB func(obj *
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
-			if !IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
-				AddChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
 			}
 
 			addCB(nc)
@@ -11272,10 +11976,6 @@ func (c *interestInterestExampleV1Chainer) RegisterEventHandler(addCB func(obj *
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
 
-			if IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
-				RemoveChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
-			}
-
 			deleteCB(nc)
 		},
 	})
@@ -11287,63 +11987,87 @@ func (c *interestInterestExampleV1Chainer) RegisterAddCallback(cbfn func(obj *In
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "interests.interest.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for InterestInterest")
+		log.Debugf("[RegisterAddCallback] InterestInterest Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
-	} else {
-		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
-		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
-	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		AddFunc: func(obj interface{}) {
-			nc := &InterestInterest{
-				client:   c.client,
-				Interest: obj.(*baseinterestexamplecomv1.Interest),
-			}
-
-			var parent *TenantTenant
-			for i := 0; i < 600; i++ {
-				// Check if parent exists
-				p, err := nc.GetParent(context.TODO())
-				if err != nil || p == nil {
-					time.Sleep(500 * time.Millisecond)
-					continue
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &InterestInterest{
+					client:   c.client,
+					Interest: obj.(*baseinterestexamplecomv1.Interest),
 				}
-				parent = p
-				break
-			}
-			if parent == nil {
-				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
-				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
-				if err != nil {
-					if errors.IsNotFound(err) {
-						return
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
 					}
-
-					panic("error occurred while fetching parent " + err.Error())
+					parent = p
+					break
 				}
-				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
-			}
 
-			if !IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
-				AddChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
-			}
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
 
-			cbfn(nc)
-		},
-	})
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
 
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] InterestInterest Create New Informer")
+		informer := informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &InterestInterest{
+					client:   c.client,
+					Interest: obj.(*baseinterestexamplecomv1.Interest),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }
 
@@ -11352,38 +12076,43 @@ func (c *interestInterestExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldO
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
 	)
-
 	key := "interests.interest.example.com"
+	stopper := make(chan struct{})
 	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for InterestInterest")
+		log.Debugf("[RegisterUpdateCallback] InterestInterest Use Subscription Informer")
 		sub := s.(subscription)
-		informer = sub.informer
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &InterestInterest{
+					client:   c.client,
+					Interest: oldObj.(*baseinterestexamplecomv1.Interest),
+				}
+				newData := &InterestInterest{
+					client:   c.client,
+					Interest: newObj.(*baseinterestexamplecomv1.Interest),
+				}
+				cbfn(oldData, newData)
+			},
+		})
 	} else {
-		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
-		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
-		subscribe(key, informer)
-
-		c.RegisterAddCallback(c.addCallback)
-		c.RegisterDeleteCallback(c.deleteCallback)
-
+		log.Debugf("[RegisterUpdateCallback] InterestInterest Create New Informer")
+		informer := informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &InterestInterest{
+					client:   c.client,
+					Interest: oldObj.(*baseinterestexamplecomv1.Interest),
+				}
+				newData := &InterestInterest{
+					client:   c.client,
+					Interest: newObj.(*baseinterestexamplecomv1.Interest),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
 	}
-
-	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		UpdateFunc: func(oldObj, newObj interface{}) {
-			oldData := &InterestInterest{
-				client:   c.client,
-				Interest: oldObj.(*baseinterestexamplecomv1.Interest),
-			}
-			newData := &InterestInterest{
-				client:   c.client,
-				Interest: newObj.(*baseinterestexamplecomv1.Interest),
-			}
-			cbfn(oldData, newData)
-		},
-	})
-
 	return registrationId, err
 }
 
@@ -11392,29 +12121,766 @@ func (c *interestInterestExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj 
 	var (
 		registrationId cache.ResourceEventHandlerRegistration
 		err            error
-		informer       cache.SharedIndexInformer
+	)
+	key := "interests.interest.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterDeleteCallback] InterestInterest Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &InterestInterest{
+					client:   c.client,
+					Interest: obj.(*baseinterestexamplecomv1.Interest),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] InterestInterest Create New Informer")
+		informer := informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &InterestInterest{
+					client:   c.client,
+					Interest: obj.(*baseinterestexamplecomv1.Interest),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (group *RuntimeExampleV1) GetRuntimeChildrenMap() map[string]baseruntimeexamplecomv1.Child {
+	return map[string]baseruntimeexamplecomv1.Child{}
+}
+
+func (group *RuntimeExampleV1) GetRuntimeChild(grp, kind, name string) baseruntimeexamplecomv1.Child {
+	return baseruntimeexamplecomv1.Child{
+		Group: grp,
+		Kind:  kind,
+		Name:  name,
+	}
+}
+
+// GetRuntimeByName returns object stored in the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeExampleV1) GetRuntimeByName(ctx context.Context, hashedName string) (*RuntimeRuntime, error) {
+	key := "runtimes.runtime.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		// Check if the object is in write cache.
+		resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+		item, exists, _ := s.(subscription).informer.GetStore().GetByKey(hashedName)
+		if exists {
+			log.Debugf("[GetRuntimeByName] Object: %s exists in cache", hashedName)
+			resultCache, _ := item.(*baseruntimeexamplecomv1.Runtime)
+			subsCacheVersion, subsCacheVersionErr := strconv.Atoi(resultCache.ResourceVersion)
+			if subsCacheVersionErr != nil {
+				log.Fatalf("[GetRuntimeByName] Getting version of Object: %s failed with error %v", hashedName, subsCacheVersionErr)
+			}
+
+			writeCacheVersion := 0
+			var writeCacheVersionErr error
+			if inWrCache {
+				writeCacheVersion, writeCacheVersionErr = strconv.Atoi(resWrCache.(*baseruntimeexamplecomv1.Runtime).ResourceVersion)
+				if writeCacheVersionErr != nil {
+					log.Fatalf("[GetRuntimeByName] Getting version of Object: %s in write cache failed with error %v", hashedName, writeCacheVersionErr)
+				}
+			}
+
+			if !inWrCache || subsCacheVersion >= writeCacheVersion {
+				if inWrCache {
+					s.(subscription).WriteCacheObjects.Delete(hashedName)
+				}
+				return &RuntimeRuntime{
+					client:  group.client,
+					Runtime: resultCache,
+				}, nil
+			}
+		}
+		if inWrCache {
+			return &RuntimeRuntime{
+				client:  group.client,
+				Runtime: resWrCache.(*baseruntimeexamplecomv1.Runtime),
+			}, nil
+		}
+	}
+
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeExampleV1().
+			Runtimes().Get(ctx, hashedName, metav1.GetOptions{})
+		if err == nil {
+			return &RuntimeRuntime{
+				client:  group.client,
+				Runtime: result,
+			}, nil
+		} else if errors.IsNotFound(err) {
+			log.Debugf("[GetRuntimeByName]: object %v not found", hashedName)
+			return nil, err
+		} else {
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on Get Runtimes: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[GetRuntimeByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[GetRuntimeByName]: %+v", err)
+				return nil, err
+			}
+		}
+	}
+}
+
+// ForceReadRuntimeByName read object directly from the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeExampleV1) ForceReadRuntimeByName(ctx context.Context, hashedName string) (*RuntimeRuntime, error) {
+	log.Debugf("[ForceReadRuntimeByName] Received object :%s to read from DB", hashedName)
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeExampleV1().
+			Runtimes().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[ForceReadRuntimeByName] Failed to Get Runtimes: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Errorf("[Retry Count: %d ] %+v", retryCount, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max Retry exceed on Get Runtimes: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[ForceReadRuntimeByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[ForceReadRuntimeByName]: %+v", err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[ForceReadRuntimeByName] Executed Successfully :%s", hashedName)
+			return &RuntimeRuntime{
+				client:  group.client,
+				Runtime: result,
+			}, nil
+		}
+	}
+}
+
+// DeleteRuntimeByName deletes object stored in the database under the hashedName which is a hash of
+// display name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeExampleV1) DeleteRuntimeByName(ctx context.Context, hashedName string) (err error) {
+	log.Debugf("[DeleteRuntimeByName] Received objectToDelete: %s", hashedName)
+	var (
+		retryCount int
+		result     *baseruntimeexamplecomv1.Runtime
 	)
 
-	key := "interests.interest.example.com"
-	if s, ok := subscriptionMap.Load(key); ok {
-		fmt.Println("Informer exists for InterestInterest")
-		sub := s.(subscription)
-		informer = sub.informer
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeExampleV1().
+			Runtimes().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeByName] Failed to get Runtimes: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on get Runtimes: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeByName] context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	if result == nil {
+		return err
+	}
+
+	for _, child := range GetChildren("runtimes.runtime.example.com", hashedName, "runtimeusers.runtimeuser.example.com") {
+		err := group.client.Runtimeuser().DeleteRuntimeUserByName(ctx, child)
+		if err != nil && errors.IsNotFound(err) == false {
+			return err
+		}
+		RemoveChild("runtimes.runtime.example.com", hashedName, "runtimeusers.runtimeuser.example.com", child)
+	}
+
+	retryCount = 0
+	for {
+		err = group.client.baseClient.
+			RuntimeExampleV1().
+			Runtimes().Delete(ctx, hashedName, metav1.DeleteOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeByName] failed to delete Runtimes: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on delete Runtimes: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeByName]: context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			if s, ok := subscriptionMap.Load("runtimes.runtime.example.com"); ok {
+				s.(subscription).WriteCacheObjects.Delete(hashedName)
+			}
+			break
+		}
+	}
+	// Get Parent Node and check if gvk present before patch
+
+	log.Debugf("[DeleteRuntimeByName] Get parent details for object: %s", hashedName)
+	// var patch Patch
+	parents := result.GetLabels()
+	if parents == nil {
+		parents = make(map[string]string)
+	}
+	parentName, ok := parents["tenants.tenant.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	if result.GetLabels() != nil {
+		if parents[common.IS_NAME_HASHED_LABEL] == "true" {
+			parentName = helper.GetHashedName("tenants.tenant.example.com", parents, parentName)
+		}
 	} else {
-		fmt.Println("Informer doesn't exists for InterestInterest, so creating a new one")
-		informer = informerinterestexamplecomv1.NewInterestInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		parentName = helper.GetHashedName("tenants.tenant.example.com", parents, parentName)
+	}
+	RemoveChild("tenants.tenant.example.com", parentName, "runtimes.runtime.example.com", hashedName)
+
+	return nil
+}
+
+// CreateRuntimeByName creates object in the database without hashing the name.
+// Use it directly ONLY when objToCreate.Name is hashed name of the object.
+func (group *RuntimeExampleV1) CreateRuntimeByName(ctx context.Context,
+	objToCreate *baseruntimeexamplecomv1.Runtime) (*RuntimeRuntime, error) {
+	log.Debugf("[CreateRuntimeByName] Received objToCreate: %s", objToCreate.GetName())
+	if objToCreate.GetLabels() == nil {
+		objToCreate.Labels = make(map[string]string)
+	}
+	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+	}
+	if objToCreate.Labels[common.DISPLAY_NAME_LABEL] == "" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = helper.DEFAULT_KEY
+	}
+	if objToCreate.Labels[common.DISPLAY_NAME_LABEL] != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToCreate.Labels[common.DISPLAY_NAME_LABEL])
+	}
+
+	objToCreate.Spec.UserGvk = nil
+
+	var (
+		retryCount int
+		result     *baseruntimeexamplecomv1.Runtime
+		err        error
+	)
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeExampleV1().
+			Runtimes().Create(ctx, objToCreate, metav1.CreateOptions{})
+		if err != nil {
+			log.Errorf("[CreateRuntimeByName] Failed to create Runtime: %s, error: %+v", objToCreate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToCreate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on create Runtime: %s", objToCreate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[CreateRuntimeByName] context canceled while creating Runtime: %s", objToCreate.GetName())
+				return nil, context.Canceled
+			} else if errors.IsAlreadyExists(err) {
+				log.Debugf("[CreateRuntimeByName] Runtime: %s already exists, error: %+v", objToCreate.GetName(), err)
+				result, err = group.client.baseClient.RuntimeExampleV1().Runtimes().Get(ctx, objToCreate.GetName(), metav1.GetOptions{})
+				if err != nil {
+					log.Fatalf("[CreateRuntimeByName] Unable to Get Runtime %s after it was flagged as already exists, error: %+v", objToCreate.GetName(), err)
+				}
+				break
+			} else {
+				log.Errorf("[CreateRuntimeByName] found unexpected error while creating Runtime: %s, error: %+v", objToCreate.GetName(), err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[CreateRuntimeByName] Runtime: %s created successfully", objToCreate.GetName())
+			if s, ok := subscriptionMap.Load("runtimes.runtime.example.com"); ok {
+				log.Debugf("[CreateRuntimeByName] Runtime: %s stored in wr-cache", objToCreate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToCreate.GetName(), result)
+			}
+			break
+		}
+	}
+
+	parentName, ok := objToCreate.GetLabels()["tenants.tenant.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	parentHashedName := helper.GetHashedName("tenants.tenant.example.com", objToCreate.GetLabels(), parentName)
+
+	AddChild("tenants.tenant.example.com", parentHashedName, "runtimes.runtime.example.com", objToCreate.Name)
+
+	log.Debugf("[CreateRuntimeByName] Executed Successfully: %s", objToCreate.GetName())
+	return &RuntimeRuntime{
+		client:  group.client,
+		Runtime: result,
+	}, nil
+}
+
+// UpdateRuntimeByName updates object stored in the database under the hashedName which is a hash of
+// display name and parents names.
+func (group *RuntimeExampleV1) UpdateRuntimeByName(ctx context.Context,
+	objToUpdate *baseruntimeexamplecomv1.Runtime) (*RuntimeRuntime, error) {
+	log.Debugf("[UpdateRuntimeByName] Received objToUpdate: %s", objToUpdate.GetName())
+	if objToUpdate.Labels[common.DISPLAY_NAME_LABEL] != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToUpdate.Labels[common.DISPLAY_NAME_LABEL])
+	}
+
+	var patch Patch
+
+	if objToUpdate.Annotations != nil || objToUpdate.Labels != nil {
+		current, err := group.client.Runtime().GetRuntimeByName(ctx, objToUpdate.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		if objToUpdate.Annotations != nil {
+			if current.Annotations[ownershipAnnotation] != "" {
+				objToUpdate.Annotations[ownershipAnnotation] = current.Annotations[ownershipAnnotation]
+			}
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/annotations",
+				Value: objToUpdate.Annotations,
+			})
+		}
+
+		if objToUpdate.Labels != nil {
+			parentsList := helper.GetCRDParentsMap()["runtimes.runtime.example.com"]
+			for _, k := range parentsList {
+				objToUpdate.Labels[k] = current.Labels[k]
+			}
+			objToUpdate.Labels[common.IS_NAME_HASHED_LABEL] = current.Labels[common.IS_NAME_HASHED_LABEL]
+			objToUpdate.Labels[common.DISPLAY_NAME_LABEL] = current.Labels[common.DISPLAY_NAME_LABEL]
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/labels",
+				Value: objToUpdate.Labels,
+			})
+		}
+	}
+
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		result *baseruntimeexamplecomv1.Runtime
+	)
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeExampleV1().
+			Runtimes().Patch(newCtx, objToUpdate.GetName(), types.JSONPatchType, marshaled, metav1.PatchOptions{}, "")
+		if err != nil {
+			log.Errorf("[UpdateRuntimeByName] Failed to patch Runtime %s with error: %+v", objToUpdate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToUpdate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on patching: %s", objToUpdate.GetName())
+					log.Debugf("Trigger Runtime Delete: %s", objToUpdate.GetName())
+					delErr := group.DeleteRuntimeByName(newCtx, objToUpdate.GetName())
+					if delErr != nil {
+						log.Debugf("Error occur while deleting Runtime: %s", objToUpdate.GetName())
+						return nil, delErr
+					}
+					log.Debugf("Runtime deleted: %s", objToUpdate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[UpdateRuntimeByName]: context canceled: %s", objToUpdate.GetName())
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[UpdateRuntimeByName] Object: %s unexpected error: %+v", objToUpdate.GetName(), err)
+				log.Debugf("Trigger Runtime Delete: %s", objToUpdate.GetName())
+				delErr := group.DeleteRuntimeByName(newCtx, objToUpdate.GetName())
+				if delErr != nil {
+					log.Debugf("Error occur while deleting Runtime: %+v", objToUpdate.GetName())
+					return nil, delErr
+				}
+				log.Debugf("Runtime Deleted: %s", objToUpdate.GetName())
+				return nil, err
+			}
+		} else {
+			log.Debugf("[UpdateRuntimeByName] Patch Runtime Success :%s", objToUpdate.GetName())
+			if s, ok := subscriptionMap.Load("runtimes.runtime.example.com"); ok {
+				log.Debugf("[UpdateRuntimeByName] %s stored in wr-cache", objToUpdate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), result)
+			}
+			break
+		}
+	}
+	log.Debugf("[UpdateRuntimeByName] Executed Successfully %s", objToUpdate.GetName())
+	return &RuntimeRuntime{
+		client:  group.client,
+		Runtime: result,
+	}, nil
+}
+
+// ListRuntimes returns slice of all existing objects of this type. Selectors can be provided in opts parameter.
+func (group *RuntimeExampleV1) ListRuntimes(ctx context.Context,
+	opts metav1.ListOptions) (result []*RuntimeRuntime, err error) {
+	key := "runtimes.runtime.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		items := s.(subscription).informer.GetStore().List()
+		result = make([]*RuntimeRuntime, len(items))
+		for k, v := range items {
+			item, _ := v.(*baseruntimeexamplecomv1.Runtime)
+			result[k] = &RuntimeRuntime{
+				client:  group.client,
+				Runtime: item,
+			}
+		}
+	} else {
+		list, err := group.client.baseClient.RuntimeExampleV1().
+			Runtimes().List(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		result = make([]*RuntimeRuntime, len(list.Items))
+		for k, v := range list.Items {
+			item := v
+			result[k] = &RuntimeRuntime{
+				client:  group.client,
+				Runtime: &item,
+			}
+		}
+	}
+	return
+}
+
+type RuntimeRuntime struct {
+	client *Clientset
+	*baseruntimeexamplecomv1.Runtime
+}
+
+// Delete removes obj and all it's children from the database.
+func (obj *RuntimeRuntime) Delete(ctx context.Context) error {
+	err := obj.client.Runtime().DeleteRuntimeByName(ctx, obj.GetName())
+	if err != nil {
+		return err
+	}
+	obj.Runtime = nil
+	return nil
+}
+
+// Update updates spec of object in database. Children and Link can not be updated using this function.
+func (obj *RuntimeRuntime) Update(ctx context.Context) error {
+	result, err := obj.client.Runtime().UpdateRuntimeByName(ctx, obj.Runtime)
+	if err != nil {
+		return err
+	}
+	obj.Runtime = result.Runtime
+	return nil
+}
+
+func (obj *RuntimeRuntime) GetParent(ctx context.Context) (result *TenantTenant, err error) {
+	hashedName := helper.GetHashedName("tenants.tenant.example.com", obj.Labels, obj.Labels["tenants.tenant.example.com"])
+	return obj.client.Tenant().GetTenantByName(ctx, hashedName)
+}
+
+type RuntimeRuntimeUser struct {
+	client *Clientset
+	User   []baseruntimeexamplecomv1.Child
+}
+
+func (n *RuntimeRuntimeUser) Next(ctx context.Context) (*RuntimeuserRuntimeUser, error) {
+	for index, child := range n.User {
+		obj, err := n.client.Runtimeuser().GetRuntimeUserByName(ctx, child.Name)
+		if err == nil {
+			if index == len(n.User)-1 {
+				n.User = nil
+			} else {
+				n.User = n.User[index+1:]
+			}
+			return obj, nil
+		} else if errors.IsNotFound(err) {
+			continue
+		} else {
+			return nil, err
+		}
+	}
+	return nil, nil
+}
+
+// GetAllUserIter returns an iterator for all children of given type
+func (obj *RuntimeRuntime) GetAllUserIter(ctx context.Context) (
+	result RuntimeRuntimeUser) {
+	result.client = obj.client
+	for _, v := range GetChildren("runtimes.runtime.example.com", obj.Name, "runtimeusers.runtimeuser.example.com") {
+		result.User = append(result.User, baseruntimeexamplecomv1.Child{
+			Group: "runtimeuser.example.com",
+			Kind:  "RuntimeUser",
+			Name:  v,
+		})
+	}
+	return
+}
+
+// GetAllUser returns all children of a given type
+func (obj *RuntimeRuntime) GetAllUser(ctx context.Context) (
+	result []*RuntimeuserRuntimeUser, err error) {
+	for _, v := range GetChildren("runtimes.runtime.example.com", obj.Name, "runtimeusers.runtimeuser.example.com") {
+		l, err := obj.client.Runtimeuser().GetRuntimeUserByName(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, l)
+	}
+	return
+}
+
+// GetUser returns child which has given displayName
+func (obj *RuntimeRuntime) GetUser(ctx context.Context,
+	displayName string) (result *RuntimeuserRuntimeUser, err error) {
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["runtimes.runtime.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", parentLabels, displayName)
+	if IsChildExists("runtimes.runtime.example.com", obj.Name, "runtimeusers.runtimeuser.example.com", childHashName) == false {
+		return nil, NewChildNotFound(obj.DisplayName(), "Runtime.Runtime", "User", displayName)
+	}
+
+	result, err = obj.client.Runtimeuser().GetRuntimeUserByName(ctx, childHashName)
+	return
+}
+
+// AddUser calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (obj *RuntimeRuntime) AddUser(ctx context.Context,
+	objToCreate *baseruntimeuserexamplecomv1.RuntimeUser) (result *RuntimeuserRuntimeUser, err error) {
+	log.Debugf("[AddUser] Received objToAdd: %s", objToCreate.GetName())
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for _, v := range helper.GetCRDParentsMap()["runtimes.runtime.example.com"] {
+		objToCreate.Labels[v] = obj.Labels[v]
+	}
+	objToCreate.Labels["runtimes.runtime.example.com"] = obj.DisplayName()
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	result, err = obj.client.Runtimeuser().CreateRuntimeUserByName(ctx, objToCreate)
+	log.Debugf("[AddUser] RuntimeUser created successfully: %s", objToCreate.GetName())
+	updatedObj, getErr := obj.client.Runtime().GetRuntimeByName(ctx, obj.GetName())
+	if getErr == nil {
+		obj.Runtime = updatedObj.Runtime
+	}
+	log.Debugf("[AddUser] Executed Successfully: %s", objToCreate.GetName())
+	return
+}
+
+// DeleteUser calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+
+func (obj *RuntimeRuntime) DeleteUser(ctx context.Context, displayName string) (err error) {
+	log.Debugf("[ DeleteUser] Received for RuntimeUser object: %s to delete", displayName)
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["runtimes.runtime.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", parentLabels, displayName)
+	if IsChildExists("runtimes.runtime.example.com", obj.Name, "runtimeusers.runtimeuser.example.com", childHashName) == false {
+		return NewChildNotFound(obj.DisplayName(), "Runtime.Runtime", "User", displayName)
+	}
+
+	err = obj.client.Runtimeuser().DeleteRuntimeUserByName(ctx, childHashName)
+	if err != nil {
+		return err
+	}
+	log.Debugf("[ DeleteUser] RuntimeUser object: %s deleted successfully", displayName)
+	updatedObj, err := obj.client.Runtime().GetRuntimeByName(ctx, obj.GetName())
+	if err == nil {
+		obj.Runtime = updatedObj.Runtime
+	}
+	return
+}
+
+type runtimeRuntimeExampleV1Chainer struct {
+	client       *Clientset
+	name         string
+	parentLabels map[string]string
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) Subscribe() {
+	key := "runtimes.runtime.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeexamplecomv1.NewRuntimeInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
 		subscribe(key, informer)
 
 		c.RegisterAddCallback(c.addCallback)
 		c.RegisterDeleteCallback(c.deleteCallback)
 
 	}
+}
 
+func (c *runtimeRuntimeExampleV1Chainer) Unsubscribe() {
+	key := "runtimes.runtime.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		close(s.(subscription).stop)
+		subscriptionMap.Delete(key)
+	}
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) IsSubscribed() bool {
+	key := "runtimes.runtime.example.com"
+	_, ok := subscriptionMap.Load(key)
+	return ok
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) addCallback(obj *RuntimeRuntime) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["tenants.tenant.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("tenants.tenant.example.com", obj.Labels, parentDisplayName)
+
+	AddChild("tenants.tenant.example.com", parentHashName, "runtimes.runtime.example.com", obj.Name)
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) deleteCallback(obj *RuntimeRuntime) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["tenants.tenant.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("tenants.tenant.example.com", obj.Labels, parentDisplayName)
+
+	RemoveChild("tenants.tenant.example.com", parentHashName, "runtimes.runtime.example.com", obj.Name)
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) RegisterEventHandler(addCB func(obj *RuntimeRuntime), updateCB func(oldObj, newObj *RuntimeRuntime), deleteCB func(obj *RuntimeRuntime)) (cache.ResourceEventHandlerRegistration, error) {
+	fmt.Println("RegisterEventHandler for RuntimeRuntime")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+	key := "runtimes.runtime.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for RuntimeRuntime")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for RuntimeRuntime, so creating a new one")
+		informer = informerruntimeexamplecomv1.NewRuntimeInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
 	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
-		DeleteFunc: func(obj interface{}) {
-			nc := &InterestInterest{
-				client:   c.client,
-				Interest: obj.(*baseinterestexamplecomv1.Interest),
+		AddFunc: func(obj interface{}) {
+			nc := &RuntimeRuntime{
+				client:  c.client,
+				Runtime: obj.(*baseruntimeexamplecomv1.Runtime),
 			}
 
 			var parent *TenantTenant
@@ -11428,7 +12894,6 @@ func (c *interestInterestExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj 
 				parent = p
 				break
 			}
-
 			if parent == nil {
 				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
 				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
@@ -11436,18 +12901,4496 @@ func (c *interestInterestExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj 
 					if errors.IsNotFound(err) {
 						return
 					}
-
 					panic("error occurred while fetching parent " + err.Error())
 				}
 				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
 			}
-			if IsChildExists("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name) {
-				RemoveChild("tenants.tenant.example.com", parent.Name, "interests.interest.example.com", nc.Name)
+
+			addCB(nc)
+		},
+
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &RuntimeRuntime{
+				client:  c.client,
+				Runtime: oldObj.(*baseruntimeexamplecomv1.Runtime),
+			}
+			newData := &RuntimeRuntime{
+				client:  c.client,
+				Runtime: newObj.(*baseruntimeexamplecomv1.Runtime),
+			}
+			updateCB(oldData, newData)
+		},
+
+		DeleteFunc: func(obj interface{}) {
+			nc := &RuntimeRuntime{
+				client:  c.client,
+				Runtime: obj.(*baseruntimeexamplecomv1.Runtime),
 			}
 
-			cbfn(nc)
+			var parent *TenantTenant
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+				parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			deleteCB(nc)
 		},
 	})
+	return registrationId, err
+}
 
+func (c *runtimeRuntimeExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RuntimeRuntime)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterAddCallback] Received for RuntimeRuntime")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimes.runtime.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterAddCallback] RuntimeRuntime Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: obj.(*baseruntimeexamplecomv1.Runtime),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] RuntimeRuntime Create New Informer")
+		informer := informerruntimeexamplecomv1.NewRuntimeInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: obj.(*baseruntimeexamplecomv1.Runtime),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newObj *RuntimeRuntime)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterUpdateCallback] Received for RuntimeRuntime")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimes.runtime.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterUpdateCallback] RuntimeRuntime Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: oldObj.(*baseruntimeexamplecomv1.Runtime),
+				}
+				newData := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: newObj.(*baseruntimeexamplecomv1.Runtime),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterUpdateCallback] RuntimeRuntime Create New Informer")
+		informer := informerruntimeexamplecomv1.NewRuntimeInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: oldObj.(*baseruntimeexamplecomv1.Runtime),
+				}
+				newData := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: newObj.(*baseruntimeexamplecomv1.Runtime),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RuntimeRuntime)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterDeleteCallback] Received for RuntimeRuntime")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimes.runtime.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterDeleteCallback] RuntimeRuntime Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: obj.(*baseruntimeexamplecomv1.Runtime),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] RuntimeRuntime Create New Informer")
+		informer := informerruntimeexamplecomv1.NewRuntimeInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeRuntime{
+					client:  c.client,
+					Runtime: obj.(*baseruntimeexamplecomv1.Runtime),
+				}
+
+				var parent *TenantTenant
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("tenants.tenant.example.com", nc.Labels, nc.Labels["tenants.tenant.example.com"])
+					parent, err = c.client.Tenant().ForceReadTenantByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeRuntimeExampleV1Chainer) User(name string) *runtimeuserRuntimeuserExampleV1Chainer {
+	parentLabels := c.parentLabels
+	parentLabels["runtimeusers.runtimeuser.example.com"] = name
+	return &runtimeuserRuntimeuserExampleV1Chainer{
+		client:       c.client,
+		name:         name,
+		parentLabels: parentLabels,
+	}
+}
+
+// GetUser calculates hashed name of the object based on displayName and it's parents and returns the object
+func (c *runtimeRuntimeExampleV1Chainer) GetUser(ctx context.Context, displayName string) (result *RuntimeuserRuntimeUser, err error) {
+	hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", c.parentLabels, displayName)
+	return c.client.Runtimeuser().GetRuntimeUserByName(ctx, hashedName)
+}
+
+// AddUser calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (c *runtimeRuntimeExampleV1Chainer) AddUser(ctx context.Context,
+	objToCreate *baseruntimeuserexamplecomv1.RuntimeUser) (result *RuntimeuserRuntimeUser, err error) {
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for k, v := range c.parentLabels {
+		objToCreate.Labels[k] = v
+	}
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", c.parentLabels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	return c.client.Runtimeuser().CreateRuntimeUserByName(ctx, objToCreate)
+}
+
+// DeleteUser calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+func (c *runtimeRuntimeExampleV1Chainer) DeleteUser(ctx context.Context, name string) (err error) {
+	if c.parentLabels == nil {
+		c.parentLabels = map[string]string{}
+	}
+	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
+	hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", c.parentLabels, name)
+	return c.client.Runtimeuser().DeleteRuntimeUserByName(ctx, hashedName)
+}
+
+func (group *RuntimeuserExampleV1) GetRuntimeUserChildrenMap() map[string]baseruntimeuserexamplecomv1.Child {
+	return map[string]baseruntimeuserexamplecomv1.Child{}
+}
+
+func (group *RuntimeuserExampleV1) GetRuntimeUserChild(grp, kind, name string) baseruntimeuserexamplecomv1.Child {
+	return baseruntimeuserexamplecomv1.Child{
+		Group: grp,
+		Kind:  kind,
+		Name:  name,
+	}
+}
+
+// GetRuntimeUserByName returns object stored in the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeuserExampleV1) GetRuntimeUserByName(ctx context.Context, hashedName string) (*RuntimeuserRuntimeUser, error) {
+	key := "runtimeusers.runtimeuser.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		// Check if the object is in write cache.
+		resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+		item, exists, _ := s.(subscription).informer.GetStore().GetByKey(hashedName)
+		if exists {
+			log.Debugf("[GetRuntimeUserByName] Object: %s exists in cache", hashedName)
+			resultCache, _ := item.(*baseruntimeuserexamplecomv1.RuntimeUser)
+			subsCacheVersion, subsCacheVersionErr := strconv.Atoi(resultCache.ResourceVersion)
+			if subsCacheVersionErr != nil {
+				log.Fatalf("[GetRuntimeUserByName] Getting version of Object: %s failed with error %v", hashedName, subsCacheVersionErr)
+			}
+
+			writeCacheVersion := 0
+			var writeCacheVersionErr error
+			if inWrCache {
+				writeCacheVersion, writeCacheVersionErr = strconv.Atoi(resWrCache.(*baseruntimeuserexamplecomv1.RuntimeUser).ResourceVersion)
+				if writeCacheVersionErr != nil {
+					log.Fatalf("[GetRuntimeUserByName] Getting version of Object: %s in write cache failed with error %v", hashedName, writeCacheVersionErr)
+				}
+			}
+
+			if !inWrCache || subsCacheVersion >= writeCacheVersion {
+				if inWrCache {
+					s.(subscription).WriteCacheObjects.Delete(hashedName)
+				}
+				return &RuntimeuserRuntimeUser{
+					client:      group.client,
+					RuntimeUser: resultCache,
+				}, nil
+			}
+		}
+		if inWrCache {
+			return &RuntimeuserRuntimeUser{
+				client:      group.client,
+				RuntimeUser: resWrCache.(*baseruntimeuserexamplecomv1.RuntimeUser),
+			}, nil
+		}
+	}
+
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeuserExampleV1().
+			RuntimeUsers().Get(ctx, hashedName, metav1.GetOptions{})
+		if err == nil {
+			return &RuntimeuserRuntimeUser{
+				client:      group.client,
+				RuntimeUser: result,
+			}, nil
+		} else if errors.IsNotFound(err) {
+			log.Debugf("[GetRuntimeUserByName]: object %v not found", hashedName)
+			return nil, err
+		} else {
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on Get RuntimeUsers: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[GetRuntimeUserByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[GetRuntimeUserByName]: %+v", err)
+				return nil, err
+			}
+		}
+	}
+}
+
+// ForceReadRuntimeUserByName read object directly from the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeuserExampleV1) ForceReadRuntimeUserByName(ctx context.Context, hashedName string) (*RuntimeuserRuntimeUser, error) {
+	log.Debugf("[ForceReadRuntimeUserByName] Received object :%s to read from DB", hashedName)
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeuserExampleV1().
+			RuntimeUsers().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[ForceReadRuntimeUserByName] Failed to Get RuntimeUsers: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Errorf("[Retry Count: %d ] %+v", retryCount, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max Retry exceed on Get RuntimeUsers: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[ForceReadRuntimeUserByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[ForceReadRuntimeUserByName]: %+v", err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[ForceReadRuntimeUserByName] Executed Successfully :%s", hashedName)
+			return &RuntimeuserRuntimeUser{
+				client:      group.client,
+				RuntimeUser: result,
+			}, nil
+		}
+	}
+}
+
+// DeleteRuntimeUserByName deletes object stored in the database under the hashedName which is a hash of
+// display name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeuserExampleV1) DeleteRuntimeUserByName(ctx context.Context, hashedName string) (err error) {
+	log.Debugf("[DeleteRuntimeUserByName] Received objectToDelete: %s", hashedName)
+	var (
+		retryCount int
+		result     *baseruntimeuserexamplecomv1.RuntimeUser
+	)
+
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeuserExampleV1().
+			RuntimeUsers().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeUserByName] Failed to get RuntimeUsers: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on get RuntimeUsers: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeUserByName] context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeUserByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeUserByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	if result == nil {
+		return err
+	}
+
+	for _, child := range GetChildren("runtimeusers.runtimeuser.example.com", hashedName, "runtimeevaluations.runtimeevaluation.example.com") {
+		err := group.client.Runtimeevaluation().DeleteRuntimeEvaluationByName(ctx, child)
+		if err != nil && errors.IsNotFound(err) == false {
+			return err
+		}
+		RemoveChild("runtimeusers.runtimeuser.example.com", hashedName, "runtimeevaluations.runtimeevaluation.example.com", child)
+	}
+
+	retryCount = 0
+	for {
+		err = group.client.baseClient.
+			RuntimeuserExampleV1().
+			RuntimeUsers().Delete(ctx, hashedName, metav1.DeleteOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeUserByName] failed to delete RuntimeUsers: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on delete RuntimeUsers: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeUserByName]: context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeUserByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeUserByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			if s, ok := subscriptionMap.Load("runtimeusers.runtimeuser.example.com"); ok {
+				s.(subscription).WriteCacheObjects.Delete(hashedName)
+			}
+			break
+		}
+	}
+	// Get Parent Node and check if gvk present before patch
+
+	log.Debugf("[DeleteRuntimeUserByName] Get parent details for object: %s", hashedName)
+	// var patch Patch
+	parents := result.GetLabels()
+	if parents == nil {
+		parents = make(map[string]string)
+	}
+	parentName, ok := parents["runtimes.runtime.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	if result.GetLabels() != nil {
+		if parents[common.IS_NAME_HASHED_LABEL] == "true" {
+			parentName = helper.GetHashedName("runtimes.runtime.example.com", parents, parentName)
+		}
+	} else {
+		parentName = helper.GetHashedName("runtimes.runtime.example.com", parents, parentName)
+	}
+	RemoveChild("runtimes.runtime.example.com", parentName, "runtimeusers.runtimeuser.example.com", hashedName)
+
+	return nil
+}
+
+// CreateRuntimeUserByName creates object in the database without hashing the name.
+// Use it directly ONLY when objToCreate.Name is hashed name of the object.
+func (group *RuntimeuserExampleV1) CreateRuntimeUserByName(ctx context.Context,
+	objToCreate *baseruntimeuserexamplecomv1.RuntimeUser) (*RuntimeuserRuntimeUser, error) {
+	log.Debugf("[CreateRuntimeUserByName] Received objToCreate: %s", objToCreate.GetName())
+	if objToCreate.GetLabels() == nil {
+		objToCreate.Labels = make(map[string]string)
+	}
+	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+	}
+
+	objToCreate.Spec.EvaluationGvk = nil
+	objToCreate.Spec.UserGvk = nil
+
+	var (
+		retryCount int
+		result     *baseruntimeuserexamplecomv1.RuntimeUser
+		err        error
+	)
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeuserExampleV1().
+			RuntimeUsers().Create(ctx, objToCreate, metav1.CreateOptions{})
+		if err != nil {
+			log.Errorf("[CreateRuntimeUserByName] Failed to create RuntimeUser: %s, error: %+v", objToCreate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToCreate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on create RuntimeUser: %s", objToCreate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[CreateRuntimeUserByName] context canceled while creating RuntimeUser: %s", objToCreate.GetName())
+				return nil, context.Canceled
+			} else if errors.IsAlreadyExists(err) {
+				log.Debugf("[CreateRuntimeUserByName] RuntimeUser: %s already exists, error: %+v", objToCreate.GetName(), err)
+				result, err = group.client.baseClient.RuntimeuserExampleV1().RuntimeUsers().Get(ctx, objToCreate.GetName(), metav1.GetOptions{})
+				if err != nil {
+					log.Fatalf("[CreateRuntimeUserByName] Unable to Get RuntimeUser %s after it was flagged as already exists, error: %+v", objToCreate.GetName(), err)
+				}
+				break
+			} else {
+				log.Errorf("[CreateRuntimeUserByName] found unexpected error while creating RuntimeUser: %s, error: %+v", objToCreate.GetName(), err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[CreateRuntimeUserByName] RuntimeUser: %s created successfully", objToCreate.GetName())
+			if s, ok := subscriptionMap.Load("runtimeusers.runtimeuser.example.com"); ok {
+				log.Debugf("[CreateRuntimeUserByName] RuntimeUser: %s stored in wr-cache", objToCreate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToCreate.GetName(), result)
+			}
+			break
+		}
+	}
+
+	parentName, ok := objToCreate.GetLabels()["runtimes.runtime.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	parentHashedName := helper.GetHashedName("runtimes.runtime.example.com", objToCreate.GetLabels(), parentName)
+
+	AddChild("runtimes.runtime.example.com", parentHashedName, "runtimeusers.runtimeuser.example.com", objToCreate.Name)
+
+	log.Debugf("[CreateRuntimeUserByName] Executed Successfully: %s", objToCreate.GetName())
+	return &RuntimeuserRuntimeUser{
+		client:      group.client,
+		RuntimeUser: result,
+	}, nil
+}
+
+// UpdateRuntimeUserByName updates object stored in the database under the hashedName which is a hash of
+// display name and parents names.
+func (group *RuntimeuserExampleV1) UpdateRuntimeUserByName(ctx context.Context,
+	objToUpdate *baseruntimeuserexamplecomv1.RuntimeUser) (*RuntimeuserRuntimeUser, error) {
+	log.Debugf("[UpdateRuntimeUserByName] Received objToUpdate: %s", objToUpdate.GetName())
+
+	var patch Patch
+
+	if objToUpdate.Annotations != nil || objToUpdate.Labels != nil {
+		current, err := group.client.Runtimeuser().GetRuntimeUserByName(ctx, objToUpdate.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		if objToUpdate.Annotations != nil {
+			if current.Annotations[ownershipAnnotation] != "" {
+				objToUpdate.Annotations[ownershipAnnotation] = current.Annotations[ownershipAnnotation]
+			}
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/annotations",
+				Value: objToUpdate.Annotations,
+			})
+		}
+
+		if objToUpdate.Labels != nil {
+			parentsList := helper.GetCRDParentsMap()["runtimeusers.runtimeuser.example.com"]
+			for _, k := range parentsList {
+				objToUpdate.Labels[k] = current.Labels[k]
+			}
+			objToUpdate.Labels[common.IS_NAME_HASHED_LABEL] = current.Labels[common.IS_NAME_HASHED_LABEL]
+			objToUpdate.Labels[common.DISPLAY_NAME_LABEL] = current.Labels[common.DISPLAY_NAME_LABEL]
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/labels",
+				Value: objToUpdate.Labels,
+			})
+		}
+	}
+
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		result *baseruntimeuserexamplecomv1.RuntimeUser
+	)
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeuserExampleV1().
+			RuntimeUsers().Patch(newCtx, objToUpdate.GetName(), types.JSONPatchType, marshaled, metav1.PatchOptions{}, "")
+		if err != nil {
+			log.Errorf("[UpdateRuntimeUserByName] Failed to patch RuntimeUser %s with error: %+v", objToUpdate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToUpdate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on patching: %s", objToUpdate.GetName())
+					log.Debugf("Trigger RuntimeUser Delete: %s", objToUpdate.GetName())
+					delErr := group.DeleteRuntimeUserByName(newCtx, objToUpdate.GetName())
+					if delErr != nil {
+						log.Debugf("Error occur while deleting RuntimeUser: %s", objToUpdate.GetName())
+						return nil, delErr
+					}
+					log.Debugf("RuntimeUser deleted: %s", objToUpdate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[UpdateRuntimeUserByName]: context canceled: %s", objToUpdate.GetName())
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[UpdateRuntimeUserByName] Object: %s unexpected error: %+v", objToUpdate.GetName(), err)
+				log.Debugf("Trigger RuntimeUser Delete: %s", objToUpdate.GetName())
+				delErr := group.DeleteRuntimeUserByName(newCtx, objToUpdate.GetName())
+				if delErr != nil {
+					log.Debugf("Error occur while deleting RuntimeUser: %+v", objToUpdate.GetName())
+					return nil, delErr
+				}
+				log.Debugf("RuntimeUser Deleted: %s", objToUpdate.GetName())
+				return nil, err
+			}
+		} else {
+			log.Debugf("[UpdateRuntimeUserByName] Patch RuntimeUser Success :%s", objToUpdate.GetName())
+			if s, ok := subscriptionMap.Load("runtimeusers.runtimeuser.example.com"); ok {
+				log.Debugf("[UpdateRuntimeUserByName] %s stored in wr-cache", objToUpdate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), result)
+			}
+			break
+		}
+	}
+	log.Debugf("[UpdateRuntimeUserByName] Executed Successfully %s", objToUpdate.GetName())
+	return &RuntimeuserRuntimeUser{
+		client:      group.client,
+		RuntimeUser: result,
+	}, nil
+}
+
+// ListRuntimeUsers returns slice of all existing objects of this type. Selectors can be provided in opts parameter.
+func (group *RuntimeuserExampleV1) ListRuntimeUsers(ctx context.Context,
+	opts metav1.ListOptions) (result []*RuntimeuserRuntimeUser, err error) {
+	key := "runtimeusers.runtimeuser.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		items := s.(subscription).informer.GetStore().List()
+		result = make([]*RuntimeuserRuntimeUser, len(items))
+		for k, v := range items {
+			item, _ := v.(*baseruntimeuserexamplecomv1.RuntimeUser)
+			result[k] = &RuntimeuserRuntimeUser{
+				client:      group.client,
+				RuntimeUser: item,
+			}
+		}
+	} else {
+		list, err := group.client.baseClient.RuntimeuserExampleV1().
+			RuntimeUsers().List(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		result = make([]*RuntimeuserRuntimeUser, len(list.Items))
+		for k, v := range list.Items {
+			item := v
+			result[k] = &RuntimeuserRuntimeUser{
+				client:      group.client,
+				RuntimeUser: &item,
+			}
+		}
+	}
+	return
+}
+
+type RuntimeuserRuntimeUser struct {
+	client *Clientset
+	*baseruntimeuserexamplecomv1.RuntimeUser
+}
+
+// Delete removes obj and all it's children from the database.
+func (obj *RuntimeuserRuntimeUser) Delete(ctx context.Context) error {
+	err := obj.client.Runtimeuser().DeleteRuntimeUserByName(ctx, obj.GetName())
+	if err != nil {
+		return err
+	}
+	obj.RuntimeUser = nil
+	return nil
+}
+
+// Update updates spec of object in database. Children and Link can not be updated using this function.
+func (obj *RuntimeuserRuntimeUser) Update(ctx context.Context) error {
+	result, err := obj.client.Runtimeuser().UpdateRuntimeUserByName(ctx, obj.RuntimeUser)
+	if err != nil {
+		return err
+	}
+	obj.RuntimeUser = result.RuntimeUser
+	return nil
+}
+
+func (obj *RuntimeuserRuntimeUser) GetParent(ctx context.Context) (result *RuntimeRuntime, err error) {
+	hashedName := helper.GetHashedName("runtimes.runtime.example.com", obj.Labels, obj.Labels["runtimes.runtime.example.com"])
+	return obj.client.Runtime().GetRuntimeByName(ctx, hashedName)
+}
+
+// GetEvaluation returns child of given type
+func (obj *RuntimeuserRuntimeUser) GetEvaluation(ctx context.Context) (
+	result *RuntimeevaluationRuntimeEvaluation, err error) {
+	children := GetChildren("runtimeusers.runtimeuser.example.com", obj.Name, "runtimeevaluations.runtimeevaluation.example.com")
+	if len(children) == 0 {
+		return nil, NewChildNotFound(obj.DisplayName(), "Runtimeuser.RuntimeUser", "Evaluation")
+	}
+	return obj.client.Runtimeevaluation().GetRuntimeEvaluationByName(ctx, children[0])
+}
+
+// AddEvaluation calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (obj *RuntimeuserRuntimeUser) AddEvaluation(ctx context.Context,
+	objToCreate *baseruntimeevaluationexamplecomv1.RuntimeEvaluation) (result *RuntimeevaluationRuntimeEvaluation, err error) {
+	log.Debugf("[AddEvaluation] Received objToAdd: %s", objToCreate.GetName())
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for _, v := range helper.GetCRDParentsMap()["runtimeusers.runtimeuser.example.com"] {
+		objToCreate.Labels[v] = obj.Labels[v]
+	}
+	objToCreate.Labels["runtimeusers.runtimeuser.example.com"] = obj.DisplayName()
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		if objToCreate.GetName() == "" {
+			objToCreate.SetName(helper.DEFAULT_KEY)
+		}
+		if objToCreate.GetName() != helper.DEFAULT_KEY {
+			return nil, NewSingletonNameError(objToCreate.GetName())
+		}
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	result, err = obj.client.Runtimeevaluation().CreateRuntimeEvaluationByName(ctx, objToCreate)
+	log.Debugf("[AddEvaluation] RuntimeEvaluation created successfully: %s", objToCreate.GetName())
+	updatedObj, getErr := obj.client.Runtimeuser().GetRuntimeUserByName(ctx, obj.GetName())
+	if getErr == nil {
+		obj.RuntimeUser = updatedObj.RuntimeUser
+	}
+	log.Debugf("[AddEvaluation] Executed Successfully: %s", objToCreate.GetName())
+	return
+}
+
+// DeleteEvaluation calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+
+func (obj *RuntimeuserRuntimeUser) DeleteEvaluation(ctx context.Context) (err error) {
+	children := GetChildren("runtimeusers.runtimeuser.example.com", obj.Name, "runtimeevaluations.runtimeevaluation.example.com")
+	if len(children) > 1 {
+		log.Panicf("[ DeleteEvaluation] Cannot have more than 1 unnamed link for object %s. Current children %d", obj.GetName(), len(children))
+	}
+
+	if len(children) > 0 {
+		err = obj.client.
+			Runtimeevaluation().DeleteRuntimeEvaluationByName(ctx, children[0])
+		if err != nil {
+			return err
+		}
+	}
+
+	updatedObj, err := obj.client.
+		Runtimeuser().GetRuntimeUserByName(ctx, obj.GetName())
+	if err == nil {
+		obj.RuntimeUser = updatedObj.RuntimeUser
+	}
+	return
+}
+
+// GetUser returns link of given type
+func (obj *RuntimeuserRuntimeUser) GetUser(ctx context.Context) (
+	result *UserUser, err error) {
+	if obj.Spec.UserGvk == nil {
+		return nil, NewLinkNotFound(obj.DisplayName(), "Runtimeuser.RuntimeUser", "User")
+	}
+	return obj.client.User().GetUserByName(ctx, obj.Spec.UserGvk.Name)
+}
+
+// LinkUser links obj with linkToAdd object. This function doesn't create linked object, it must be
+// already created.
+func (obj *RuntimeuserRuntimeUser) LinkUser(ctx context.Context,
+	linkToAdd *UserUser) error {
+
+	var patch Patch
+	patchOp := PatchOp{
+		Op:   "replace",
+		Path: "/spec/userGvk",
+		Value: baseruntimeuserexamplecomv1.Child{
+			Group: "user.example.com",
+			Kind:  "User",
+			Name:  linkToAdd.Name,
+		},
+	}
+	patch = append(patch, patchOp)
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return err
+	}
+	result, err := obj.client.baseClient.RuntimeuserExampleV1().RuntimeUsers().Patch(ctx, obj.Name, types.JSONPatchType, marshaled, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+
+	obj.RuntimeUser = result
+	return nil
+}
+
+// UnlinkUser unlinks linkToRemove object from obj. This function doesn't delete linked object.
+func (obj *RuntimeuserRuntimeUser) UnlinkUser(ctx context.Context) (err error) {
+	var patch Patch
+
+	patchOp := PatchOp{
+		Op:   "remove",
+		Path: "/spec/userGvk",
+	}
+
+	patch = append(patch, patchOp)
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return err
+	}
+	result, err := obj.client.baseClient.RuntimeuserExampleV1().RuntimeUsers().Patch(ctx, obj.Name, types.JSONPatchType, marshaled, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+	obj.RuntimeUser = result
+	return nil
+
+}
+
+type runtimeuserRuntimeuserExampleV1Chainer struct {
+	client       *Clientset
+	name         string
+	parentLabels map[string]string
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) Subscribe() {
+	key := "runtimeusers.runtimeuser.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeuserexamplecomv1.NewRuntimeUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) Unsubscribe() {
+	key := "runtimeusers.runtimeuser.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		close(s.(subscription).stop)
+		subscriptionMap.Delete(key)
+	}
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) IsSubscribed() bool {
+	key := "runtimeusers.runtimeuser.example.com"
+	_, ok := subscriptionMap.Load(key)
+	return ok
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) addCallback(obj *RuntimeuserRuntimeUser) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimes.runtime.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimes.runtime.example.com", obj.Labels, parentDisplayName)
+
+	AddChild("runtimes.runtime.example.com", parentHashName, "runtimeusers.runtimeuser.example.com", obj.Name)
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) deleteCallback(obj *RuntimeuserRuntimeUser) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimes.runtime.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimes.runtime.example.com", obj.Labels, parentDisplayName)
+
+	RemoveChild("runtimes.runtime.example.com", parentHashName, "runtimeusers.runtimeuser.example.com", obj.Name)
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) RegisterEventHandler(addCB func(obj *RuntimeuserRuntimeUser), updateCB func(oldObj, newObj *RuntimeuserRuntimeUser), deleteCB func(obj *RuntimeuserRuntimeUser)) (cache.ResourceEventHandlerRegistration, error) {
+	fmt.Println("RegisterEventHandler for RuntimeuserRuntimeUser")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+	key := "runtimeusers.runtimeuser.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for RuntimeuserRuntimeUser")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for RuntimeuserRuntimeUser, so creating a new one")
+		informer = informerruntimeuserexamplecomv1.NewRuntimeUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &RuntimeuserRuntimeUser{
+				client:      c.client,
+				RuntimeUser: obj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+			}
+
+			var parent *RuntimeRuntime
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimes.runtime.example.com", nc.Labels, nc.Labels["runtimes.runtime.example.com"])
+				parent, err = c.client.Runtime().ForceReadRuntimeByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			addCB(nc)
+		},
+
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &RuntimeuserRuntimeUser{
+				client:      c.client,
+				RuntimeUser: oldObj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+			}
+			newData := &RuntimeuserRuntimeUser{
+				client:      c.client,
+				RuntimeUser: newObj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+			}
+			updateCB(oldData, newData)
+		},
+
+		DeleteFunc: func(obj interface{}) {
+			nc := &RuntimeuserRuntimeUser{
+				client:      c.client,
+				RuntimeUser: obj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+			}
+
+			var parent *RuntimeRuntime
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimes.runtime.example.com", nc.Labels, nc.Labels["runtimes.runtime.example.com"])
+				parent, err = c.client.Runtime().ForceReadRuntimeByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			deleteCB(nc)
+		},
+	})
+	return registrationId, err
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RuntimeuserRuntimeUser)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterAddCallback] Received for RuntimeuserRuntimeUser")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeusers.runtimeuser.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterAddCallback] RuntimeuserRuntimeUser Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: obj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+
+				var parent *RuntimeRuntime
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimes.runtime.example.com", nc.Labels, nc.Labels["runtimes.runtime.example.com"])
+					parent, err = c.client.Runtime().ForceReadRuntimeByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] RuntimeuserRuntimeUser Create New Informer")
+		informer := informerruntimeuserexamplecomv1.NewRuntimeUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: obj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+
+				var parent *RuntimeRuntime
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimes.runtime.example.com", nc.Labels, nc.Labels["runtimes.runtime.example.com"])
+					parent, err = c.client.Runtime().ForceReadRuntimeByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newObj *RuntimeuserRuntimeUser)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterUpdateCallback] Received for RuntimeuserRuntimeUser")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeusers.runtimeuser.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterUpdateCallback] RuntimeuserRuntimeUser Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: oldObj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+				newData := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: newObj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterUpdateCallback] RuntimeuserRuntimeUser Create New Informer")
+		informer := informerruntimeuserexamplecomv1.NewRuntimeUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: oldObj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+				newData := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: newObj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RuntimeuserRuntimeUser)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterDeleteCallback] Received for RuntimeuserRuntimeUser")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeusers.runtimeuser.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterDeleteCallback] RuntimeuserRuntimeUser Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: obj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+
+				var parent *RuntimeRuntime
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimes.runtime.example.com", nc.Labels, nc.Labels["runtimes.runtime.example.com"])
+					parent, err = c.client.Runtime().ForceReadRuntimeByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] RuntimeuserRuntimeUser Create New Informer")
+		informer := informerruntimeuserexamplecomv1.NewRuntimeUserInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeuserRuntimeUser{
+					client:      c.client,
+					RuntimeUser: obj.(*baseruntimeuserexamplecomv1.RuntimeUser),
+				}
+
+				var parent *RuntimeRuntime
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimes.runtime.example.com", nc.Labels, nc.Labels["runtimes.runtime.example.com"])
+					parent, err = c.client.Runtime().ForceReadRuntimeByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeuserRuntimeuserExampleV1Chainer) Evaluation() *runtimeevaluationRuntimeevaluationExampleV1Chainer {
+	parentLabels := c.parentLabels
+	parentLabels["runtimeevaluations.runtimeevaluation.example.com"] = helper.DEFAULT_KEY
+	return &runtimeevaluationRuntimeevaluationExampleV1Chainer{
+		client:       c.client,
+		name:         helper.DEFAULT_KEY,
+		parentLabels: parentLabels,
+	}
+}
+
+// GetEvaluation calculates hashed name of the object based on it's parents and returns the object
+func (c *runtimeuserRuntimeuserExampleV1Chainer) GetEvaluation(ctx context.Context) (result *RuntimeevaluationRuntimeEvaluation, err error) {
+	hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", c.parentLabels, helper.DEFAULT_KEY)
+	return c.client.Runtimeevaluation().GetRuntimeEvaluationByName(ctx, hashedName)
+}
+
+// AddEvaluation calculates hashed name of the child to create based on parents names and creates it.
+// objToCreate.Name is changed to the hashed name. Original name ('default') is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (c *runtimeuserRuntimeuserExampleV1Chainer) AddEvaluation(ctx context.Context,
+	objToCreate *baseruntimeevaluationexamplecomv1.RuntimeEvaluation) (result *RuntimeevaluationRuntimeEvaluation, err error) {
+	if objToCreate.GetName() == "" {
+		objToCreate.SetName(helper.DEFAULT_KEY)
+	}
+	if objToCreate.GetName() != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToCreate.GetName())
+	}
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for k, v := range c.parentLabels {
+		objToCreate.Labels[k] = v
+	}
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", c.parentLabels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	return c.client.Runtimeevaluation().CreateRuntimeEvaluationByName(ctx, objToCreate)
+}
+
+// DeleteEvaluation calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+func (c *runtimeuserRuntimeuserExampleV1Chainer) DeleteEvaluation(ctx context.Context, name string) (err error) {
+	if c.parentLabels == nil {
+		c.parentLabels = map[string]string{}
+	}
+	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
+	hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", c.parentLabels, name)
+	return c.client.Runtimeevaluation().DeleteRuntimeEvaluationByName(ctx, hashedName)
+}
+
+func (group *RuntimeevaluationExampleV1) GetRuntimeEvaluationChildrenMap() map[string]baseruntimeevaluationexamplecomv1.Child {
+	return map[string]baseruntimeevaluationexamplecomv1.Child{}
+}
+
+func (group *RuntimeevaluationExampleV1) GetRuntimeEvaluationChild(grp, kind, name string) baseruntimeevaluationexamplecomv1.Child {
+	return baseruntimeevaluationexamplecomv1.Child{
+		Group: grp,
+		Kind:  kind,
+		Name:  name,
+	}
+}
+
+// GetRuntimeEvaluationByName returns object stored in the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeevaluationExampleV1) GetRuntimeEvaluationByName(ctx context.Context, hashedName string) (*RuntimeevaluationRuntimeEvaluation, error) {
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		// Check if the object is in write cache.
+		resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+		item, exists, _ := s.(subscription).informer.GetStore().GetByKey(hashedName)
+		if exists {
+			log.Debugf("[GetRuntimeEvaluationByName] Object: %s exists in cache", hashedName)
+			resultCache, _ := item.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation)
+			subsCacheVersion, subsCacheVersionErr := strconv.Atoi(resultCache.ResourceVersion)
+			if subsCacheVersionErr != nil {
+				log.Fatalf("[GetRuntimeEvaluationByName] Getting version of Object: %s failed with error %v", hashedName, subsCacheVersionErr)
+			}
+
+			writeCacheVersion := 0
+			var writeCacheVersionErr error
+			if inWrCache {
+				writeCacheVersion, writeCacheVersionErr = strconv.Atoi(resWrCache.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation).ResourceVersion)
+				if writeCacheVersionErr != nil {
+					log.Fatalf("[GetRuntimeEvaluationByName] Getting version of Object: %s in write cache failed with error %v", hashedName, writeCacheVersionErr)
+				}
+			}
+
+			if !inWrCache || subsCacheVersion >= writeCacheVersion {
+				if inWrCache {
+					s.(subscription).WriteCacheObjects.Delete(hashedName)
+				}
+				return &RuntimeevaluationRuntimeEvaluation{
+					client:            group.client,
+					RuntimeEvaluation: resultCache,
+				}, nil
+			}
+		}
+		if inWrCache {
+			return &RuntimeevaluationRuntimeEvaluation{
+				client:            group.client,
+				RuntimeEvaluation: resWrCache.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+			}, nil
+		}
+	}
+
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeevaluationExampleV1().
+			RuntimeEvaluations().Get(ctx, hashedName, metav1.GetOptions{})
+		if err == nil {
+			return &RuntimeevaluationRuntimeEvaluation{
+				client:            group.client,
+				RuntimeEvaluation: result,
+			}, nil
+		} else if errors.IsNotFound(err) {
+			log.Debugf("[GetRuntimeEvaluationByName]: object %v not found", hashedName)
+			return nil, err
+		} else {
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on Get RuntimeEvaluations: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[GetRuntimeEvaluationByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[GetRuntimeEvaluationByName]: %+v", err)
+				return nil, err
+			}
+		}
+	}
+}
+
+// ForceReadRuntimeEvaluationByName read object directly from the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeevaluationExampleV1) ForceReadRuntimeEvaluationByName(ctx context.Context, hashedName string) (*RuntimeevaluationRuntimeEvaluation, error) {
+	log.Debugf("[ForceReadRuntimeEvaluationByName] Received object :%s to read from DB", hashedName)
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeevaluationExampleV1().
+			RuntimeEvaluations().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[ForceReadRuntimeEvaluationByName] Failed to Get RuntimeEvaluations: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Errorf("[Retry Count: %d ] %+v", retryCount, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max Retry exceed on Get RuntimeEvaluations: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[ForceReadRuntimeEvaluationByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[ForceReadRuntimeEvaluationByName]: %+v", err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[ForceReadRuntimeEvaluationByName] Executed Successfully :%s", hashedName)
+			return &RuntimeevaluationRuntimeEvaluation{
+				client:            group.client,
+				RuntimeEvaluation: result,
+			}, nil
+		}
+	}
+}
+
+// DeleteRuntimeEvaluationByName deletes object stored in the database under the hashedName which is a hash of
+// display name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeevaluationExampleV1) DeleteRuntimeEvaluationByName(ctx context.Context, hashedName string) (err error) {
+	log.Debugf("[DeleteRuntimeEvaluationByName] Received objectToDelete: %s", hashedName)
+	var (
+		retryCount int
+		result     *baseruntimeevaluationexamplecomv1.RuntimeEvaluation
+	)
+
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeevaluationExampleV1().
+			RuntimeEvaluations().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeEvaluationByName] Failed to get RuntimeEvaluations: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on get RuntimeEvaluations: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeEvaluationByName] context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeEvaluationByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeEvaluationByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	if result == nil {
+		return err
+	}
+
+	for _, child := range GetChildren("runtimeevaluations.runtimeevaluation.example.com", hashedName, "runtimequizes.runtimequiz.example.com") {
+		err := group.client.Runtimequiz().DeleteRuntimeQuizByName(ctx, child)
+		if err != nil && errors.IsNotFound(err) == false {
+			return err
+		}
+		RemoveChild("runtimeevaluations.runtimeevaluation.example.com", hashedName, "runtimequizes.runtimequiz.example.com", child)
+	}
+
+	retryCount = 0
+	for {
+		err = group.client.baseClient.
+			RuntimeevaluationExampleV1().
+			RuntimeEvaluations().Delete(ctx, hashedName, metav1.DeleteOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeEvaluationByName] failed to delete RuntimeEvaluations: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on delete RuntimeEvaluations: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeEvaluationByName]: context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeEvaluationByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeEvaluationByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			if s, ok := subscriptionMap.Load("runtimeevaluations.runtimeevaluation.example.com"); ok {
+				s.(subscription).WriteCacheObjects.Delete(hashedName)
+			}
+			break
+		}
+	}
+	// Get Parent Node and check if gvk present before patch
+
+	log.Debugf("[DeleteRuntimeEvaluationByName] Get parent details for object: %s", hashedName)
+	// var patch Patch
+	parents := result.GetLabels()
+	if parents == nil {
+		parents = make(map[string]string)
+	}
+	parentName, ok := parents["runtimeusers.runtimeuser.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	if result.GetLabels() != nil {
+		if parents[common.IS_NAME_HASHED_LABEL] == "true" {
+			parentName = helper.GetHashedName("runtimeusers.runtimeuser.example.com", parents, parentName)
+		}
+	} else {
+		parentName = helper.GetHashedName("runtimeusers.runtimeuser.example.com", parents, parentName)
+	}
+	RemoveChild("runtimeusers.runtimeuser.example.com", parentName, "runtimeevaluations.runtimeevaluation.example.com", hashedName)
+
+	return nil
+}
+
+// CreateRuntimeEvaluationByName creates object in the database without hashing the name.
+// Use it directly ONLY when objToCreate.Name is hashed name of the object.
+func (group *RuntimeevaluationExampleV1) CreateRuntimeEvaluationByName(ctx context.Context,
+	objToCreate *baseruntimeevaluationexamplecomv1.RuntimeEvaluation) (*RuntimeevaluationRuntimeEvaluation, error) {
+	log.Debugf("[CreateRuntimeEvaluationByName] Received objToCreate: %s", objToCreate.GetName())
+	if objToCreate.GetLabels() == nil {
+		objToCreate.Labels = make(map[string]string)
+	}
+	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+	}
+	if objToCreate.Labels[common.DISPLAY_NAME_LABEL] == "" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = helper.DEFAULT_KEY
+	}
+	if objToCreate.Labels[common.DISPLAY_NAME_LABEL] != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToCreate.Labels[common.DISPLAY_NAME_LABEL])
+	}
+
+	objToCreate.Spec.QuizGvk = nil
+
+	var (
+		retryCount int
+		result     *baseruntimeevaluationexamplecomv1.RuntimeEvaluation
+		err        error
+	)
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeevaluationExampleV1().
+			RuntimeEvaluations().Create(ctx, objToCreate, metav1.CreateOptions{})
+		if err != nil {
+			log.Errorf("[CreateRuntimeEvaluationByName] Failed to create RuntimeEvaluation: %s, error: %+v", objToCreate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToCreate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on create RuntimeEvaluation: %s", objToCreate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[CreateRuntimeEvaluationByName] context canceled while creating RuntimeEvaluation: %s", objToCreate.GetName())
+				return nil, context.Canceled
+			} else if errors.IsAlreadyExists(err) {
+				log.Debugf("[CreateRuntimeEvaluationByName] RuntimeEvaluation: %s already exists, error: %+v", objToCreate.GetName(), err)
+				result, err = group.client.baseClient.RuntimeevaluationExampleV1().RuntimeEvaluations().Get(ctx, objToCreate.GetName(), metav1.GetOptions{})
+				if err != nil {
+					log.Fatalf("[CreateRuntimeEvaluationByName] Unable to Get RuntimeEvaluation %s after it was flagged as already exists, error: %+v", objToCreate.GetName(), err)
+				}
+				break
+			} else {
+				log.Errorf("[CreateRuntimeEvaluationByName] found unexpected error while creating RuntimeEvaluation: %s, error: %+v", objToCreate.GetName(), err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[CreateRuntimeEvaluationByName] RuntimeEvaluation: %s created successfully", objToCreate.GetName())
+			if s, ok := subscriptionMap.Load("runtimeevaluations.runtimeevaluation.example.com"); ok {
+				log.Debugf("[CreateRuntimeEvaluationByName] RuntimeEvaluation: %s stored in wr-cache", objToCreate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToCreate.GetName(), result)
+			}
+			break
+		}
+	}
+
+	parentName, ok := objToCreate.GetLabels()["runtimeusers.runtimeuser.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	parentHashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", objToCreate.GetLabels(), parentName)
+
+	AddChild("runtimeusers.runtimeuser.example.com", parentHashedName, "runtimeevaluations.runtimeevaluation.example.com", objToCreate.Name)
+
+	log.Debugf("[CreateRuntimeEvaluationByName] Executed Successfully: %s", objToCreate.GetName())
+	return &RuntimeevaluationRuntimeEvaluation{
+		client:            group.client,
+		RuntimeEvaluation: result,
+	}, nil
+}
+
+// UpdateRuntimeEvaluationByName updates object stored in the database under the hashedName which is a hash of
+// display name and parents names.
+func (group *RuntimeevaluationExampleV1) UpdateRuntimeEvaluationByName(ctx context.Context,
+	objToUpdate *baseruntimeevaluationexamplecomv1.RuntimeEvaluation) (*RuntimeevaluationRuntimeEvaluation, error) {
+	log.Debugf("[UpdateRuntimeEvaluationByName] Received objToUpdate: %s", objToUpdate.GetName())
+	if objToUpdate.Labels[common.DISPLAY_NAME_LABEL] != helper.DEFAULT_KEY {
+		return nil, NewSingletonNameError(objToUpdate.Labels[common.DISPLAY_NAME_LABEL])
+	}
+
+	var patch Patch
+
+	if objToUpdate.Annotations != nil || objToUpdate.Labels != nil {
+		current, err := group.client.Runtimeevaluation().GetRuntimeEvaluationByName(ctx, objToUpdate.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		if objToUpdate.Annotations != nil {
+			if current.Annotations[ownershipAnnotation] != "" {
+				objToUpdate.Annotations[ownershipAnnotation] = current.Annotations[ownershipAnnotation]
+			}
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/annotations",
+				Value: objToUpdate.Annotations,
+			})
+		}
+
+		if objToUpdate.Labels != nil {
+			parentsList := helper.GetCRDParentsMap()["runtimeevaluations.runtimeevaluation.example.com"]
+			for _, k := range parentsList {
+				objToUpdate.Labels[k] = current.Labels[k]
+			}
+			objToUpdate.Labels[common.IS_NAME_HASHED_LABEL] = current.Labels[common.IS_NAME_HASHED_LABEL]
+			objToUpdate.Labels[common.DISPLAY_NAME_LABEL] = current.Labels[common.DISPLAY_NAME_LABEL]
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/labels",
+				Value: objToUpdate.Labels,
+			})
+		}
+	}
+
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		result *baseruntimeevaluationexamplecomv1.RuntimeEvaluation
+	)
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeevaluationExampleV1().
+			RuntimeEvaluations().Patch(newCtx, objToUpdate.GetName(), types.JSONPatchType, marshaled, metav1.PatchOptions{}, "")
+		if err != nil {
+			log.Errorf("[UpdateRuntimeEvaluationByName] Failed to patch RuntimeEvaluation %s with error: %+v", objToUpdate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToUpdate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on patching: %s", objToUpdate.GetName())
+					log.Debugf("Trigger RuntimeEvaluation Delete: %s", objToUpdate.GetName())
+					delErr := group.DeleteRuntimeEvaluationByName(newCtx, objToUpdate.GetName())
+					if delErr != nil {
+						log.Debugf("Error occur while deleting RuntimeEvaluation: %s", objToUpdate.GetName())
+						return nil, delErr
+					}
+					log.Debugf("RuntimeEvaluation deleted: %s", objToUpdate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[UpdateRuntimeEvaluationByName]: context canceled: %s", objToUpdate.GetName())
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[UpdateRuntimeEvaluationByName] Object: %s unexpected error: %+v", objToUpdate.GetName(), err)
+				log.Debugf("Trigger RuntimeEvaluation Delete: %s", objToUpdate.GetName())
+				delErr := group.DeleteRuntimeEvaluationByName(newCtx, objToUpdate.GetName())
+				if delErr != nil {
+					log.Debugf("Error occur while deleting RuntimeEvaluation: %+v", objToUpdate.GetName())
+					return nil, delErr
+				}
+				log.Debugf("RuntimeEvaluation Deleted: %s", objToUpdate.GetName())
+				return nil, err
+			}
+		} else {
+			log.Debugf("[UpdateRuntimeEvaluationByName] Patch RuntimeEvaluation Success :%s", objToUpdate.GetName())
+			if s, ok := subscriptionMap.Load("runtimeevaluations.runtimeevaluation.example.com"); ok {
+				log.Debugf("[UpdateRuntimeEvaluationByName] %s stored in wr-cache", objToUpdate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), result)
+			}
+			break
+		}
+	}
+	log.Debugf("[UpdateRuntimeEvaluationByName] Executed Successfully %s", objToUpdate.GetName())
+	return &RuntimeevaluationRuntimeEvaluation{
+		client:            group.client,
+		RuntimeEvaluation: result,
+	}, nil
+}
+
+// ListRuntimeEvaluations returns slice of all existing objects of this type. Selectors can be provided in opts parameter.
+func (group *RuntimeevaluationExampleV1) ListRuntimeEvaluations(ctx context.Context,
+	opts metav1.ListOptions) (result []*RuntimeevaluationRuntimeEvaluation, err error) {
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		items := s.(subscription).informer.GetStore().List()
+		result = make([]*RuntimeevaluationRuntimeEvaluation, len(items))
+		for k, v := range items {
+			item, _ := v.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation)
+			result[k] = &RuntimeevaluationRuntimeEvaluation{
+				client:            group.client,
+				RuntimeEvaluation: item,
+			}
+		}
+	} else {
+		list, err := group.client.baseClient.RuntimeevaluationExampleV1().
+			RuntimeEvaluations().List(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		result = make([]*RuntimeevaluationRuntimeEvaluation, len(list.Items))
+		for k, v := range list.Items {
+			item := v
+			result[k] = &RuntimeevaluationRuntimeEvaluation{
+				client:            group.client,
+				RuntimeEvaluation: &item,
+			}
+		}
+	}
+	return
+}
+
+type RuntimeevaluationRuntimeEvaluation struct {
+	client *Clientset
+	*baseruntimeevaluationexamplecomv1.RuntimeEvaluation
+}
+
+// Delete removes obj and all it's children from the database.
+func (obj *RuntimeevaluationRuntimeEvaluation) Delete(ctx context.Context) error {
+	err := obj.client.Runtimeevaluation().DeleteRuntimeEvaluationByName(ctx, obj.GetName())
+	if err != nil {
+		return err
+	}
+	obj.RuntimeEvaluation = nil
+	return nil
+}
+
+// Update updates spec of object in database. Children and Link can not be updated using this function.
+func (obj *RuntimeevaluationRuntimeEvaluation) Update(ctx context.Context) error {
+	result, err := obj.client.Runtimeevaluation().UpdateRuntimeEvaluationByName(ctx, obj.RuntimeEvaluation)
+	if err != nil {
+		return err
+	}
+	obj.RuntimeEvaluation = result.RuntimeEvaluation
+	return nil
+}
+
+func (obj *RuntimeevaluationRuntimeEvaluation) GetParent(ctx context.Context) (result *RuntimeuserRuntimeUser, err error) {
+	hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", obj.Labels, obj.Labels["runtimeusers.runtimeuser.example.com"])
+	return obj.client.Runtimeuser().GetRuntimeUserByName(ctx, hashedName)
+}
+
+type RuntimeevaluationRuntimeEvaluationQuiz struct {
+	client *Clientset
+	Quiz   []baseruntimeevaluationexamplecomv1.Child
+}
+
+func (n *RuntimeevaluationRuntimeEvaluationQuiz) Next(ctx context.Context) (*RuntimequizRuntimeQuiz, error) {
+	for index, child := range n.Quiz {
+		obj, err := n.client.Runtimequiz().GetRuntimeQuizByName(ctx, child.Name)
+		if err == nil {
+			if index == len(n.Quiz)-1 {
+				n.Quiz = nil
+			} else {
+				n.Quiz = n.Quiz[index+1:]
+			}
+			return obj, nil
+		} else if errors.IsNotFound(err) {
+			continue
+		} else {
+			return nil, err
+		}
+	}
+	return nil, nil
+}
+
+// GetAllQuizIter returns an iterator for all children of given type
+func (obj *RuntimeevaluationRuntimeEvaluation) GetAllQuizIter(ctx context.Context) (
+	result RuntimeevaluationRuntimeEvaluationQuiz) {
+	result.client = obj.client
+	for _, v := range GetChildren("runtimeevaluations.runtimeevaluation.example.com", obj.Name, "runtimequizes.runtimequiz.example.com") {
+		result.Quiz = append(result.Quiz, baseruntimeevaluationexamplecomv1.Child{
+			Group: "runtimequiz.example.com",
+			Kind:  "RuntimeQuiz",
+			Name:  v,
+		})
+	}
+	return
+}
+
+// GetAllQuiz returns all children of a given type
+func (obj *RuntimeevaluationRuntimeEvaluation) GetAllQuiz(ctx context.Context) (
+	result []*RuntimequizRuntimeQuiz, err error) {
+	for _, v := range GetChildren("runtimeevaluations.runtimeevaluation.example.com", obj.Name, "runtimequizes.runtimequiz.example.com") {
+		l, err := obj.client.Runtimequiz().GetRuntimeQuizByName(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, l)
+	}
+	return
+}
+
+// GetQuiz returns child which has given displayName
+func (obj *RuntimeevaluationRuntimeEvaluation) GetQuiz(ctx context.Context,
+	displayName string) (result *RuntimequizRuntimeQuiz, err error) {
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["runtimeevaluations.runtimeevaluation.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", parentLabels, displayName)
+	if IsChildExists("runtimeevaluations.runtimeevaluation.example.com", obj.Name, "runtimequizes.runtimequiz.example.com", childHashName) == false {
+		return nil, NewChildNotFound(obj.DisplayName(), "Runtimeevaluation.RuntimeEvaluation", "Quiz", displayName)
+	}
+
+	result, err = obj.client.Runtimequiz().GetRuntimeQuizByName(ctx, childHashName)
+	return
+}
+
+// AddQuiz calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (obj *RuntimeevaluationRuntimeEvaluation) AddQuiz(ctx context.Context,
+	objToCreate *baseruntimequizexamplecomv1.RuntimeQuiz) (result *RuntimequizRuntimeQuiz, err error) {
+	log.Debugf("[AddQuiz] Received objToAdd: %s", objToCreate.GetName())
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for _, v := range helper.GetCRDParentsMap()["runtimeevaluations.runtimeevaluation.example.com"] {
+		objToCreate.Labels[v] = obj.Labels[v]
+	}
+	objToCreate.Labels["runtimeevaluations.runtimeevaluation.example.com"] = obj.DisplayName()
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	result, err = obj.client.Runtimequiz().CreateRuntimeQuizByName(ctx, objToCreate)
+	log.Debugf("[AddQuiz] RuntimeQuiz created successfully: %s", objToCreate.GetName())
+	updatedObj, getErr := obj.client.Runtimeevaluation().GetRuntimeEvaluationByName(ctx, obj.GetName())
+	if getErr == nil {
+		obj.RuntimeEvaluation = updatedObj.RuntimeEvaluation
+	}
+	log.Debugf("[AddQuiz] Executed Successfully: %s", objToCreate.GetName())
+	return
+}
+
+// DeleteQuiz calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+
+func (obj *RuntimeevaluationRuntimeEvaluation) DeleteQuiz(ctx context.Context, displayName string) (err error) {
+	log.Debugf("[ DeleteQuiz] Received for RuntimeQuiz object: %s to delete", displayName)
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["runtimeevaluations.runtimeevaluation.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", parentLabels, displayName)
+	if IsChildExists("runtimeevaluations.runtimeevaluation.example.com", obj.Name, "runtimequizes.runtimequiz.example.com", childHashName) == false {
+		return NewChildNotFound(obj.DisplayName(), "Runtimeevaluation.RuntimeEvaluation", "Quiz", displayName)
+	}
+
+	err = obj.client.Runtimequiz().DeleteRuntimeQuizByName(ctx, childHashName)
+	if err != nil {
+		return err
+	}
+	log.Debugf("[ DeleteQuiz] RuntimeQuiz object: %s deleted successfully", displayName)
+	updatedObj, err := obj.client.Runtimeevaluation().GetRuntimeEvaluationByName(ctx, obj.GetName())
+	if err == nil {
+		obj.RuntimeEvaluation = updatedObj.RuntimeEvaluation
+	}
+	return
+}
+
+type runtimeevaluationRuntimeevaluationExampleV1Chainer struct {
+	client       *Clientset
+	name         string
+	parentLabels map[string]string
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) Subscribe() {
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeevaluationexamplecomv1.NewRuntimeEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) Unsubscribe() {
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		close(s.(subscription).stop)
+		subscriptionMap.Delete(key)
+	}
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) IsSubscribed() bool {
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	_, ok := subscriptionMap.Load(key)
+	return ok
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) addCallback(obj *RuntimeevaluationRuntimeEvaluation) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimeusers.runtimeuser.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", obj.Labels, parentDisplayName)
+
+	AddChild("runtimeusers.runtimeuser.example.com", parentHashName, "runtimeevaluations.runtimeevaluation.example.com", obj.Name)
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) deleteCallback(obj *RuntimeevaluationRuntimeEvaluation) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimeusers.runtimeuser.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", obj.Labels, parentDisplayName)
+
+	RemoveChild("runtimeusers.runtimeuser.example.com", parentHashName, "runtimeevaluations.runtimeevaluation.example.com", obj.Name)
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) RegisterEventHandler(addCB func(obj *RuntimeevaluationRuntimeEvaluation), updateCB func(oldObj, newObj *RuntimeevaluationRuntimeEvaluation), deleteCB func(obj *RuntimeevaluationRuntimeEvaluation)) (cache.ResourceEventHandlerRegistration, error) {
+	fmt.Println("RegisterEventHandler for RuntimeevaluationRuntimeEvaluation")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for RuntimeevaluationRuntimeEvaluation")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for RuntimeevaluationRuntimeEvaluation, so creating a new one")
+		informer = informerruntimeevaluationexamplecomv1.NewRuntimeEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &RuntimeevaluationRuntimeEvaluation{
+				client:            c.client,
+				RuntimeEvaluation: obj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+			}
+
+			var parent *RuntimeuserRuntimeUser
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", nc.Labels, nc.Labels["runtimeusers.runtimeuser.example.com"])
+				parent, err = c.client.Runtimeuser().ForceReadRuntimeUserByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			addCB(nc)
+		},
+
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &RuntimeevaluationRuntimeEvaluation{
+				client:            c.client,
+				RuntimeEvaluation: oldObj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+			}
+			newData := &RuntimeevaluationRuntimeEvaluation{
+				client:            c.client,
+				RuntimeEvaluation: newObj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+			}
+			updateCB(oldData, newData)
+		},
+
+		DeleteFunc: func(obj interface{}) {
+			nc := &RuntimeevaluationRuntimeEvaluation{
+				client:            c.client,
+				RuntimeEvaluation: obj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+			}
+
+			var parent *RuntimeuserRuntimeUser
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", nc.Labels, nc.Labels["runtimeusers.runtimeuser.example.com"])
+				parent, err = c.client.Runtimeuser().ForceReadRuntimeUserByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			deleteCB(nc)
+		},
+	})
+	return registrationId, err
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RuntimeevaluationRuntimeEvaluation)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterAddCallback] Received for RuntimeevaluationRuntimeEvaluation")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterAddCallback] RuntimeevaluationRuntimeEvaluation Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: obj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+
+				var parent *RuntimeuserRuntimeUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", nc.Labels, nc.Labels["runtimeusers.runtimeuser.example.com"])
+					parent, err = c.client.Runtimeuser().ForceReadRuntimeUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] RuntimeevaluationRuntimeEvaluation Create New Informer")
+		informer := informerruntimeevaluationexamplecomv1.NewRuntimeEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: obj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+
+				var parent *RuntimeuserRuntimeUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", nc.Labels, nc.Labels["runtimeusers.runtimeuser.example.com"])
+					parent, err = c.client.Runtimeuser().ForceReadRuntimeUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newObj *RuntimeevaluationRuntimeEvaluation)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterUpdateCallback] Received for RuntimeevaluationRuntimeEvaluation")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterUpdateCallback] RuntimeevaluationRuntimeEvaluation Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: oldObj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+				newData := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: newObj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterUpdateCallback] RuntimeevaluationRuntimeEvaluation Create New Informer")
+		informer := informerruntimeevaluationexamplecomv1.NewRuntimeEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: oldObj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+				newData := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: newObj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RuntimeevaluationRuntimeEvaluation)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterDeleteCallback] Received for RuntimeevaluationRuntimeEvaluation")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeevaluations.runtimeevaluation.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterDeleteCallback] RuntimeevaluationRuntimeEvaluation Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: obj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+
+				var parent *RuntimeuserRuntimeUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", nc.Labels, nc.Labels["runtimeusers.runtimeuser.example.com"])
+					parent, err = c.client.Runtimeuser().ForceReadRuntimeUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] RuntimeevaluationRuntimeEvaluation Create New Informer")
+		informer := informerruntimeevaluationexamplecomv1.NewRuntimeEvaluationInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeevaluationRuntimeEvaluation{
+					client:            c.client,
+					RuntimeEvaluation: obj.(*baseruntimeevaluationexamplecomv1.RuntimeEvaluation),
+				}
+
+				var parent *RuntimeuserRuntimeUser
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeusers.runtimeuser.example.com", nc.Labels, nc.Labels["runtimeusers.runtimeuser.example.com"])
+					parent, err = c.client.Runtimeuser().ForceReadRuntimeUserByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) Quiz(name string) *runtimequizRuntimequizExampleV1Chainer {
+	parentLabels := c.parentLabels
+	parentLabels["runtimequizes.runtimequiz.example.com"] = name
+	return &runtimequizRuntimequizExampleV1Chainer{
+		client:       c.client,
+		name:         name,
+		parentLabels: parentLabels,
+	}
+}
+
+// GetQuiz calculates hashed name of the object based on displayName and it's parents and returns the object
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) GetQuiz(ctx context.Context, displayName string) (result *RuntimequizRuntimeQuiz, err error) {
+	hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", c.parentLabels, displayName)
+	return c.client.Runtimequiz().GetRuntimeQuizByName(ctx, hashedName)
+}
+
+// AddQuiz calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) AddQuiz(ctx context.Context,
+	objToCreate *baseruntimequizexamplecomv1.RuntimeQuiz) (result *RuntimequizRuntimeQuiz, err error) {
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for k, v := range c.parentLabels {
+		objToCreate.Labels[k] = v
+	}
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", c.parentLabels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	return c.client.Runtimequiz().CreateRuntimeQuizByName(ctx, objToCreate)
+}
+
+// DeleteQuiz calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+func (c *runtimeevaluationRuntimeevaluationExampleV1Chainer) DeleteQuiz(ctx context.Context, name string) (err error) {
+	if c.parentLabels == nil {
+		c.parentLabels = map[string]string{}
+	}
+	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
+	hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", c.parentLabels, name)
+	return c.client.Runtimequiz().DeleteRuntimeQuizByName(ctx, hashedName)
+}
+
+func (group *RuntimequizExampleV1) GetRuntimeQuizChildrenMap() map[string]baseruntimequizexamplecomv1.Child {
+	return map[string]baseruntimequizexamplecomv1.Child{}
+}
+
+func (group *RuntimequizExampleV1) GetRuntimeQuizChild(grp, kind, name string) baseruntimequizexamplecomv1.Child {
+	return baseruntimequizexamplecomv1.Child{
+		Group: grp,
+		Kind:  kind,
+		Name:  name,
+	}
+}
+
+// GetRuntimeQuizByName returns object stored in the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimequizExampleV1) GetRuntimeQuizByName(ctx context.Context, hashedName string) (*RuntimequizRuntimeQuiz, error) {
+	key := "runtimequizes.runtimequiz.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		// Check if the object is in write cache.
+		resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+		item, exists, _ := s.(subscription).informer.GetStore().GetByKey(hashedName)
+		if exists {
+			log.Debugf("[GetRuntimeQuizByName] Object: %s exists in cache", hashedName)
+			resultCache, _ := item.(*baseruntimequizexamplecomv1.RuntimeQuiz)
+			subsCacheVersion, subsCacheVersionErr := strconv.Atoi(resultCache.ResourceVersion)
+			if subsCacheVersionErr != nil {
+				log.Fatalf("[GetRuntimeQuizByName] Getting version of Object: %s failed with error %v", hashedName, subsCacheVersionErr)
+			}
+
+			writeCacheVersion := 0
+			var writeCacheVersionErr error
+			if inWrCache {
+				writeCacheVersion, writeCacheVersionErr = strconv.Atoi(resWrCache.(*baseruntimequizexamplecomv1.RuntimeQuiz).ResourceVersion)
+				if writeCacheVersionErr != nil {
+					log.Fatalf("[GetRuntimeQuizByName] Getting version of Object: %s in write cache failed with error %v", hashedName, writeCacheVersionErr)
+				}
+			}
+
+			if !inWrCache || subsCacheVersion >= writeCacheVersion {
+				if inWrCache {
+					s.(subscription).WriteCacheObjects.Delete(hashedName)
+				}
+				return &RuntimequizRuntimeQuiz{
+					client:      group.client,
+					RuntimeQuiz: resultCache,
+				}, nil
+			}
+		}
+		if inWrCache {
+			return &RuntimequizRuntimeQuiz{
+				client:      group.client,
+				RuntimeQuiz: resWrCache.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+			}, nil
+		}
+	}
+
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimequizExampleV1().
+			RuntimeQuizes().Get(ctx, hashedName, metav1.GetOptions{})
+		if err == nil {
+			return &RuntimequizRuntimeQuiz{
+				client:      group.client,
+				RuntimeQuiz: result,
+			}, nil
+		} else if errors.IsNotFound(err) {
+			log.Debugf("[GetRuntimeQuizByName]: object %v not found", hashedName)
+			return nil, err
+		} else {
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on Get RuntimeQuizes: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[GetRuntimeQuizByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[GetRuntimeQuizByName]: %+v", err)
+				return nil, err
+			}
+		}
+	}
+}
+
+// ForceReadRuntimeQuizByName read object directly from the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimequizExampleV1) ForceReadRuntimeQuizByName(ctx context.Context, hashedName string) (*RuntimequizRuntimeQuiz, error) {
+	log.Debugf("[ForceReadRuntimeQuizByName] Received object :%s to read from DB", hashedName)
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimequizExampleV1().
+			RuntimeQuizes().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[ForceReadRuntimeQuizByName] Failed to Get RuntimeQuizes: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Errorf("[Retry Count: %d ] %+v", retryCount, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max Retry exceed on Get RuntimeQuizes: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[ForceReadRuntimeQuizByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[ForceReadRuntimeQuizByName]: %+v", err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[ForceReadRuntimeQuizByName] Executed Successfully :%s", hashedName)
+			return &RuntimequizRuntimeQuiz{
+				client:      group.client,
+				RuntimeQuiz: result,
+			}, nil
+		}
+	}
+}
+
+// DeleteRuntimeQuizByName deletes object stored in the database under the hashedName which is a hash of
+// display name and parents names. Use it when you know hashed name of object.
+func (group *RuntimequizExampleV1) DeleteRuntimeQuizByName(ctx context.Context, hashedName string) (err error) {
+	log.Debugf("[DeleteRuntimeQuizByName] Received objectToDelete: %s", hashedName)
+	var (
+		retryCount int
+		result     *baseruntimequizexamplecomv1.RuntimeQuiz
+	)
+
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimequizExampleV1().
+			RuntimeQuizes().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeQuizByName] Failed to get RuntimeQuizes: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on get RuntimeQuizes: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeQuizByName] context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeQuizByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeQuizByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	if result == nil {
+		return err
+	}
+
+	for _, child := range GetChildren("runtimequizes.runtimequiz.example.com", hashedName, "runtimeanswers.runtimeanswer.example.com") {
+		err := group.client.Runtimeanswer().DeleteRuntimeAnswerByName(ctx, child)
+		if err != nil && errors.IsNotFound(err) == false {
+			return err
+		}
+		RemoveChild("runtimequizes.runtimequiz.example.com", hashedName, "runtimeanswers.runtimeanswer.example.com", child)
+	}
+
+	retryCount = 0
+	for {
+		err = group.client.baseClient.
+			RuntimequizExampleV1().
+			RuntimeQuizes().Delete(ctx, hashedName, metav1.DeleteOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeQuizByName] failed to delete RuntimeQuizes: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on delete RuntimeQuizes: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeQuizByName]: context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeQuizByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeQuizByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			if s, ok := subscriptionMap.Load("runtimequizes.runtimequiz.example.com"); ok {
+				s.(subscription).WriteCacheObjects.Delete(hashedName)
+			}
+			break
+		}
+	}
+	// Get Parent Node and check if gvk present before patch
+
+	log.Debugf("[DeleteRuntimeQuizByName] Get parent details for object: %s", hashedName)
+	// var patch Patch
+	parents := result.GetLabels()
+	if parents == nil {
+		parents = make(map[string]string)
+	}
+	parentName, ok := parents["runtimeevaluations.runtimeevaluation.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	if result.GetLabels() != nil {
+		if parents[common.IS_NAME_HASHED_LABEL] == "true" {
+			parentName = helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", parents, parentName)
+		}
+	} else {
+		parentName = helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", parents, parentName)
+	}
+	RemoveChild("runtimeevaluations.runtimeevaluation.example.com", parentName, "runtimequizes.runtimequiz.example.com", hashedName)
+
+	return nil
+}
+
+// CreateRuntimeQuizByName creates object in the database without hashing the name.
+// Use it directly ONLY when objToCreate.Name is hashed name of the object.
+func (group *RuntimequizExampleV1) CreateRuntimeQuizByName(ctx context.Context,
+	objToCreate *baseruntimequizexamplecomv1.RuntimeQuiz) (*RuntimequizRuntimeQuiz, error) {
+	log.Debugf("[CreateRuntimeQuizByName] Received objToCreate: %s", objToCreate.GetName())
+	if objToCreate.GetLabels() == nil {
+		objToCreate.Labels = make(map[string]string)
+	}
+	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+	}
+
+	objToCreate.Spec.AnswersGvk = nil
+	objToCreate.Spec.QuizGvk = nil
+
+	var (
+		retryCount int
+		result     *baseruntimequizexamplecomv1.RuntimeQuiz
+		err        error
+	)
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimequizExampleV1().
+			RuntimeQuizes().Create(ctx, objToCreate, metav1.CreateOptions{})
+		if err != nil {
+			log.Errorf("[CreateRuntimeQuizByName] Failed to create RuntimeQuiz: %s, error: %+v", objToCreate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToCreate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on create RuntimeQuiz: %s", objToCreate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[CreateRuntimeQuizByName] context canceled while creating RuntimeQuiz: %s", objToCreate.GetName())
+				return nil, context.Canceled
+			} else if errors.IsAlreadyExists(err) {
+				log.Debugf("[CreateRuntimeQuizByName] RuntimeQuiz: %s already exists, error: %+v", objToCreate.GetName(), err)
+				result, err = group.client.baseClient.RuntimequizExampleV1().RuntimeQuizes().Get(ctx, objToCreate.GetName(), metav1.GetOptions{})
+				if err != nil {
+					log.Fatalf("[CreateRuntimeQuizByName] Unable to Get RuntimeQuiz %s after it was flagged as already exists, error: %+v", objToCreate.GetName(), err)
+				}
+				break
+			} else {
+				log.Errorf("[CreateRuntimeQuizByName] found unexpected error while creating RuntimeQuiz: %s, error: %+v", objToCreate.GetName(), err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[CreateRuntimeQuizByName] RuntimeQuiz: %s created successfully", objToCreate.GetName())
+			if s, ok := subscriptionMap.Load("runtimequizes.runtimequiz.example.com"); ok {
+				log.Debugf("[CreateRuntimeQuizByName] RuntimeQuiz: %s stored in wr-cache", objToCreate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToCreate.GetName(), result)
+			}
+			break
+		}
+	}
+
+	parentName, ok := objToCreate.GetLabels()["runtimeevaluations.runtimeevaluation.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	parentHashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", objToCreate.GetLabels(), parentName)
+
+	AddChild("runtimeevaluations.runtimeevaluation.example.com", parentHashedName, "runtimequizes.runtimequiz.example.com", objToCreate.Name)
+
+	log.Debugf("[CreateRuntimeQuizByName] Executed Successfully: %s", objToCreate.GetName())
+	return &RuntimequizRuntimeQuiz{
+		client:      group.client,
+		RuntimeQuiz: result,
+	}, nil
+}
+
+// SetRuntimeQuizStatusByName sets user defined status
+func (group *RuntimequizExampleV1) SetRuntimeQuizStatusByName(ctx context.Context,
+	objToUpdate *baseruntimequizexamplecomv1.RuntimeQuiz, status *baseruntimequizexamplecomv1.RuntimeQuizStatus) (*RuntimequizRuntimeQuiz, error) {
+	log.Debugf("[SetRuntimeQuizStatusByName] Received objToUpdate:%s", objToUpdate.GetName())
+
+	gvr := schema.GroupVersionResource{
+		Group:    "runtimequiz.example.com",
+		Version:  "v1",
+		Resource: strings.ToLower("RuntimeQuizes"),
+	}
+
+	hashedName := objToUpdate.ObjectMeta.Name
+	obj := baseruntimequizexamplecomv1.RuntimeQuiz{}
+	obj.Kind = strings.ToLower("RuntimeQuizes")
+	obj.APIVersion = "runtimequiz.example.com/v1"
+	obj.ObjectMeta = objToUpdate.ObjectMeta
+	obj.Status.Status = *status
+
+	var mapInterface map[string]interface{}
+	marshalledObj, _ := json.Marshal(&obj)
+	json.Unmarshal(marshalledObj, &mapInterface)
+
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		_, err := group.client.dynamicClient.Resource(gvr).UpdateStatus(ctx, &unstructured.Unstructured{Object: mapInterface}, metav1.UpdateOptions{})
+		if err == nil {
+			log.Debugf("[SetRuntimeQuizStatusByName] Updating status for RuntimeQuiz node %s successful", hashedName)
+			break
+		}
+
+		log.Errorf("[SetRuntimeQuizStatusByName] Updating status for RuntimeQuiz node: %s failed with error %v. Retrying...", hashedName, err)
+
+		updatedObj, err := group.ForceReadRuntimeQuizByName(newCtx, hashedName)
+		if err == nil {
+			obj.ObjectMeta = updatedObj.ObjectMeta
+			marshalledObj, _ := json.Marshal(&obj)
+			json.Unmarshal(marshalledObj, &mapInterface)
+		}
+
+		retryCount += 1
+		if retryCount == maxRetryCount1SecSleep {
+			log.Fatalf("[SetRuntimeQuizStatusByName] Max retry exceeded for updating status for RuntimeQuiz node: %s", hashedName)
+			return nil, err
+		}
+		time.Sleep(time.Second)
+	}
+
+	/*
+		if s, ok := subscriptionMap.Load("runtimequizes.runtimequiz.example.com"); ok {
+			resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+			var objectToWrite *baseruntimequizexamplecomv1.RuntimeQuiz
+			if inWrCache {
+				objectToWrite = resWrCache.(*baseruntimequizexamplecomv1.RuntimeQuiz)
+				objectToWrite.Status.Status = *status
+			} else {
+				// Object is not in write cache. Populate the write cache with last "known" object.
+				// TBD: Is this right ???
+				//      Can we expect ObjectToUpdate to the latest version of the object ?
+				//      What if we received the object spec but only want to update the status ?
+				//      Get on the object will return a object form cache if the cache has newer version.
+				// 		So proceeding with assumption that if newer version is available, user will get the newer version anyways.
+				objectToWrite = objToUpdate
+				objToUpdate.Status.Status = *status
+			}
+			s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), objectToWrite)
+		}
+	*/
+	return &RuntimequizRuntimeQuiz{
+		client:      group.client,
+		RuntimeQuiz: objToUpdate, // TBD: To be fixed to return back the "result"
+	}, nil
+}
+
+// UpdateRuntimeQuizByName updates object stored in the database under the hashedName which is a hash of
+// display name and parents names.
+func (group *RuntimequizExampleV1) UpdateRuntimeQuizByName(ctx context.Context,
+	objToUpdate *baseruntimequizexamplecomv1.RuntimeQuiz) (*RuntimequizRuntimeQuiz, error) {
+	log.Debugf("[UpdateRuntimeQuizByName] Received objToUpdate: %s", objToUpdate.GetName())
+
+	var patch Patch
+
+	if objToUpdate.Annotations != nil || objToUpdate.Labels != nil {
+		current, err := group.client.Runtimequiz().GetRuntimeQuizByName(ctx, objToUpdate.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		if objToUpdate.Annotations != nil {
+			if current.Annotations[ownershipAnnotation] != "" {
+				objToUpdate.Annotations[ownershipAnnotation] = current.Annotations[ownershipAnnotation]
+			}
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/annotations",
+				Value: objToUpdate.Annotations,
+			})
+		}
+
+		if objToUpdate.Labels != nil {
+			parentsList := helper.GetCRDParentsMap()["runtimequizes.runtimequiz.example.com"]
+			for _, k := range parentsList {
+				objToUpdate.Labels[k] = current.Labels[k]
+			}
+			objToUpdate.Labels[common.IS_NAME_HASHED_LABEL] = current.Labels[common.IS_NAME_HASHED_LABEL]
+			objToUpdate.Labels[common.DISPLAY_NAME_LABEL] = current.Labels[common.DISPLAY_NAME_LABEL]
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/labels",
+				Value: objToUpdate.Labels,
+			})
+		}
+	}
+
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		result *baseruntimequizexamplecomv1.RuntimeQuiz
+	)
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimequizExampleV1().
+			RuntimeQuizes().Patch(newCtx, objToUpdate.GetName(), types.JSONPatchType, marshaled, metav1.PatchOptions{}, "")
+		if err != nil {
+			log.Errorf("[UpdateRuntimeQuizByName] Failed to patch RuntimeQuiz %s with error: %+v", objToUpdate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToUpdate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on patching: %s", objToUpdate.GetName())
+					log.Debugf("Trigger RuntimeQuiz Delete: %s", objToUpdate.GetName())
+					delErr := group.DeleteRuntimeQuizByName(newCtx, objToUpdate.GetName())
+					if delErr != nil {
+						log.Debugf("Error occur while deleting RuntimeQuiz: %s", objToUpdate.GetName())
+						return nil, delErr
+					}
+					log.Debugf("RuntimeQuiz deleted: %s", objToUpdate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[UpdateRuntimeQuizByName]: context canceled: %s", objToUpdate.GetName())
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[UpdateRuntimeQuizByName] Object: %s unexpected error: %+v", objToUpdate.GetName(), err)
+				log.Debugf("Trigger RuntimeQuiz Delete: %s", objToUpdate.GetName())
+				delErr := group.DeleteRuntimeQuizByName(newCtx, objToUpdate.GetName())
+				if delErr != nil {
+					log.Debugf("Error occur while deleting RuntimeQuiz: %+v", objToUpdate.GetName())
+					return nil, delErr
+				}
+				log.Debugf("RuntimeQuiz Deleted: %s", objToUpdate.GetName())
+				return nil, err
+			}
+		} else {
+			log.Debugf("[UpdateRuntimeQuizByName] Patch RuntimeQuiz Success :%s", objToUpdate.GetName())
+			if s, ok := subscriptionMap.Load("runtimequizes.runtimequiz.example.com"); ok {
+				log.Debugf("[UpdateRuntimeQuizByName] %s stored in wr-cache", objToUpdate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), result)
+			}
+			break
+		}
+	}
+	log.Debugf("[UpdateRuntimeQuizByName] Executed Successfully %s", objToUpdate.GetName())
+	return &RuntimequizRuntimeQuiz{
+		client:      group.client,
+		RuntimeQuiz: result,
+	}, nil
+}
+
+// ListRuntimeQuizes returns slice of all existing objects of this type. Selectors can be provided in opts parameter.
+func (group *RuntimequizExampleV1) ListRuntimeQuizes(ctx context.Context,
+	opts metav1.ListOptions) (result []*RuntimequizRuntimeQuiz, err error) {
+	key := "runtimequizes.runtimequiz.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		items := s.(subscription).informer.GetStore().List()
+		result = make([]*RuntimequizRuntimeQuiz, len(items))
+		for k, v := range items {
+			item, _ := v.(*baseruntimequizexamplecomv1.RuntimeQuiz)
+			result[k] = &RuntimequizRuntimeQuiz{
+				client:      group.client,
+				RuntimeQuiz: item,
+			}
+		}
+	} else {
+		list, err := group.client.baseClient.RuntimequizExampleV1().
+			RuntimeQuizes().List(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		result = make([]*RuntimequizRuntimeQuiz, len(list.Items))
+		for k, v := range list.Items {
+			item := v
+			result[k] = &RuntimequizRuntimeQuiz{
+				client:      group.client,
+				RuntimeQuiz: &item,
+			}
+		}
+	}
+	return
+}
+
+type RuntimequizRuntimeQuiz struct {
+	client *Clientset
+	*baseruntimequizexamplecomv1.RuntimeQuiz
+}
+
+// Delete removes obj and all it's children from the database.
+func (obj *RuntimequizRuntimeQuiz) Delete(ctx context.Context) error {
+	err := obj.client.Runtimequiz().DeleteRuntimeQuizByName(ctx, obj.GetName())
+	if err != nil {
+		return err
+	}
+	obj.RuntimeQuiz = nil
+	return nil
+}
+
+// Update updates spec of object in database. Children and Link can not be updated using this function.
+func (obj *RuntimequizRuntimeQuiz) Update(ctx context.Context) error {
+	result, err := obj.client.Runtimequiz().UpdateRuntimeQuizByName(ctx, obj.RuntimeQuiz)
+	if err != nil {
+		return err
+	}
+	obj.RuntimeQuiz = result.RuntimeQuiz
+	return nil
+}
+
+// SetStatus sets user defined status
+func (obj *RuntimequizRuntimeQuiz) SetStatus(ctx context.Context, status *baseruntimequizexamplecomv1.RuntimeQuizStatus) error {
+	result, err := obj.client.Runtimequiz().SetRuntimeQuizStatusByName(ctx, obj.RuntimeQuiz, status)
+	if err != nil {
+		return err
+	}
+	obj.RuntimeQuiz = result.RuntimeQuiz
+	return nil
+}
+
+// GetStatus to get user defined status
+func (obj *RuntimequizRuntimeQuiz) GetStatus(ctx context.Context) (*baseruntimequizexamplecomv1.RuntimeQuizStatus, error) {
+	getObj, err := obj.client.Runtimequiz().GetRuntimeQuizByName(ctx, obj.GetName())
+	if err != nil {
+		return nil, err
+	}
+	return &getObj.Status.Status, nil
+}
+
+// ClearStatus to clear user defined status
+func (obj *RuntimequizRuntimeQuiz) ClearStatus(ctx context.Context) error {
+	result, err := obj.client.Runtimequiz().SetRuntimeQuizStatusByName(ctx, obj.RuntimeQuiz, &baseruntimequizexamplecomv1.RuntimeQuizStatus{})
+	if err != nil {
+		return err
+	}
+	obj.RuntimeQuiz = result.RuntimeQuiz
+	return nil
+}
+
+func (obj *RuntimequizRuntimeQuiz) GetParent(ctx context.Context) (result *RuntimeevaluationRuntimeEvaluation, err error) {
+	hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", obj.Labels, obj.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+	return obj.client.Runtimeevaluation().GetRuntimeEvaluationByName(ctx, hashedName)
+}
+
+type RuntimequizRuntimeQuizAnswers struct {
+	client  *Clientset
+	Answers []baseruntimequizexamplecomv1.Child
+}
+
+func (n *RuntimequizRuntimeQuizAnswers) Next(ctx context.Context) (*RuntimeanswerRuntimeAnswer, error) {
+	for index, child := range n.Answers {
+		obj, err := n.client.Runtimeanswer().GetRuntimeAnswerByName(ctx, child.Name)
+		if err == nil {
+			if index == len(n.Answers)-1 {
+				n.Answers = nil
+			} else {
+				n.Answers = n.Answers[index+1:]
+			}
+			return obj, nil
+		} else if errors.IsNotFound(err) {
+			continue
+		} else {
+			return nil, err
+		}
+	}
+	return nil, nil
+}
+
+// GetAllAnswersIter returns an iterator for all children of given type
+func (obj *RuntimequizRuntimeQuiz) GetAllAnswersIter(ctx context.Context) (
+	result RuntimequizRuntimeQuizAnswers) {
+	result.client = obj.client
+	for _, v := range GetChildren("runtimequizes.runtimequiz.example.com", obj.Name, "runtimeanswers.runtimeanswer.example.com") {
+		result.Answers = append(result.Answers, baseruntimequizexamplecomv1.Child{
+			Group: "runtimeanswer.example.com",
+			Kind:  "RuntimeAnswer",
+			Name:  v,
+		})
+	}
+	return
+}
+
+// GetAllAnswers returns all children of a given type
+func (obj *RuntimequizRuntimeQuiz) GetAllAnswers(ctx context.Context) (
+	result []*RuntimeanswerRuntimeAnswer, err error) {
+	for _, v := range GetChildren("runtimequizes.runtimequiz.example.com", obj.Name, "runtimeanswers.runtimeanswer.example.com") {
+		l, err := obj.client.Runtimeanswer().GetRuntimeAnswerByName(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, l)
+	}
+	return
+}
+
+// GetAnswers returns child which has given displayName
+func (obj *RuntimequizRuntimeQuiz) GetAnswers(ctx context.Context,
+	displayName string) (result *RuntimeanswerRuntimeAnswer, err error) {
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["runtimequizes.runtimequiz.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("runtimeanswers.runtimeanswer.example.com", parentLabels, displayName)
+	if IsChildExists("runtimequizes.runtimequiz.example.com", obj.Name, "runtimeanswers.runtimeanswer.example.com", childHashName) == false {
+		return nil, NewChildNotFound(obj.DisplayName(), "Runtimequiz.RuntimeQuiz", "Answers", displayName)
+	}
+
+	result, err = obj.client.Runtimeanswer().GetRuntimeAnswerByName(ctx, childHashName)
+	return
+}
+
+// AddAnswers calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (obj *RuntimequizRuntimeQuiz) AddAnswers(ctx context.Context,
+	objToCreate *baseruntimeanswerexamplecomv1.RuntimeAnswer) (result *RuntimeanswerRuntimeAnswer, err error) {
+	log.Debugf("[AddAnswers] Received objToAdd: %s", objToCreate.GetName())
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for _, v := range helper.GetCRDParentsMap()["runtimequizes.runtimequiz.example.com"] {
+		objToCreate.Labels[v] = obj.Labels[v]
+	}
+	objToCreate.Labels["runtimequizes.runtimequiz.example.com"] = obj.DisplayName()
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName(objToCreate.CRDName(), objToCreate.Labels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	result, err = obj.client.Runtimeanswer().CreateRuntimeAnswerByName(ctx, objToCreate)
+	log.Debugf("[AddAnswers] RuntimeAnswer created successfully: %s", objToCreate.GetName())
+	updatedObj, getErr := obj.client.Runtimequiz().GetRuntimeQuizByName(ctx, obj.GetName())
+	if getErr == nil {
+		obj.RuntimeQuiz = updatedObj.RuntimeQuiz
+	}
+	log.Debugf("[AddAnswers] Executed Successfully: %s", objToCreate.GetName())
+	return
+}
+
+// DeleteAnswers calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+
+func (obj *RuntimequizRuntimeQuiz) DeleteAnswers(ctx context.Context, displayName string) (err error) {
+	log.Debugf("[ DeleteAnswers] Received for RuntimeAnswer object: %s to delete", displayName)
+
+	parentLabels := make(map[string]string)
+	for k, v := range obj.Labels {
+		parentLabels[k] = v
+	}
+	parentLabels["runtimequizes.runtimequiz.example.com"] = obj.DisplayName()
+	childHashName := helper.GetHashedName("runtimeanswers.runtimeanswer.example.com", parentLabels, displayName)
+	if IsChildExists("runtimequizes.runtimequiz.example.com", obj.Name, "runtimeanswers.runtimeanswer.example.com", childHashName) == false {
+		return NewChildNotFound(obj.DisplayName(), "Runtimequiz.RuntimeQuiz", "Answers", displayName)
+	}
+
+	err = obj.client.Runtimeanswer().DeleteRuntimeAnswerByName(ctx, childHashName)
+	if err != nil {
+		return err
+	}
+	log.Debugf("[ DeleteAnswers] RuntimeAnswer object: %s deleted successfully", displayName)
+	updatedObj, err := obj.client.Runtimequiz().GetRuntimeQuizByName(ctx, obj.GetName())
+	if err == nil {
+		obj.RuntimeQuiz = updatedObj.RuntimeQuiz
+	}
+	return
+}
+
+// GetQuiz returns link of given type
+func (obj *RuntimequizRuntimeQuiz) GetQuiz(ctx context.Context) (
+	result *QuizQuiz, err error) {
+	if obj.Spec.QuizGvk == nil {
+		return nil, NewLinkNotFound(obj.DisplayName(), "Runtimequiz.RuntimeQuiz", "Quiz")
+	}
+	return obj.client.Quiz().GetQuizByName(ctx, obj.Spec.QuizGvk.Name)
+}
+
+// LinkQuiz links obj with linkToAdd object. This function doesn't create linked object, it must be
+// already created.
+func (obj *RuntimequizRuntimeQuiz) LinkQuiz(ctx context.Context,
+	linkToAdd *QuizQuiz) error {
+
+	var patch Patch
+	patchOp := PatchOp{
+		Op:   "replace",
+		Path: "/spec/quizGvk",
+		Value: baseruntimequizexamplecomv1.Child{
+			Group: "quiz.example.com",
+			Kind:  "Quiz",
+			Name:  linkToAdd.Name,
+		},
+	}
+	patch = append(patch, patchOp)
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return err
+	}
+	result, err := obj.client.baseClient.RuntimequizExampleV1().RuntimeQuizes().Patch(ctx, obj.Name, types.JSONPatchType, marshaled, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+
+	obj.RuntimeQuiz = result
+	return nil
+}
+
+// UnlinkQuiz unlinks linkToRemove object from obj. This function doesn't delete linked object.
+func (obj *RuntimequizRuntimeQuiz) UnlinkQuiz(ctx context.Context) (err error) {
+	var patch Patch
+
+	patchOp := PatchOp{
+		Op:   "remove",
+		Path: "/spec/quizGvk",
+	}
+
+	patch = append(patch, patchOp)
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return err
+	}
+	result, err := obj.client.baseClient.RuntimequizExampleV1().RuntimeQuizes().Patch(ctx, obj.Name, types.JSONPatchType, marshaled, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+	obj.RuntimeQuiz = result
+	return nil
+
+}
+
+type runtimequizRuntimequizExampleV1Chainer struct {
+	client       *Clientset
+	name         string
+	parentLabels map[string]string
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) Subscribe() {
+	key := "runtimequizes.runtimequiz.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimequizexamplecomv1.NewRuntimeQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) Unsubscribe() {
+	key := "runtimequizes.runtimequiz.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		close(s.(subscription).stop)
+		subscriptionMap.Delete(key)
+	}
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) IsSubscribed() bool {
+	key := "runtimequizes.runtimequiz.example.com"
+	_, ok := subscriptionMap.Load(key)
+	return ok
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) addCallback(obj *RuntimequizRuntimeQuiz) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimeevaluations.runtimeevaluation.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", obj.Labels, parentDisplayName)
+
+	AddChild("runtimeevaluations.runtimeevaluation.example.com", parentHashName, "runtimequizes.runtimequiz.example.com", obj.Name)
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) deleteCallback(obj *RuntimequizRuntimeQuiz) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimeevaluations.runtimeevaluation.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", obj.Labels, parentDisplayName)
+
+	RemoveChild("runtimeevaluations.runtimeevaluation.example.com", parentHashName, "runtimequizes.runtimequiz.example.com", obj.Name)
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) RegisterEventHandler(addCB func(obj *RuntimequizRuntimeQuiz), updateCB func(oldObj, newObj *RuntimequizRuntimeQuiz), deleteCB func(obj *RuntimequizRuntimeQuiz)) (cache.ResourceEventHandlerRegistration, error) {
+	fmt.Println("RegisterEventHandler for RuntimequizRuntimeQuiz")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+	key := "runtimequizes.runtimequiz.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for RuntimequizRuntimeQuiz")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for RuntimequizRuntimeQuiz, so creating a new one")
+		informer = informerruntimequizexamplecomv1.NewRuntimeQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &RuntimequizRuntimeQuiz{
+				client:      c.client,
+				RuntimeQuiz: obj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+			}
+
+			var parent *RuntimeevaluationRuntimeEvaluation
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", nc.Labels, nc.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+				parent, err = c.client.Runtimeevaluation().ForceReadRuntimeEvaluationByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			addCB(nc)
+		},
+
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &RuntimequizRuntimeQuiz{
+				client:      c.client,
+				RuntimeQuiz: oldObj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+			}
+			newData := &RuntimequizRuntimeQuiz{
+				client:      c.client,
+				RuntimeQuiz: newObj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+			}
+			updateCB(oldData, newData)
+		},
+
+		DeleteFunc: func(obj interface{}) {
+			nc := &RuntimequizRuntimeQuiz{
+				client:      c.client,
+				RuntimeQuiz: obj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+			}
+
+			var parent *RuntimeevaluationRuntimeEvaluation
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", nc.Labels, nc.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+				parent, err = c.client.Runtimeevaluation().ForceReadRuntimeEvaluationByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			deleteCB(nc)
+		},
+	})
+	return registrationId, err
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RuntimequizRuntimeQuiz)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterAddCallback] Received for RuntimequizRuntimeQuiz")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimequizes.runtimequiz.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterAddCallback] RuntimequizRuntimeQuiz Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: obj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+
+				var parent *RuntimeevaluationRuntimeEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", nc.Labels, nc.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+					parent, err = c.client.Runtimeevaluation().ForceReadRuntimeEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] RuntimequizRuntimeQuiz Create New Informer")
+		informer := informerruntimequizexamplecomv1.NewRuntimeQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: obj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+
+				var parent *RuntimeevaluationRuntimeEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", nc.Labels, nc.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+					parent, err = c.client.Runtimeevaluation().ForceReadRuntimeEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newObj *RuntimequizRuntimeQuiz)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterUpdateCallback] Received for RuntimequizRuntimeQuiz")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimequizes.runtimequiz.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterUpdateCallback] RuntimequizRuntimeQuiz Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: oldObj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+				newData := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: newObj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterUpdateCallback] RuntimequizRuntimeQuiz Create New Informer")
+		informer := informerruntimequizexamplecomv1.NewRuntimeQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: oldObj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+				newData := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: newObj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RuntimequizRuntimeQuiz)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterDeleteCallback] Received for RuntimequizRuntimeQuiz")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimequizes.runtimequiz.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterDeleteCallback] RuntimequizRuntimeQuiz Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: obj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+
+				var parent *RuntimeevaluationRuntimeEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", nc.Labels, nc.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+					parent, err = c.client.Runtimeevaluation().ForceReadRuntimeEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] RuntimequizRuntimeQuiz Create New Informer")
+		informer := informerruntimequizexamplecomv1.NewRuntimeQuizInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimequizRuntimeQuiz{
+					client:      c.client,
+					RuntimeQuiz: obj.(*baseruntimequizexamplecomv1.RuntimeQuiz),
+				}
+
+				var parent *RuntimeevaluationRuntimeEvaluation
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimeevaluations.runtimeevaluation.example.com", nc.Labels, nc.Labels["runtimeevaluations.runtimeevaluation.example.com"])
+					parent, err = c.client.Runtimeevaluation().ForceReadRuntimeEvaluationByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+// ClearStatus to clear user defined status
+func (c *runtimequizRuntimequizExampleV1Chainer) ClearStatus(ctx context.Context) (err error) {
+	hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Runtimequiz().GetRuntimeQuizByName(ctx, hashedName)
+	if err != nil {
+		return err
+	}
+	_, err = c.client.Runtimequiz().SetRuntimeQuizStatusByName(ctx, obj.RuntimeQuiz, nil)
+	return err
+}
+
+// GetStatus to get user defined status
+func (c *runtimequizRuntimequizExampleV1Chainer) GetStatus(ctx context.Context) (result *baseruntimequizexamplecomv1.RuntimeQuizStatus, err error) {
+	hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Runtimequiz().GetRuntimeQuizByName(ctx, hashedName)
+	if err != nil {
+		return nil, err
+	}
+	return &obj.Status.Status, nil
+}
+
+// SetStatus sets user defined status
+func (c *runtimequizRuntimequizExampleV1Chainer) SetStatus(ctx context.Context, status *baseruntimequizexamplecomv1.RuntimeQuizStatus) (err error) {
+	hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", c.parentLabels, c.name)
+	obj, err := c.client.Runtimequiz().GetRuntimeQuizByName(ctx, hashedName)
+	if err != nil {
+		return err
+	}
+	_, err = c.client.Runtimequiz().SetRuntimeQuizStatusByName(ctx, obj.RuntimeQuiz, status)
+	return err
+}
+
+func (c *runtimequizRuntimequizExampleV1Chainer) Answers(name string) *runtimeanswerRuntimeanswerExampleV1Chainer {
+	parentLabels := c.parentLabels
+	parentLabels["runtimeanswers.runtimeanswer.example.com"] = name
+	return &runtimeanswerRuntimeanswerExampleV1Chainer{
+		client:       c.client,
+		name:         name,
+		parentLabels: parentLabels,
+	}
+}
+
+// GetAnswers calculates hashed name of the object based on displayName and it's parents and returns the object
+func (c *runtimequizRuntimequizExampleV1Chainer) GetAnswers(ctx context.Context, displayName string) (result *RuntimeanswerRuntimeAnswer, err error) {
+	hashedName := helper.GetHashedName("runtimeanswers.runtimeanswer.example.com", c.parentLabels, displayName)
+	return c.client.Runtimeanswer().GetRuntimeAnswerByName(ctx, hashedName)
+}
+
+// AddAnswers calculates hashed name of the child to create based on objToCreate.Name
+// and parents names and creates it. objToCreate.Name is changed to the hashed name. Original name is preserved in
+// nexus/display_name label and can be obtained using DisplayName() method.
+func (c *runtimequizRuntimequizExampleV1Chainer) AddAnswers(ctx context.Context,
+	objToCreate *baseruntimeanswerexamplecomv1.RuntimeAnswer) (result *RuntimeanswerRuntimeAnswer, err error) {
+	if objToCreate.Labels == nil {
+		objToCreate.Labels = map[string]string{}
+	}
+	for k, v := range c.parentLabels {
+		objToCreate.Labels[k] = v
+	}
+	if objToCreate.Labels[common.IS_NAME_HASHED_LABEL] != "true" {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+		objToCreate.Labels[common.IS_NAME_HASHED_LABEL] = "true"
+		hashedName := helper.GetHashedName("runtimeanswers.runtimeanswer.example.com", c.parentLabels, objToCreate.GetName())
+		objToCreate.Name = hashedName
+	}
+	return c.client.Runtimeanswer().CreateRuntimeAnswerByName(ctx, objToCreate)
+}
+
+// DeleteAnswers calculates hashed name of the child to delete based on displayName
+// and parents names and deletes it.
+func (c *runtimequizRuntimequizExampleV1Chainer) DeleteAnswers(ctx context.Context, name string) (err error) {
+	if c.parentLabels == nil {
+		c.parentLabels = map[string]string{}
+	}
+	c.parentLabels[common.IS_NAME_HASHED_LABEL] = "true"
+	hashedName := helper.GetHashedName("runtimeanswers.runtimeanswer.example.com", c.parentLabels, name)
+	return c.client.Runtimeanswer().DeleteRuntimeAnswerByName(ctx, hashedName)
+}
+
+func (group *RuntimeanswerExampleV1) GetRuntimeAnswerChildrenMap() map[string]baseruntimeanswerexamplecomv1.Child {
+	return map[string]baseruntimeanswerexamplecomv1.Child{}
+}
+
+func (group *RuntimeanswerExampleV1) GetRuntimeAnswerChild(grp, kind, name string) baseruntimeanswerexamplecomv1.Child {
+	return baseruntimeanswerexamplecomv1.Child{
+		Group: grp,
+		Kind:  kind,
+		Name:  name,
+	}
+}
+
+// GetRuntimeAnswerByName returns object stored in the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeanswerExampleV1) GetRuntimeAnswerByName(ctx context.Context, hashedName string) (*RuntimeanswerRuntimeAnswer, error) {
+	key := "runtimeanswers.runtimeanswer.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		// Check if the object is in write cache.
+		resWrCache, inWrCache := s.(subscription).WriteCacheObjects.Load(hashedName)
+		item, exists, _ := s.(subscription).informer.GetStore().GetByKey(hashedName)
+		if exists {
+			log.Debugf("[GetRuntimeAnswerByName] Object: %s exists in cache", hashedName)
+			resultCache, _ := item.(*baseruntimeanswerexamplecomv1.RuntimeAnswer)
+			subsCacheVersion, subsCacheVersionErr := strconv.Atoi(resultCache.ResourceVersion)
+			if subsCacheVersionErr != nil {
+				log.Fatalf("[GetRuntimeAnswerByName] Getting version of Object: %s failed with error %v", hashedName, subsCacheVersionErr)
+			}
+
+			writeCacheVersion := 0
+			var writeCacheVersionErr error
+			if inWrCache {
+				writeCacheVersion, writeCacheVersionErr = strconv.Atoi(resWrCache.(*baseruntimeanswerexamplecomv1.RuntimeAnswer).ResourceVersion)
+				if writeCacheVersionErr != nil {
+					log.Fatalf("[GetRuntimeAnswerByName] Getting version of Object: %s in write cache failed with error %v", hashedName, writeCacheVersionErr)
+				}
+			}
+
+			if !inWrCache || subsCacheVersion >= writeCacheVersion {
+				if inWrCache {
+					s.(subscription).WriteCacheObjects.Delete(hashedName)
+				}
+				return &RuntimeanswerRuntimeAnswer{
+					client:        group.client,
+					RuntimeAnswer: resultCache,
+				}, nil
+			}
+		}
+		if inWrCache {
+			return &RuntimeanswerRuntimeAnswer{
+				client:        group.client,
+				RuntimeAnswer: resWrCache.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+			}, nil
+		}
+	}
+
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeanswerExampleV1().
+			RuntimeAnswers().Get(ctx, hashedName, metav1.GetOptions{})
+		if err == nil {
+			return &RuntimeanswerRuntimeAnswer{
+				client:        group.client,
+				RuntimeAnswer: result,
+			}, nil
+		} else if errors.IsNotFound(err) {
+			log.Debugf("[GetRuntimeAnswerByName]: object %v not found", hashedName)
+			return nil, err
+		} else {
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on Get RuntimeAnswers: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[GetRuntimeAnswerByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[GetRuntimeAnswerByName]: %+v", err)
+				return nil, err
+			}
+		}
+	}
+}
+
+// ForceReadRuntimeAnswerByName read object directly from the database under the hashedName which is a hash of display
+// name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeanswerExampleV1) ForceReadRuntimeAnswerByName(ctx context.Context, hashedName string) (*RuntimeanswerRuntimeAnswer, error) {
+	log.Debugf("[ForceReadRuntimeAnswerByName] Received object :%s to read from DB", hashedName)
+	retryCount := 0
+	for {
+		result, err := group.client.baseClient.
+			RuntimeanswerExampleV1().
+			RuntimeAnswers().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[ForceReadRuntimeAnswerByName] Failed to Get RuntimeAnswers: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Errorf("[Retry Count: %d ] %+v", retryCount, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max Retry exceed on Get RuntimeAnswers: %s", hashedName)
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[ForceReadRuntimeAnswerByName]: %+v", err)
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[ForceReadRuntimeAnswerByName]: %+v", err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[ForceReadRuntimeAnswerByName] Executed Successfully :%s", hashedName)
+			return &RuntimeanswerRuntimeAnswer{
+				client:        group.client,
+				RuntimeAnswer: result,
+			}, nil
+		}
+	}
+}
+
+// DeleteRuntimeAnswerByName deletes object stored in the database under the hashedName which is a hash of
+// display name and parents names. Use it when you know hashed name of object.
+func (group *RuntimeanswerExampleV1) DeleteRuntimeAnswerByName(ctx context.Context, hashedName string) (err error) {
+	log.Debugf("[DeleteRuntimeAnswerByName] Received objectToDelete: %s", hashedName)
+	var (
+		retryCount int
+		result     *baseruntimeanswerexamplecomv1.RuntimeAnswer
+	)
+
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeanswerExampleV1().
+			RuntimeAnswers().Get(ctx, hashedName, metav1.GetOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeAnswerByName] Failed to get RuntimeAnswers: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on get RuntimeAnswers: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeAnswerByName] context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeAnswerByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeAnswerByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	if result == nil {
+		return err
+	}
+
+	retryCount = 0
+	for {
+		err = group.client.baseClient.
+			RuntimeanswerExampleV1().
+			RuntimeAnswers().Delete(ctx, hashedName, metav1.DeleteOptions{})
+		if err != nil {
+			log.Errorf("[DeleteRuntimeAnswerByName] failed to delete RuntimeAnswers: %+v", err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, hashedName, err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on delete RuntimeAnswers: %s", hashedName)
+					return err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[DeleteRuntimeAnswerByName]: context canceled: %s", hashedName)
+				return context.Canceled
+			} else if errors.IsNotFound(err) {
+				log.Errorf("[DeleteRuntimeAnswerByName] Object: %s not found", hashedName)
+				break
+			} else {
+				log.Errorf("[DeleteRuntimeAnswerByName] Object: %s unexpected error: %+v", hashedName, err)
+				return err
+			}
+		} else {
+			if s, ok := subscriptionMap.Load("runtimeanswers.runtimeanswer.example.com"); ok {
+				s.(subscription).WriteCacheObjects.Delete(hashedName)
+			}
+			break
+		}
+	}
+	// Get Parent Node and check if gvk present before patch
+
+	log.Debugf("[DeleteRuntimeAnswerByName] Get parent details for object: %s", hashedName)
+	// var patch Patch
+	parents := result.GetLabels()
+	if parents == nil {
+		parents = make(map[string]string)
+	}
+	parentName, ok := parents["runtimequizes.runtimequiz.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	if result.GetLabels() != nil {
+		if parents[common.IS_NAME_HASHED_LABEL] == "true" {
+			parentName = helper.GetHashedName("runtimequizes.runtimequiz.example.com", parents, parentName)
+		}
+	} else {
+		parentName = helper.GetHashedName("runtimequizes.runtimequiz.example.com", parents, parentName)
+	}
+	RemoveChild("runtimequizes.runtimequiz.example.com", parentName, "runtimeanswers.runtimeanswer.example.com", hashedName)
+
+	return nil
+}
+
+// CreateRuntimeAnswerByName creates object in the database without hashing the name.
+// Use it directly ONLY when objToCreate.Name is hashed name of the object.
+func (group *RuntimeanswerExampleV1) CreateRuntimeAnswerByName(ctx context.Context,
+	objToCreate *baseruntimeanswerexamplecomv1.RuntimeAnswer) (*RuntimeanswerRuntimeAnswer, error) {
+	log.Debugf("[CreateRuntimeAnswerByName] Received objToCreate: %s", objToCreate.GetName())
+	if objToCreate.GetLabels() == nil {
+		objToCreate.Labels = make(map[string]string)
+	}
+	if _, ok := objToCreate.Labels[common.DISPLAY_NAME_LABEL]; !ok {
+		objToCreate.Labels[common.DISPLAY_NAME_LABEL] = objToCreate.GetName()
+	}
+
+	objToCreate.Spec.AnswerGvk = nil
+
+	var (
+		retryCount int
+		result     *baseruntimeanswerexamplecomv1.RuntimeAnswer
+		err        error
+	)
+	retryCount = 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeanswerExampleV1().
+			RuntimeAnswers().Create(ctx, objToCreate, metav1.CreateOptions{})
+		if err != nil {
+			log.Errorf("[CreateRuntimeAnswerByName] Failed to create RuntimeAnswer: %s, error: %+v", objToCreate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToCreate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on create RuntimeAnswer: %s", objToCreate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[CreateRuntimeAnswerByName] context canceled while creating RuntimeAnswer: %s", objToCreate.GetName())
+				return nil, context.Canceled
+			} else if errors.IsAlreadyExists(err) {
+				log.Debugf("[CreateRuntimeAnswerByName] RuntimeAnswer: %s already exists, error: %+v", objToCreate.GetName(), err)
+				result, err = group.client.baseClient.RuntimeanswerExampleV1().RuntimeAnswers().Get(ctx, objToCreate.GetName(), metav1.GetOptions{})
+				if err != nil {
+					log.Fatalf("[CreateRuntimeAnswerByName] Unable to Get RuntimeAnswer %s after it was flagged as already exists, error: %+v", objToCreate.GetName(), err)
+				}
+				break
+			} else {
+				log.Errorf("[CreateRuntimeAnswerByName] found unexpected error while creating RuntimeAnswer: %s, error: %+v", objToCreate.GetName(), err)
+				return nil, err
+			}
+		} else {
+			log.Debugf("[CreateRuntimeAnswerByName] RuntimeAnswer: %s created successfully", objToCreate.GetName())
+			if s, ok := subscriptionMap.Load("runtimeanswers.runtimeanswer.example.com"); ok {
+				log.Debugf("[CreateRuntimeAnswerByName] RuntimeAnswer: %s stored in wr-cache", objToCreate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToCreate.GetName(), result)
+			}
+			break
+		}
+	}
+
+	parentName, ok := objToCreate.GetLabels()["runtimequizes.runtimequiz.example.com"]
+	if !ok {
+		parentName = helper.DEFAULT_KEY
+	}
+	parentHashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", objToCreate.GetLabels(), parentName)
+
+	AddChild("runtimequizes.runtimequiz.example.com", parentHashedName, "runtimeanswers.runtimeanswer.example.com", objToCreate.Name)
+
+	log.Debugf("[CreateRuntimeAnswerByName] Executed Successfully: %s", objToCreate.GetName())
+	return &RuntimeanswerRuntimeAnswer{
+		client:        group.client,
+		RuntimeAnswer: result,
+	}, nil
+}
+
+// UpdateRuntimeAnswerByName updates object stored in the database under the hashedName which is a hash of
+// display name and parents names.
+func (group *RuntimeanswerExampleV1) UpdateRuntimeAnswerByName(ctx context.Context,
+	objToUpdate *baseruntimeanswerexamplecomv1.RuntimeAnswer) (*RuntimeanswerRuntimeAnswer, error) {
+	log.Debugf("[UpdateRuntimeAnswerByName] Received objToUpdate: %s", objToUpdate.GetName())
+
+	var patch Patch
+
+	if objToUpdate.Annotations != nil || objToUpdate.Labels != nil {
+		current, err := group.client.Runtimeanswer().GetRuntimeAnswerByName(ctx, objToUpdate.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		if objToUpdate.Annotations != nil {
+			if current.Annotations[ownershipAnnotation] != "" {
+				objToUpdate.Annotations[ownershipAnnotation] = current.Annotations[ownershipAnnotation]
+			}
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/annotations",
+				Value: objToUpdate.Annotations,
+			})
+		}
+
+		if objToUpdate.Labels != nil {
+			parentsList := helper.GetCRDParentsMap()["runtimeanswers.runtimeanswer.example.com"]
+			for _, k := range parentsList {
+				objToUpdate.Labels[k] = current.Labels[k]
+			}
+			objToUpdate.Labels[common.IS_NAME_HASHED_LABEL] = current.Labels[common.IS_NAME_HASHED_LABEL]
+			objToUpdate.Labels[common.DISPLAY_NAME_LABEL] = current.Labels[common.DISPLAY_NAME_LABEL]
+			patch = append(patch, PatchOp{
+				Op:    "replace",
+				Path:  "/metadata/labels",
+				Value: objToUpdate.Labels,
+			})
+		}
+	}
+
+	var rt reflect.Type
+
+	rt = reflect.TypeOf(objToUpdate.Spec.ProvidedAnswer)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.ProvidedAnswer).IsNil() {
+			patchValueProvidedAnswer := objToUpdate.Spec.ProvidedAnswer
+			patchOpProvidedAnswer := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/providedAnswer",
+				Value: patchValueProvidedAnswer,
+			}
+			patch = append(patch, patchOpProvidedAnswer)
+		}
+	} else {
+		patchValueProvidedAnswer := objToUpdate.Spec.ProvidedAnswer
+		patchOpProvidedAnswer := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/providedAnswer",
+			Value: patchValueProvidedAnswer,
+		}
+		patch = append(patch, patchOpProvidedAnswer)
+	}
+
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return nil, err
+	}
+
+	var (
+		result *baseruntimeanswerexamplecomv1.RuntimeAnswer
+	)
+	newCtx := context.TODO()
+	retryCount := 0
+	for {
+		result, err = group.client.baseClient.
+			RuntimeanswerExampleV1().
+			RuntimeAnswers().Patch(newCtx, objToUpdate.GetName(), types.JSONPatchType, marshaled, metav1.PatchOptions{}, "")
+		if err != nil {
+			log.Errorf("[UpdateRuntimeAnswerByName] Failed to patch RuntimeAnswer %s with error: %+v", objToUpdate.GetName(), err)
+			if errors.IsTimeout(err) || customerrors.Is(err, context.DeadlineExceeded) {
+				log.Debugf("[Retry count: (%d) obj: %s ] %+v", retryCount, objToUpdate.GetName(), err)
+				if retryCount == maxRetryCount {
+					log.Errorf("Max retry exceed on patching: %s", objToUpdate.GetName())
+					log.Debugf("Trigger RuntimeAnswer Delete: %s", objToUpdate.GetName())
+					delErr := group.DeleteRuntimeAnswerByName(newCtx, objToUpdate.GetName())
+					if delErr != nil {
+						log.Debugf("Error occur while deleting RuntimeAnswer: %s", objToUpdate.GetName())
+						return nil, delErr
+					}
+					log.Debugf("RuntimeAnswer deleted: %s", objToUpdate.GetName())
+					return nil, err
+				}
+				retryCount += 1
+				time.Sleep(sleepTime * time.Second)
+			} else if customerrors.Is(err, context.Canceled) {
+				log.Errorf("[UpdateRuntimeAnswerByName]: context canceled: %s", objToUpdate.GetName())
+				return nil, context.Canceled
+			} else {
+				log.Errorf("[UpdateRuntimeAnswerByName] Object: %s unexpected error: %+v", objToUpdate.GetName(), err)
+				log.Debugf("Trigger RuntimeAnswer Delete: %s", objToUpdate.GetName())
+				delErr := group.DeleteRuntimeAnswerByName(newCtx, objToUpdate.GetName())
+				if delErr != nil {
+					log.Debugf("Error occur while deleting RuntimeAnswer: %+v", objToUpdate.GetName())
+					return nil, delErr
+				}
+				log.Debugf("RuntimeAnswer Deleted: %s", objToUpdate.GetName())
+				return nil, err
+			}
+		} else {
+			log.Debugf("[UpdateRuntimeAnswerByName] Patch RuntimeAnswer Success :%s", objToUpdate.GetName())
+			if s, ok := subscriptionMap.Load("runtimeanswers.runtimeanswer.example.com"); ok {
+				log.Debugf("[UpdateRuntimeAnswerByName] %s stored in wr-cache", objToUpdate.GetName())
+				s.(subscription).WriteCacheObjects.Store(objToUpdate.GetName(), result)
+			}
+			break
+		}
+	}
+	log.Debugf("[UpdateRuntimeAnswerByName] Executed Successfully %s", objToUpdate.GetName())
+	return &RuntimeanswerRuntimeAnswer{
+		client:        group.client,
+		RuntimeAnswer: result,
+	}, nil
+}
+
+// ListRuntimeAnswers returns slice of all existing objects of this type. Selectors can be provided in opts parameter.
+func (group *RuntimeanswerExampleV1) ListRuntimeAnswers(ctx context.Context,
+	opts metav1.ListOptions) (result []*RuntimeanswerRuntimeAnswer, err error) {
+	key := "runtimeanswers.runtimeanswer.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		items := s.(subscription).informer.GetStore().List()
+		result = make([]*RuntimeanswerRuntimeAnswer, len(items))
+		for k, v := range items {
+			item, _ := v.(*baseruntimeanswerexamplecomv1.RuntimeAnswer)
+			result[k] = &RuntimeanswerRuntimeAnswer{
+				client:        group.client,
+				RuntimeAnswer: item,
+			}
+		}
+	} else {
+		list, err := group.client.baseClient.RuntimeanswerExampleV1().
+			RuntimeAnswers().List(ctx, opts)
+		if err != nil {
+			return nil, err
+		}
+		result = make([]*RuntimeanswerRuntimeAnswer, len(list.Items))
+		for k, v := range list.Items {
+			item := v
+			result[k] = &RuntimeanswerRuntimeAnswer{
+				client:        group.client,
+				RuntimeAnswer: &item,
+			}
+		}
+	}
+	return
+}
+
+type RuntimeanswerRuntimeAnswer struct {
+	client *Clientset
+	*baseruntimeanswerexamplecomv1.RuntimeAnswer
+}
+
+// Delete removes obj and all it's children from the database.
+func (obj *RuntimeanswerRuntimeAnswer) Delete(ctx context.Context) error {
+	err := obj.client.Runtimeanswer().DeleteRuntimeAnswerByName(ctx, obj.GetName())
+	if err != nil {
+		return err
+	}
+	obj.RuntimeAnswer = nil
+	return nil
+}
+
+// Update updates spec of object in database. Children and Link can not be updated using this function.
+func (obj *RuntimeanswerRuntimeAnswer) Update(ctx context.Context) error {
+	result, err := obj.client.Runtimeanswer().UpdateRuntimeAnswerByName(ctx, obj.RuntimeAnswer)
+	if err != nil {
+		return err
+	}
+	obj.RuntimeAnswer = result.RuntimeAnswer
+	return nil
+}
+
+func (obj *RuntimeanswerRuntimeAnswer) GetParent(ctx context.Context) (result *RuntimequizRuntimeQuiz, err error) {
+	hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", obj.Labels, obj.Labels["runtimequizes.runtimequiz.example.com"])
+	return obj.client.Runtimequiz().GetRuntimeQuizByName(ctx, hashedName)
+}
+
+// GetAnswer returns link of given type
+func (obj *RuntimeanswerRuntimeAnswer) GetAnswer(ctx context.Context) (
+	result *QuizchoiceQuizChoice, err error) {
+	if obj.Spec.AnswerGvk == nil {
+		return nil, NewLinkNotFound(obj.DisplayName(), "Runtimeanswer.RuntimeAnswer", "Answer")
+	}
+	return obj.client.Quizchoice().GetQuizChoiceByName(ctx, obj.Spec.AnswerGvk.Name)
+}
+
+// LinkAnswer links obj with linkToAdd object. This function doesn't create linked object, it must be
+// already created.
+func (obj *RuntimeanswerRuntimeAnswer) LinkAnswer(ctx context.Context,
+	linkToAdd *QuizchoiceQuizChoice) error {
+
+	var patch Patch
+	patchOp := PatchOp{
+		Op:   "replace",
+		Path: "/spec/answerGvk",
+		Value: baseruntimeanswerexamplecomv1.Child{
+			Group: "quizchoice.example.com",
+			Kind:  "QuizChoice",
+			Name:  linkToAdd.Name,
+		},
+	}
+	patch = append(patch, patchOp)
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return err
+	}
+	result, err := obj.client.baseClient.RuntimeanswerExampleV1().RuntimeAnswers().Patch(ctx, obj.Name, types.JSONPatchType, marshaled, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+
+	obj.RuntimeAnswer = result
+	return nil
+}
+
+// UnlinkAnswer unlinks linkToRemove object from obj. This function doesn't delete linked object.
+func (obj *RuntimeanswerRuntimeAnswer) UnlinkAnswer(ctx context.Context) (err error) {
+	var patch Patch
+
+	patchOp := PatchOp{
+		Op:   "remove",
+		Path: "/spec/answerGvk",
+	}
+
+	patch = append(patch, patchOp)
+	marshaled, err := patch.Marshal()
+	if err != nil {
+		return err
+	}
+	result, err := obj.client.baseClient.RuntimeanswerExampleV1().RuntimeAnswers().Patch(ctx, obj.Name, types.JSONPatchType, marshaled, metav1.PatchOptions{})
+	if err != nil {
+		return err
+	}
+	obj.RuntimeAnswer = result
+	return nil
+
+}
+
+type runtimeanswerRuntimeanswerExampleV1Chainer struct {
+	client       *Clientset
+	name         string
+	parentLabels map[string]string
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) Subscribe() {
+	key := "runtimeanswers.runtimeanswer.example.com"
+	if _, ok := subscriptionMap.Load(key); !ok {
+		informer := informerruntimeanswerexamplecomv1.NewRuntimeAnswerInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+
+		c.RegisterAddCallback(c.addCallback)
+		c.RegisterDeleteCallback(c.deleteCallback)
+
+	}
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) Unsubscribe() {
+	key := "runtimeanswers.runtimeanswer.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		close(s.(subscription).stop)
+		subscriptionMap.Delete(key)
+	}
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) IsSubscribed() bool {
+	key := "runtimeanswers.runtimeanswer.example.com"
+	_, ok := subscriptionMap.Load(key)
+	return ok
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) addCallback(obj *RuntimeanswerRuntimeAnswer) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimequizes.runtimequiz.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", obj.Labels, parentDisplayName)
+
+	AddChild("runtimequizes.runtimequiz.example.com", parentHashName, "runtimeanswers.runtimeanswer.example.com", obj.Name)
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) deleteCallback(obj *RuntimeanswerRuntimeAnswer) {
+	parentDisplayName := helper.DEFAULT_KEY
+	if value, ok := obj.Labels["runtimequizes.runtimequiz.example.com"]; ok {
+		parentDisplayName = value
+	}
+	parentHashName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", obj.Labels, parentDisplayName)
+
+	RemoveChild("runtimequizes.runtimequiz.example.com", parentHashName, "runtimeanswers.runtimeanswer.example.com", obj.Name)
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) RegisterEventHandler(addCB func(obj *RuntimeanswerRuntimeAnswer), updateCB func(oldObj, newObj *RuntimeanswerRuntimeAnswer), deleteCB func(obj *RuntimeanswerRuntimeAnswer)) (cache.ResourceEventHandlerRegistration, error) {
+	fmt.Println("RegisterEventHandler for RuntimeanswerRuntimeAnswer")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+		informer       cache.SharedIndexInformer
+	)
+	key := "runtimeanswers.runtimeanswer.example.com"
+	if s, ok := subscriptionMap.Load(key); ok {
+		fmt.Println("Informer exists for RuntimeanswerRuntimeAnswer")
+		sub := s.(subscription)
+		informer = sub.informer
+	} else {
+		fmt.Println("Informer doesn't exists for RuntimeanswerRuntimeAnswer, so creating a new one")
+		informer = informerruntimeanswerexamplecomv1.NewRuntimeAnswerInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		subscribe(key, informer)
+	}
+	registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+		AddFunc: func(obj interface{}) {
+			nc := &RuntimeanswerRuntimeAnswer{
+				client:        c.client,
+				RuntimeAnswer: obj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+			}
+
+			var parent *RuntimequizRuntimeQuiz
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", nc.Labels, nc.Labels["runtimequizes.runtimequiz.example.com"])
+				parent, err = c.client.Runtimequiz().ForceReadRuntimeQuizByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			addCB(nc)
+		},
+
+		UpdateFunc: func(oldObj, newObj interface{}) {
+			oldData := &RuntimeanswerRuntimeAnswer{
+				client:        c.client,
+				RuntimeAnswer: oldObj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+			}
+			newData := &RuntimeanswerRuntimeAnswer{
+				client:        c.client,
+				RuntimeAnswer: newObj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+			}
+			updateCB(oldData, newData)
+		},
+
+		DeleteFunc: func(obj interface{}) {
+			nc := &RuntimeanswerRuntimeAnswer{
+				client:        c.client,
+				RuntimeAnswer: obj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+			}
+
+			var parent *RuntimequizRuntimeQuiz
+			for i := 0; i < 600; i++ {
+				// Check if parent exists
+				p, err := nc.GetParent(context.TODO())
+				if err != nil || p == nil {
+					time.Sleep(500 * time.Millisecond)
+					continue
+				}
+				parent = p
+				break
+			}
+			if parent == nil {
+				hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", nc.Labels, nc.Labels["runtimequizes.runtimequiz.example.com"])
+				parent, err = c.client.Runtimequiz().ForceReadRuntimeQuizByName(context.TODO(), hashedName)
+				if err != nil {
+					if errors.IsNotFound(err) {
+						return
+					}
+					panic("error occurred while fetching parent " + err.Error())
+				}
+				panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+			}
+
+			deleteCB(nc)
+		},
+	})
+	return registrationId, err
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) RegisterAddCallback(cbfn func(obj *RuntimeanswerRuntimeAnswer)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterAddCallback] Received for RuntimeanswerRuntimeAnswer")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeanswers.runtimeanswer.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterAddCallback] RuntimeanswerRuntimeAnswer Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: obj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+
+				var parent *RuntimequizRuntimeQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", nc.Labels, nc.Labels["runtimequizes.runtimequiz.example.com"])
+					parent, err = c.client.Runtimequiz().ForceReadRuntimeQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterAddCallback] RuntimeanswerRuntimeAnswer Create New Informer")
+		informer := informerruntimeanswerexamplecomv1.NewRuntimeAnswerInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				nc := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: obj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+
+				var parent *RuntimequizRuntimeQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", nc.Labels, nc.Labels["runtimequizes.runtimequiz.example.com"])
+					parent, err = c.client.Runtimequiz().ForceReadRuntimeQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) RegisterUpdateCallback(cbfn func(oldObj, newObj *RuntimeanswerRuntimeAnswer)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterUpdateCallback] Received for RuntimeanswerRuntimeAnswer")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeanswers.runtimeanswer.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterUpdateCallback] RuntimeanswerRuntimeAnswer Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: oldObj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+				newData := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: newObj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterUpdateCallback] RuntimeanswerRuntimeAnswer Create New Informer")
+		informer := informerruntimeanswerexamplecomv1.NewRuntimeAnswerInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				oldData := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: oldObj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+				newData := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: newObj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+				cbfn(oldData, newData)
+			},
+		})
+		go informer.Run(stopper)
+	}
+	return registrationId, err
+}
+
+func (c *runtimeanswerRuntimeanswerExampleV1Chainer) RegisterDeleteCallback(cbfn func(obj *RuntimeanswerRuntimeAnswer)) (cache.ResourceEventHandlerRegistration, error) {
+	log.Debugf("[RegisterDeleteCallback] Received for RuntimeanswerRuntimeAnswer")
+	var (
+		registrationId cache.ResourceEventHandlerRegistration
+		err            error
+	)
+	key := "runtimeanswers.runtimeanswer.example.com"
+	stopper := make(chan struct{})
+	if s, ok := subscriptionMap.Load(key); ok {
+		log.Debugf("[RegisterDeleteCallback] RuntimeanswerRuntimeAnswer Use Subscription Informer")
+		sub := s.(subscription)
+		registrationId, err = sub.informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: obj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+
+				var parent *RuntimequizRuntimeQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", nc.Labels, nc.Labels["runtimequizes.runtimequiz.example.com"])
+					parent, err = c.client.Runtimequiz().ForceReadRuntimeQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+	} else {
+		log.Debugf("[RegisterDeleteCallback] RuntimeanswerRuntimeAnswer Create New Informer")
+		informer := informerruntimeanswerexamplecomv1.NewRuntimeAnswerInformer(c.client.baseClient, informerResyncPeriod*time.Second, cache.Indexers{})
+		registrationId, err = informer.AddEventHandler(cache.ResourceEventHandlerFuncs{
+			DeleteFunc: func(obj interface{}) {
+				nc := &RuntimeanswerRuntimeAnswer{
+					client:        c.client,
+					RuntimeAnswer: obj.(*baseruntimeanswerexamplecomv1.RuntimeAnswer),
+				}
+
+				var parent *RuntimequizRuntimeQuiz
+				for i := 0; i < 600; i++ {
+					// Check if parent exists
+					p, err := nc.GetParent(context.TODO())
+					if err != nil || p == nil {
+						time.Sleep(500 * time.Millisecond)
+						continue
+					}
+					parent = p
+					break
+				}
+
+				if parent == nil {
+					hashedName := helper.GetHashedName("runtimequizes.runtimequiz.example.com", nc.Labels, nc.Labels["runtimequizes.runtimequiz.example.com"])
+					parent, err = c.client.Runtimequiz().ForceReadRuntimeQuizByName(context.TODO(), hashedName)
+					if err != nil {
+						if errors.IsNotFound(err) {
+							return
+						}
+
+						panic("error occurred while fetching parent " + err.Error())
+					}
+					panic(fmt.Sprintf("parent found (event loop is stalled) " + nc.DisplayName()))
+				}
+
+				cbfn(nc)
+			},
+		})
+		go informer.Run(stopper)
+	}
 	return registrationId, err
 }

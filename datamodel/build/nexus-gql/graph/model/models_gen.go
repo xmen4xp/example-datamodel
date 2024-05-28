@@ -59,6 +59,7 @@ type QuizchoiceQuizChoice struct {
 	Choice       *string                `json:"Choice"`
 	Hint         *string                `json:"Hint"`
 	PictureName  *string                `json:"PictureName"`
+	Answer       *bool                  `json:"Answer"`
 }
 
 type QuizquestionQuizQuestion struct {
@@ -67,7 +68,6 @@ type QuizquestionQuizQuestion struct {
 	Choice            []*QuizchoiceQuizChoice `json:"Choice"`
 	Question          *string                 `json:"Question"`
 	Hint              *string                 `json:"Hint"`
-	Answer            *string                 `json:"Answer"`
 	Format            *string                 `json:"Format"`
 	Score             *int                    `json:"Score"`
 	AnimationFilePath *string                 `json:"AnimationFilePath"`
@@ -81,11 +81,45 @@ type RootRoot struct {
 	Evaluation   *EvaluationEvaluation  `json:"Evaluation"`
 }
 
+type RuntimeRuntime struct {
+	Id           *string                   `json:"Id"`
+	ParentLabels map[string]interface{}    `json:"ParentLabels"`
+	User         []*RuntimeuserRuntimeUser `json:"User"`
+}
+
+type RuntimeanswerRuntimeAnswer struct {
+	Id             *string                `json:"Id"`
+	ParentLabels   map[string]interface{} `json:"ParentLabels"`
+	Answer         *QuizchoiceQuizChoice  `json:"Answer"`
+	ProvidedAnswer *string                `json:"ProvidedAnswer"`
+}
+
+type RuntimeevaluationRuntimeEvaluation struct {
+	Id           *string                   `json:"Id"`
+	ParentLabels map[string]interface{}    `json:"ParentLabels"`
+	Quiz         []*RuntimequizRuntimeQuiz `json:"Quiz"`
+}
+
+type RuntimequizRuntimeQuiz struct {
+	Id           *string                       `json:"Id"`
+	ParentLabels map[string]interface{}        `json:"ParentLabels"`
+	Quiz         *QuizQuiz                     `json:"Quiz"`
+	Answers      []*RuntimeanswerRuntimeAnswer `json:"Answers"`
+}
+
+type RuntimeuserRuntimeUser struct {
+	Id           *string                             `json:"Id"`
+	ParentLabels map[string]interface{}              `json:"ParentLabels"`
+	User         *UserUser                           `json:"User"`
+	Evaluation   *RuntimeevaluationRuntimeEvaluation `json:"Evaluation"`
+}
+
 type TenantTenant struct {
 	Id           *string                `json:"Id"`
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
 	Interest     []*InterestInterest    `json:"Interest"`
 	Config       *ConfigConfig          `json:"Config"`
+	Runtime      *RuntimeRuntime        `json:"Runtime"`
 }
 
 type UserUser struct {

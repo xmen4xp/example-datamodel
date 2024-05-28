@@ -38,8 +38,6 @@ spec:
             type: object
           spec:
             properties:
-              animationFilePath:
-                type: string
               choiceGvk:
                 additionalProperties:
                   properties:
@@ -57,22 +55,11 @@ spec:
                 type: object
               format:
                 type: string
-              hint:
-                type: string
-              pictureFilePath:
-                type: string
               question:
                 type: string
-              score:
-                format: int32
-                type: integer
             required:
             - question
-            - hint
             - format
-            - score
-            - animationFilePath
-            - pictureFilePath
             type: object
           status:
             properties:

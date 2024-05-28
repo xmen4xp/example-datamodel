@@ -22,6 +22,7 @@ type QuizChoice struct {
 	nexus.Node
 
 	Choice      string
-	Hint        string
-	PictureName string
+	Hint        string `json:",omitempty"`
+	PictureName string `json:",omitempty"`
+	Answer      bool
 }

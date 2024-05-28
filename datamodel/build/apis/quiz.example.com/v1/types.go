@@ -51,7 +51,8 @@ type Quiz struct {
 
 // +k8s:openapi-gen=true
 type QuizNexusStatus struct {
-	Nexus NexusStatus `json:"nexus,omitempty" yaml:"nexus,omitempty"`
+	Status QuizStatus  `json:"status,omitempty" yaml:"status,omitempty"`
+	Nexus  NexusStatus `json:"nexus,omitempty" yaml:"nexus,omitempty"`
 }
 
 func (c *Quiz) CRDName() string {
@@ -76,4 +77,9 @@ type QuizList struct {
 	metav1.TypeMeta `json:",inline" yaml:",inline"`
 	metav1.ListMeta `json:"metadata" yaml:"metadata"`
 	Items           []Quiz `json:"items" yaml:"items"`
+}
+
+// +k8s:openapi-gen=true
+type QuizStatus struct {
+	TotalScore int `json:"totalScore" yaml:"totalScore"`
 }

@@ -29,6 +29,11 @@ import (
 	quizchoiceexamplev1 "example/build/client/clientset/versioned/typed/quizchoice.example.com/v1"
 	quizquestionexamplev1 "example/build/client/clientset/versioned/typed/quizquestion.example.com/v1"
 	rootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1"
+	runtimeexamplev1 "example/build/client/clientset/versioned/typed/runtime.example.com/v1"
+	runtimeanswerexamplev1 "example/build/client/clientset/versioned/typed/runtimeanswer.example.com/v1"
+	runtimeevaluationexamplev1 "example/build/client/clientset/versioned/typed/runtimeevaluation.example.com/v1"
+	runtimequizexamplev1 "example/build/client/clientset/versioned/typed/runtimequiz.example.com/v1"
+	runtimeuserexamplev1 "example/build/client/clientset/versioned/typed/runtimeuser.example.com/v1"
 	tenantexamplev1 "example/build/client/clientset/versioned/typed/tenant.example.com/v1"
 	userexamplev1 "example/build/client/clientset/versioned/typed/user.example.com/v1"
 	wannaexamplev1 "example/build/client/clientset/versioned/typed/wanna.example.com/v1"
@@ -48,6 +53,11 @@ type Interface interface {
 	QuizchoiceExampleV1() quizchoiceexamplev1.QuizchoiceExampleV1Interface
 	QuizquestionExampleV1() quizquestionexamplev1.QuizquestionExampleV1Interface
 	RootExampleV1() rootexamplev1.RootExampleV1Interface
+	RuntimeExampleV1() runtimeexamplev1.RuntimeExampleV1Interface
+	RuntimeanswerExampleV1() runtimeanswerexamplev1.RuntimeanswerExampleV1Interface
+	RuntimeevaluationExampleV1() runtimeevaluationexamplev1.RuntimeevaluationExampleV1Interface
+	RuntimequizExampleV1() runtimequizexamplev1.RuntimequizExampleV1Interface
+	RuntimeuserExampleV1() runtimeuserexamplev1.RuntimeuserExampleV1Interface
 	TenantExampleV1() tenantexamplev1.TenantExampleV1Interface
 	UserExampleV1() userexamplev1.UserExampleV1Interface
 	WannaExampleV1() wannaexamplev1.WannaExampleV1Interface
@@ -56,17 +66,22 @@ type Interface interface {
 // Clientset contains the clients for groups.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	configExampleV1       *configexamplev1.ConfigExampleV1Client
-	evaluationExampleV1   *evaluationexamplev1.EvaluationExampleV1Client
-	eventExampleV1        *eventexamplev1.EventExampleV1Client
-	interestExampleV1     *interestexamplev1.InterestExampleV1Client
-	quizExampleV1         *quizexamplev1.QuizExampleV1Client
-	quizchoiceExampleV1   *quizchoiceexamplev1.QuizchoiceExampleV1Client
-	quizquestionExampleV1 *quizquestionexamplev1.QuizquestionExampleV1Client
-	rootExampleV1         *rootexamplev1.RootExampleV1Client
-	tenantExampleV1       *tenantexamplev1.TenantExampleV1Client
-	userExampleV1         *userexamplev1.UserExampleV1Client
-	wannaExampleV1        *wannaexamplev1.WannaExampleV1Client
+	configExampleV1            *configexamplev1.ConfigExampleV1Client
+	evaluationExampleV1        *evaluationexamplev1.EvaluationExampleV1Client
+	eventExampleV1             *eventexamplev1.EventExampleV1Client
+	interestExampleV1          *interestexamplev1.InterestExampleV1Client
+	quizExampleV1              *quizexamplev1.QuizExampleV1Client
+	quizchoiceExampleV1        *quizchoiceexamplev1.QuizchoiceExampleV1Client
+	quizquestionExampleV1      *quizquestionexamplev1.QuizquestionExampleV1Client
+	rootExampleV1              *rootexamplev1.RootExampleV1Client
+	runtimeExampleV1           *runtimeexamplev1.RuntimeExampleV1Client
+	runtimeanswerExampleV1     *runtimeanswerexamplev1.RuntimeanswerExampleV1Client
+	runtimeevaluationExampleV1 *runtimeevaluationexamplev1.RuntimeevaluationExampleV1Client
+	runtimequizExampleV1       *runtimequizexamplev1.RuntimequizExampleV1Client
+	runtimeuserExampleV1       *runtimeuserexamplev1.RuntimeuserExampleV1Client
+	tenantExampleV1            *tenantexamplev1.TenantExampleV1Client
+	userExampleV1              *userexamplev1.UserExampleV1Client
+	wannaExampleV1             *wannaexamplev1.WannaExampleV1Client
 }
 
 // ConfigExampleV1 retrieves the ConfigExampleV1Client
@@ -107,6 +122,31 @@ func (c *Clientset) QuizquestionExampleV1() quizquestionexamplev1.QuizquestionEx
 // RootExampleV1 retrieves the RootExampleV1Client
 func (c *Clientset) RootExampleV1() rootexamplev1.RootExampleV1Interface {
 	return c.rootExampleV1
+}
+
+// RuntimeExampleV1 retrieves the RuntimeExampleV1Client
+func (c *Clientset) RuntimeExampleV1() runtimeexamplev1.RuntimeExampleV1Interface {
+	return c.runtimeExampleV1
+}
+
+// RuntimeanswerExampleV1 retrieves the RuntimeanswerExampleV1Client
+func (c *Clientset) RuntimeanswerExampleV1() runtimeanswerexamplev1.RuntimeanswerExampleV1Interface {
+	return c.runtimeanswerExampleV1
+}
+
+// RuntimeevaluationExampleV1 retrieves the RuntimeevaluationExampleV1Client
+func (c *Clientset) RuntimeevaluationExampleV1() runtimeevaluationexamplev1.RuntimeevaluationExampleV1Interface {
+	return c.runtimeevaluationExampleV1
+}
+
+// RuntimequizExampleV1 retrieves the RuntimequizExampleV1Client
+func (c *Clientset) RuntimequizExampleV1() runtimequizexamplev1.RuntimequizExampleV1Interface {
+	return c.runtimequizExampleV1
+}
+
+// RuntimeuserExampleV1 retrieves the RuntimeuserExampleV1Client
+func (c *Clientset) RuntimeuserExampleV1() runtimeuserexamplev1.RuntimeuserExampleV1Interface {
+	return c.runtimeuserExampleV1
 }
 
 // TenantExampleV1 retrieves the TenantExampleV1Client
@@ -200,6 +240,26 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 	if err != nil {
 		return nil, err
 	}
+	cs.runtimeExampleV1, err = runtimeexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.runtimeanswerExampleV1, err = runtimeanswerexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.runtimeevaluationExampleV1, err = runtimeevaluationexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.runtimequizExampleV1, err = runtimequizexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
+	cs.runtimeuserExampleV1, err = runtimeuserexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.tenantExampleV1, err = tenantexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -241,6 +301,11 @@ func New(c rest.Interface) *Clientset {
 	cs.quizchoiceExampleV1 = quizchoiceexamplev1.New(c)
 	cs.quizquestionExampleV1 = quizquestionexamplev1.New(c)
 	cs.rootExampleV1 = rootexamplev1.New(c)
+	cs.runtimeExampleV1 = runtimeexamplev1.New(c)
+	cs.runtimeanswerExampleV1 = runtimeanswerexamplev1.New(c)
+	cs.runtimeevaluationExampleV1 = runtimeevaluationexamplev1.New(c)
+	cs.runtimequizExampleV1 = runtimequizexamplev1.New(c)
+	cs.runtimeuserExampleV1 = runtimeuserexamplev1.New(c)
 	cs.tenantExampleV1 = tenantexamplev1.New(c)
 	cs.userExampleV1 = userexamplev1.New(c)
 	cs.wannaExampleV1 = wannaexamplev1.New(c)

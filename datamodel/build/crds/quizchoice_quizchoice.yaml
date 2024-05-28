@@ -38,16 +38,13 @@ spec:
             type: object
           spec:
             properties:
+              answer:
+                type: boolean
               choice:
-                type: string
-              hint:
-                type: string
-              pictureName:
                 type: string
             required:
             - choice
-            - hint
-            - pictureName
+            - answer
             type: object
           status:
             properties:

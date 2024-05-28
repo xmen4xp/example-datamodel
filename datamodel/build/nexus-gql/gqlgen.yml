@@ -54,6 +54,8 @@ models:
         resolver: true
       Config:
         resolver: true
+      Runtime:
+        resolver: true
   config_Config:
     fields:
       User:
@@ -67,4 +69,28 @@ models:
   wanna_Wanna:
     fields:
       Interest:
+        resolver: true
+  runtime_Runtime:
+    fields:
+      User:
+        resolver: true
+  runtimeuser_RuntimeUser:
+    fields:
+      User:
+        resolver: true
+      Evaluation:
+        resolver: true
+  runtimeevaluation_RuntimeEvaluation:
+    fields:
+      Quiz:
+        resolver: true
+  runtimequiz_RuntimeQuiz:
+    fields:
+      Quiz:
+        resolver: true
+      Answers:
+        resolver: true
+  runtimeanswer_RuntimeAnswer:
+    fields:
+      Answer:
         resolver: true

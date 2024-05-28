@@ -36,6 +36,16 @@ import (
 	fakequizquestionexamplev1 "example/build/client/clientset/versioned/typed/quizquestion.example.com/v1/fake"
 	rootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1"
 	fakerootexamplev1 "example/build/client/clientset/versioned/typed/root.example.com/v1/fake"
+	runtimeexamplev1 "example/build/client/clientset/versioned/typed/runtime.example.com/v1"
+	fakeruntimeexamplev1 "example/build/client/clientset/versioned/typed/runtime.example.com/v1/fake"
+	runtimeanswerexamplev1 "example/build/client/clientset/versioned/typed/runtimeanswer.example.com/v1"
+	fakeruntimeanswerexamplev1 "example/build/client/clientset/versioned/typed/runtimeanswer.example.com/v1/fake"
+	runtimeevaluationexamplev1 "example/build/client/clientset/versioned/typed/runtimeevaluation.example.com/v1"
+	fakeruntimeevaluationexamplev1 "example/build/client/clientset/versioned/typed/runtimeevaluation.example.com/v1/fake"
+	runtimequizexamplev1 "example/build/client/clientset/versioned/typed/runtimequiz.example.com/v1"
+	fakeruntimequizexamplev1 "example/build/client/clientset/versioned/typed/runtimequiz.example.com/v1/fake"
+	runtimeuserexamplev1 "example/build/client/clientset/versioned/typed/runtimeuser.example.com/v1"
+	fakeruntimeuserexamplev1 "example/build/client/clientset/versioned/typed/runtimeuser.example.com/v1/fake"
 	tenantexamplev1 "example/build/client/clientset/versioned/typed/tenant.example.com/v1"
 	faketenantexamplev1 "example/build/client/clientset/versioned/typed/tenant.example.com/v1/fake"
 	userexamplev1 "example/build/client/clientset/versioned/typed/user.example.com/v1"
@@ -138,6 +148,31 @@ func (c *Clientset) QuizquestionExampleV1() quizquestionexamplev1.QuizquestionEx
 // RootExampleV1 retrieves the RootExampleV1Client
 func (c *Clientset) RootExampleV1() rootexamplev1.RootExampleV1Interface {
 	return &fakerootexamplev1.FakeRootExampleV1{Fake: &c.Fake}
+}
+
+// RuntimeExampleV1 retrieves the RuntimeExampleV1Client
+func (c *Clientset) RuntimeExampleV1() runtimeexamplev1.RuntimeExampleV1Interface {
+	return &fakeruntimeexamplev1.FakeRuntimeExampleV1{Fake: &c.Fake}
+}
+
+// RuntimeanswerExampleV1 retrieves the RuntimeanswerExampleV1Client
+func (c *Clientset) RuntimeanswerExampleV1() runtimeanswerexamplev1.RuntimeanswerExampleV1Interface {
+	return &fakeruntimeanswerexamplev1.FakeRuntimeanswerExampleV1{Fake: &c.Fake}
+}
+
+// RuntimeevaluationExampleV1 retrieves the RuntimeevaluationExampleV1Client
+func (c *Clientset) RuntimeevaluationExampleV1() runtimeevaluationexamplev1.RuntimeevaluationExampleV1Interface {
+	return &fakeruntimeevaluationexamplev1.FakeRuntimeevaluationExampleV1{Fake: &c.Fake}
+}
+
+// RuntimequizExampleV1 retrieves the RuntimequizExampleV1Client
+func (c *Clientset) RuntimequizExampleV1() runtimequizexamplev1.RuntimequizExampleV1Interface {
+	return &fakeruntimequizexamplev1.FakeRuntimequizExampleV1{Fake: &c.Fake}
+}
+
+// RuntimeuserExampleV1 retrieves the RuntimeuserExampleV1Client
+func (c *Clientset) RuntimeuserExampleV1() runtimeuserexamplev1.RuntimeuserExampleV1Interface {
+	return &fakeruntimeuserexamplev1.FakeRuntimeuserExampleV1{Fake: &c.Fake}
 }
 
 // TenantExampleV1 retrieves the TenantExampleV1Client

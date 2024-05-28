@@ -42,6 +42,11 @@ type ResolverRoot interface {
 	Quiz_Quiz() Quiz_QuizResolver
 	Quizquestion_QuizQuestion() Quizquestion_QuizQuestionResolver
 	Root_Root() Root_RootResolver
+	Runtime_Runtime() Runtime_RuntimeResolver
+	Runtimeanswer_RuntimeAnswer() Runtimeanswer_RuntimeAnswerResolver
+	Runtimeevaluation_RuntimeEvaluation() Runtimeevaluation_RuntimeEvaluationResolver
+	Runtimequiz_RuntimeQuiz() Runtimequiz_RuntimeQuizResolver
+	Runtimeuser_RuntimeUser() Runtimeuser_RuntimeUserResolver
 	Tenant_Tenant() Tenant_TenantResolver
 	User_User() User_UserResolver
 	Wanna_Wanna() Wanna_WannaResolver
@@ -111,6 +116,7 @@ type ComplexityRoot struct {
 	}
 
 	Quizchoice_QuizChoice struct {
+		Answer       func(childComplexity int) int
 		Choice       func(childComplexity int) int
 		Hint         func(childComplexity int) int
 		Id           func(childComplexity int) int
@@ -120,7 +126,6 @@ type ComplexityRoot struct {
 
 	Quizquestion_QuizQuestion struct {
 		AnimationFilePath func(childComplexity int) int
-		Answer            func(childComplexity int) int
 		Choice            func(childComplexity int, id *string) int
 		Format            func(childComplexity int) int
 		Hint              func(childComplexity int) int
@@ -138,11 +143,45 @@ type ComplexityRoot struct {
 		Tenant       func(childComplexity int, id *string) int
 	}
 
+	Runtime_Runtime struct {
+		Id           func(childComplexity int) int
+		ParentLabels func(childComplexity int) int
+		User         func(childComplexity int, id *string) int
+	}
+
+	Runtimeanswer_RuntimeAnswer struct {
+		Answer         func(childComplexity int) int
+		Id             func(childComplexity int) int
+		ParentLabels   func(childComplexity int) int
+		ProvidedAnswer func(childComplexity int) int
+	}
+
+	Runtimeevaluation_RuntimeEvaluation struct {
+		Id           func(childComplexity int) int
+		ParentLabels func(childComplexity int) int
+		Quiz         func(childComplexity int, id *string) int
+	}
+
+	Runtimequiz_RuntimeQuiz struct {
+		Answers      func(childComplexity int, id *string) int
+		Id           func(childComplexity int) int
+		ParentLabels func(childComplexity int) int
+		Quiz         func(childComplexity int) int
+	}
+
+	Runtimeuser_RuntimeUser struct {
+		Evaluation   func(childComplexity int) int
+		Id           func(childComplexity int) int
+		ParentLabels func(childComplexity int) int
+		User         func(childComplexity int) int
+	}
+
 	Tenant_Tenant struct {
 		Config       func(childComplexity int) int
 		Id           func(childComplexity int) int
 		Interest     func(childComplexity int, id *string) int
 		ParentLabels func(childComplexity int) int
+		Runtime      func(childComplexity int) int
 	}
 
 	User_User struct {
@@ -185,9 +224,27 @@ type Root_RootResolver interface {
 	Tenant(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.TenantTenant, error)
 	Evaluation(ctx context.Context, obj *model.RootRoot) (*model.EvaluationEvaluation, error)
 }
+type Runtime_RuntimeResolver interface {
+	User(ctx context.Context, obj *model.RuntimeRuntime, id *string) ([]*model.RuntimeuserRuntimeUser, error)
+}
+type Runtimeanswer_RuntimeAnswerResolver interface {
+	Answer(ctx context.Context, obj *model.RuntimeanswerRuntimeAnswer) (*model.QuizchoiceQuizChoice, error)
+}
+type Runtimeevaluation_RuntimeEvaluationResolver interface {
+	Quiz(ctx context.Context, obj *model.RuntimeevaluationRuntimeEvaluation, id *string) ([]*model.RuntimequizRuntimeQuiz, error)
+}
+type Runtimequiz_RuntimeQuizResolver interface {
+	Quiz(ctx context.Context, obj *model.RuntimequizRuntimeQuiz) (*model.QuizQuiz, error)
+	Answers(ctx context.Context, obj *model.RuntimequizRuntimeQuiz, id *string) ([]*model.RuntimeanswerRuntimeAnswer, error)
+}
+type Runtimeuser_RuntimeUserResolver interface {
+	User(ctx context.Context, obj *model.RuntimeuserRuntimeUser) (*model.UserUser, error)
+	Evaluation(ctx context.Context, obj *model.RuntimeuserRuntimeUser) (*model.RuntimeevaluationRuntimeEvaluation, error)
+}
 type Tenant_TenantResolver interface {
 	Interest(ctx context.Context, obj *model.TenantTenant, id *string) ([]*model.InterestInterest, error)
 	Config(ctx context.Context, obj *model.TenantTenant) (*model.ConfigConfig, error)
+	Runtime(ctx context.Context, obj *model.TenantTenant) (*model.RuntimeRuntime, error)
 }
 type User_UserResolver interface {
 	Wanna(ctx context.Context, obj *model.UserUser, id *string) ([]*model.WannaWanna, error)
@@ -448,6 +505,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Quiz_Quiz.Question(childComplexity, args["Id"].(*string)), true
 
+	case "quizchoice_QuizChoice.Answer":
+		if e.complexity.Quizchoice_QuizChoice.Answer == nil {
+			break
+		}
+
+		return e.complexity.Quizchoice_QuizChoice.Answer(childComplexity), true
+
 	case "quizchoice_QuizChoice.Choice":
 		if e.complexity.Quizchoice_QuizChoice.Choice == nil {
 			break
@@ -489,13 +553,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Quizquestion_QuizQuestion.AnimationFilePath(childComplexity), true
-
-	case "quizquestion_QuizQuestion.Answer":
-		if e.complexity.Quizquestion_QuizQuestion.Answer == nil {
-			break
-		}
-
-		return e.complexity.Quizquestion_QuizQuestion.Answer(childComplexity), true
 
 	case "quizquestion_QuizQuestion.Choice":
 		if e.complexity.Quizquestion_QuizQuestion.Choice == nil {
@@ -591,6 +648,147 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Root_Root.Tenant(childComplexity, args["Id"].(*string)), true
 
+	case "runtime_Runtime.Id":
+		if e.complexity.Runtime_Runtime.Id == nil {
+			break
+		}
+
+		return e.complexity.Runtime_Runtime.Id(childComplexity), true
+
+	case "runtime_Runtime.ParentLabels":
+		if e.complexity.Runtime_Runtime.ParentLabels == nil {
+			break
+		}
+
+		return e.complexity.Runtime_Runtime.ParentLabels(childComplexity), true
+
+	case "runtime_Runtime.User":
+		if e.complexity.Runtime_Runtime.User == nil {
+			break
+		}
+
+		args, err := ec.field_runtime_Runtime_User_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Runtime_Runtime.User(childComplexity, args["Id"].(*string)), true
+
+	case "runtimeanswer_RuntimeAnswer.Answer":
+		if e.complexity.Runtimeanswer_RuntimeAnswer.Answer == nil {
+			break
+		}
+
+		return e.complexity.Runtimeanswer_RuntimeAnswer.Answer(childComplexity), true
+
+	case "runtimeanswer_RuntimeAnswer.Id":
+		if e.complexity.Runtimeanswer_RuntimeAnswer.Id == nil {
+			break
+		}
+
+		return e.complexity.Runtimeanswer_RuntimeAnswer.Id(childComplexity), true
+
+	case "runtimeanswer_RuntimeAnswer.ParentLabels":
+		if e.complexity.Runtimeanswer_RuntimeAnswer.ParentLabels == nil {
+			break
+		}
+
+		return e.complexity.Runtimeanswer_RuntimeAnswer.ParentLabels(childComplexity), true
+
+	case "runtimeanswer_RuntimeAnswer.ProvidedAnswer":
+		if e.complexity.Runtimeanswer_RuntimeAnswer.ProvidedAnswer == nil {
+			break
+		}
+
+		return e.complexity.Runtimeanswer_RuntimeAnswer.ProvidedAnswer(childComplexity), true
+
+	case "runtimeevaluation_RuntimeEvaluation.Id":
+		if e.complexity.Runtimeevaluation_RuntimeEvaluation.Id == nil {
+			break
+		}
+
+		return e.complexity.Runtimeevaluation_RuntimeEvaluation.Id(childComplexity), true
+
+	case "runtimeevaluation_RuntimeEvaluation.ParentLabels":
+		if e.complexity.Runtimeevaluation_RuntimeEvaluation.ParentLabels == nil {
+			break
+		}
+
+		return e.complexity.Runtimeevaluation_RuntimeEvaluation.ParentLabels(childComplexity), true
+
+	case "runtimeevaluation_RuntimeEvaluation.Quiz":
+		if e.complexity.Runtimeevaluation_RuntimeEvaluation.Quiz == nil {
+			break
+		}
+
+		args, err := ec.field_runtimeevaluation_RuntimeEvaluation_Quiz_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Runtimeevaluation_RuntimeEvaluation.Quiz(childComplexity, args["Id"].(*string)), true
+
+	case "runtimequiz_RuntimeQuiz.Answers":
+		if e.complexity.Runtimequiz_RuntimeQuiz.Answers == nil {
+			break
+		}
+
+		args, err := ec.field_runtimequiz_RuntimeQuiz_Answers_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Runtimequiz_RuntimeQuiz.Answers(childComplexity, args["Id"].(*string)), true
+
+	case "runtimequiz_RuntimeQuiz.Id":
+		if e.complexity.Runtimequiz_RuntimeQuiz.Id == nil {
+			break
+		}
+
+		return e.complexity.Runtimequiz_RuntimeQuiz.Id(childComplexity), true
+
+	case "runtimequiz_RuntimeQuiz.ParentLabels":
+		if e.complexity.Runtimequiz_RuntimeQuiz.ParentLabels == nil {
+			break
+		}
+
+		return e.complexity.Runtimequiz_RuntimeQuiz.ParentLabels(childComplexity), true
+
+	case "runtimequiz_RuntimeQuiz.Quiz":
+		if e.complexity.Runtimequiz_RuntimeQuiz.Quiz == nil {
+			break
+		}
+
+		return e.complexity.Runtimequiz_RuntimeQuiz.Quiz(childComplexity), true
+
+	case "runtimeuser_RuntimeUser.Evaluation":
+		if e.complexity.Runtimeuser_RuntimeUser.Evaluation == nil {
+			break
+		}
+
+		return e.complexity.Runtimeuser_RuntimeUser.Evaluation(childComplexity), true
+
+	case "runtimeuser_RuntimeUser.Id":
+		if e.complexity.Runtimeuser_RuntimeUser.Id == nil {
+			break
+		}
+
+		return e.complexity.Runtimeuser_RuntimeUser.Id(childComplexity), true
+
+	case "runtimeuser_RuntimeUser.ParentLabels":
+		if e.complexity.Runtimeuser_RuntimeUser.ParentLabels == nil {
+			break
+		}
+
+		return e.complexity.Runtimeuser_RuntimeUser.ParentLabels(childComplexity), true
+
+	case "runtimeuser_RuntimeUser.User":
+		if e.complexity.Runtimeuser_RuntimeUser.User == nil {
+			break
+		}
+
+		return e.complexity.Runtimeuser_RuntimeUser.User(childComplexity), true
+
 	case "tenant_Tenant.Config":
 		if e.complexity.Tenant_Tenant.Config == nil {
 			break
@@ -623,6 +821,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Tenant_Tenant.ParentLabels(childComplexity), true
+
+	case "tenant_Tenant.Runtime":
+		if e.complexity.Tenant_Tenant.Runtime == nil {
+			break
+		}
+
+		return e.complexity.Tenant_Tenant.Runtime(childComplexity), true
 
 	case "user_User.FirstName":
 		if e.complexity.User_User.FirstName == nil {
@@ -807,7 +1012,6 @@ type quizquestion_QuizQuestion {
     Choice(Id: ID): [quizchoice_QuizChoice!]
     Question: String
     Hint: String
-    Answer: String
     Format: String
     Score: Int
     AnimationFilePath: String
@@ -821,6 +1025,7 @@ type quizchoice_QuizChoice {
     Choice: String
     Hint: String
     PictureName: String
+    Answer: Boolean
 }
 
 type tenant_Tenant {
@@ -829,6 +1034,7 @@ type tenant_Tenant {
 
     Interest(Id: ID): [interest_Interest!]
     Config: config_Config!
+    Runtime: runtime_Runtime!
 }
 
 type config_Config {
@@ -875,6 +1081,44 @@ type interest_Interest {
 	ParentLabels: Map
 
     Name: String
+}
+
+type runtime_Runtime {
+    Id: ID
+	ParentLabels: Map
+
+    User(Id: ID): [runtimeuser_RuntimeUser!]
+}
+
+type runtimeuser_RuntimeUser {
+    Id: ID
+	ParentLabels: Map
+
+    User: user_User!
+    Evaluation: runtimeevaluation_RuntimeEvaluation!
+}
+
+type runtimeevaluation_RuntimeEvaluation {
+    Id: ID
+	ParentLabels: Map
+
+    Quiz(Id: ID): [runtimequiz_RuntimeQuiz!]
+}
+
+type runtimequiz_RuntimeQuiz {
+    Id: ID
+	ParentLabels: Map
+
+    Quiz: quiz_Quiz!
+    Answers(Id: ID): [runtimeanswer_RuntimeAnswer!]
+}
+
+type runtimeanswer_RuntimeAnswer {
+    Id: ID
+	ParentLabels: Map
+
+    Answer: quizchoice_QuizChoice!
+    ProvidedAnswer: String
 }
 
 type NexusGraphqlResponse {
@@ -1149,6 +1393,51 @@ func (ec *executionContext) field_quizquestion_QuizQuestion_Choice_args(ctx cont
 }
 
 func (ec *executionContext) field_root_Root_Tenant_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["Id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Id"))
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_runtime_Runtime_User_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["Id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Id"))
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_runtimeevaluation_RuntimeEvaluation_Quiz_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *string
+	if tmp, ok := rawArgs["Id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("Id"))
+		arg0, err = ec.unmarshalOID2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["Id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_runtimequiz_RuntimeQuiz_Answers_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 *string
@@ -4421,8 +4710,6 @@ func (ec *executionContext) fieldContext_quiz_Quiz_Question(ctx context.Context,
 				return ec.fieldContext_quizquestion_QuizQuestion_Question(ctx, field)
 			case "Hint":
 				return ec.fieldContext_quizquestion_QuizQuestion_Hint(ctx, field)
-			case "Answer":
-				return ec.fieldContext_quizquestion_QuizQuestion_Answer(ctx, field)
 			case "Format":
 				return ec.fieldContext_quizquestion_QuizQuestion_Format(ctx, field)
 			case "Score":
@@ -4695,6 +4982,47 @@ func (ec *executionContext) fieldContext_quizchoice_QuizChoice_PictureName(ctx c
 	return fc, nil
 }
 
+func (ec *executionContext) _quizchoice_QuizChoice_Answer(ctx context.Context, field graphql.CollectedField, obj *model.QuizchoiceQuizChoice) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_quizchoice_QuizChoice_Answer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Answer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*bool)
+	fc.Result = res
+	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_quizchoice_QuizChoice_Answer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "quizchoice_QuizChoice",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _quizquestion_QuizQuestion_Id(ctx context.Context, field graphql.CollectedField, obj *model.QuizquestionQuizQuestion) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_quizquestion_QuizQuestion_Id(ctx, field)
 	if err != nil {
@@ -4823,6 +5151,8 @@ func (ec *executionContext) fieldContext_quizquestion_QuizQuestion_Choice(ctx co
 				return ec.fieldContext_quizchoice_QuizChoice_Hint(ctx, field)
 			case "PictureName":
 				return ec.fieldContext_quizchoice_QuizChoice_PictureName(ctx, field)
+			case "Answer":
+				return ec.fieldContext_quizchoice_QuizChoice_Answer(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type quizchoice_QuizChoice", field.Name)
 		},
@@ -4911,47 +5241,6 @@ func (ec *executionContext) _quizquestion_QuizQuestion_Hint(ctx context.Context,
 }
 
 func (ec *executionContext) fieldContext_quizquestion_QuizQuestion_Hint(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "quizquestion_QuizQuestion",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _quizquestion_QuizQuestion_Answer(ctx context.Context, field graphql.CollectedField, obj *model.QuizquestionQuizQuestion) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_quizquestion_QuizQuestion_Answer(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.Answer, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_quizquestion_QuizQuestion_Answer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "quizquestion_QuizQuestion",
 		Field:      field,
@@ -5254,6 +5543,8 @@ func (ec *executionContext) fieldContext_root_Root_Tenant(ctx context.Context, f
 				return ec.fieldContext_tenant_Tenant_Interest(ctx, field)
 			case "Config":
 				return ec.fieldContext_tenant_Tenant_Config(ctx, field)
+			case "Runtime":
+				return ec.fieldContext_tenant_Tenant_Runtime(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type tenant_Tenant", field.Name)
 		},
@@ -5319,6 +5610,871 @@ func (ec *executionContext) fieldContext_root_Root_Evaluation(ctx context.Contex
 				return ec.fieldContext_evaluation_Evaluation_Quiz(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type evaluation_Evaluation", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtime_Runtime_Id(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeRuntime) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtime_Runtime_Id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtime_Runtime_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtime_Runtime",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtime_Runtime_ParentLabels(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeRuntime) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtime_Runtime_ParentLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentLabels, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]interface{})
+	fc.Result = res
+	return ec.marshalOMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtime_Runtime_ParentLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtime_Runtime",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Map does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtime_Runtime_User(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeRuntime) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtime_Runtime_User(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtime_Runtime().User(rctx, obj, fc.Args["Id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.RuntimeuserRuntimeUser)
+	fc.Result = res
+	return ec.marshalOruntimeuser_RuntimeUser2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeuserRuntimeUserᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtime_Runtime_User(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtime_Runtime",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_runtimeuser_RuntimeUser_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_runtimeuser_RuntimeUser_ParentLabels(ctx, field)
+			case "User":
+				return ec.fieldContext_runtimeuser_RuntimeUser_User(ctx, field)
+			case "Evaluation":
+				return ec.fieldContext_runtimeuser_RuntimeUser_Evaluation(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type runtimeuser_RuntimeUser", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_runtime_Runtime_User_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeanswer_RuntimeAnswer_Id(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeanswerRuntimeAnswer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeanswer_RuntimeAnswer_Id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeanswer_RuntimeAnswer_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeanswer_RuntimeAnswer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeanswer_RuntimeAnswer_ParentLabels(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeanswerRuntimeAnswer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeanswer_RuntimeAnswer_ParentLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentLabels, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]interface{})
+	fc.Result = res
+	return ec.marshalOMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeanswer_RuntimeAnswer_ParentLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeanswer_RuntimeAnswer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Map does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeanswer_RuntimeAnswer_Answer(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeanswerRuntimeAnswer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeanswer_RuntimeAnswer_Answer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtimeanswer_RuntimeAnswer().Answer(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.QuizchoiceQuizChoice)
+	fc.Result = res
+	return ec.marshalNquizchoice_QuizChoice2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐQuizchoiceQuizChoice(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeanswer_RuntimeAnswer_Answer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeanswer_RuntimeAnswer",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_quizchoice_QuizChoice_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_quizchoice_QuizChoice_ParentLabels(ctx, field)
+			case "Choice":
+				return ec.fieldContext_quizchoice_QuizChoice_Choice(ctx, field)
+			case "Hint":
+				return ec.fieldContext_quizchoice_QuizChoice_Hint(ctx, field)
+			case "PictureName":
+				return ec.fieldContext_quizchoice_QuizChoice_PictureName(ctx, field)
+			case "Answer":
+				return ec.fieldContext_quizchoice_QuizChoice_Answer(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type quizchoice_QuizChoice", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeanswer_RuntimeAnswer_ProvidedAnswer(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeanswerRuntimeAnswer) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeanswer_RuntimeAnswer_ProvidedAnswer(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ProvidedAnswer, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeanswer_RuntimeAnswer_ProvidedAnswer(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeanswer_RuntimeAnswer",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeevaluation_RuntimeEvaluation_Id(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeevaluationRuntimeEvaluation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeevaluation_RuntimeEvaluation_Id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeevaluation_RuntimeEvaluation_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeevaluation_RuntimeEvaluation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeevaluation_RuntimeEvaluation_ParentLabels(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeevaluationRuntimeEvaluation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeevaluation_RuntimeEvaluation_ParentLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentLabels, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]interface{})
+	fc.Result = res
+	return ec.marshalOMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeevaluation_RuntimeEvaluation_ParentLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeevaluation_RuntimeEvaluation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Map does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeevaluation_RuntimeEvaluation_Quiz(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeevaluationRuntimeEvaluation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeevaluation_RuntimeEvaluation_Quiz(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtimeevaluation_RuntimeEvaluation().Quiz(rctx, obj, fc.Args["Id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.RuntimequizRuntimeQuiz)
+	fc.Result = res
+	return ec.marshalOruntimequiz_RuntimeQuiz2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimequizRuntimeQuizᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeevaluation_RuntimeEvaluation_Quiz(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeevaluation_RuntimeEvaluation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_runtimequiz_RuntimeQuiz_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_runtimequiz_RuntimeQuiz_ParentLabels(ctx, field)
+			case "Quiz":
+				return ec.fieldContext_runtimequiz_RuntimeQuiz_Quiz(ctx, field)
+			case "Answers":
+				return ec.fieldContext_runtimequiz_RuntimeQuiz_Answers(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type runtimequiz_RuntimeQuiz", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_runtimeevaluation_RuntimeEvaluation_Quiz_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimequiz_RuntimeQuiz_Id(ctx context.Context, field graphql.CollectedField, obj *model.RuntimequizRuntimeQuiz) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimequiz_RuntimeQuiz_Id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimequiz_RuntimeQuiz_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimequiz_RuntimeQuiz",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimequiz_RuntimeQuiz_ParentLabels(ctx context.Context, field graphql.CollectedField, obj *model.RuntimequizRuntimeQuiz) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimequiz_RuntimeQuiz_ParentLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentLabels, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]interface{})
+	fc.Result = res
+	return ec.marshalOMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimequiz_RuntimeQuiz_ParentLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimequiz_RuntimeQuiz",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Map does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimequiz_RuntimeQuiz_Quiz(ctx context.Context, field graphql.CollectedField, obj *model.RuntimequizRuntimeQuiz) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimequiz_RuntimeQuiz_Quiz(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtimequiz_RuntimeQuiz().Quiz(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.QuizQuiz)
+	fc.Result = res
+	return ec.marshalNquiz_Quiz2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐQuizQuiz(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimequiz_RuntimeQuiz_Quiz(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimequiz_RuntimeQuiz",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_quiz_Quiz_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_quiz_Quiz_ParentLabels(ctx, field)
+			case "Question":
+				return ec.fieldContext_quiz_Quiz_Question(ctx, field)
+			case "DefaultScorePerQuestion":
+				return ec.fieldContext_quiz_Quiz_DefaultScorePerQuestion(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type quiz_Quiz", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimequiz_RuntimeQuiz_Answers(ctx context.Context, field graphql.CollectedField, obj *model.RuntimequizRuntimeQuiz) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimequiz_RuntimeQuiz_Answers(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtimequiz_RuntimeQuiz().Answers(rctx, obj, fc.Args["Id"].(*string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.([]*model.RuntimeanswerRuntimeAnswer)
+	fc.Result = res
+	return ec.marshalOruntimeanswer_RuntimeAnswer2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeanswerRuntimeAnswerᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimequiz_RuntimeQuiz_Answers(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimequiz_RuntimeQuiz",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_runtimeanswer_RuntimeAnswer_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_runtimeanswer_RuntimeAnswer_ParentLabels(ctx, field)
+			case "Answer":
+				return ec.fieldContext_runtimeanswer_RuntimeAnswer_Answer(ctx, field)
+			case "ProvidedAnswer":
+				return ec.fieldContext_runtimeanswer_RuntimeAnswer_ProvidedAnswer(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type runtimeanswer_RuntimeAnswer", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_runtimequiz_RuntimeQuiz_Answers_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeuser_RuntimeUser_Id(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeuserRuntimeUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeuser_RuntimeUser_Id(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Id, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOID2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeuser_RuntimeUser_Id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeuser_RuntimeUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type ID does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeuser_RuntimeUser_ParentLabels(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeuserRuntimeUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeuser_RuntimeUser_ParentLabels(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.ParentLabels, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(map[string]interface{})
+	fc.Result = res
+	return ec.marshalOMap2map(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeuser_RuntimeUser_ParentLabels(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeuser_RuntimeUser",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Map does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeuser_RuntimeUser_User(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeuserRuntimeUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeuser_RuntimeUser_User(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtimeuser_RuntimeUser().User(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.UserUser)
+	fc.Result = res
+	return ec.marshalNuser_User2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐUserUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeuser_RuntimeUser_User(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeuser_RuntimeUser",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_user_User_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_user_User_ParentLabels(ctx, field)
+			case "Wanna":
+				return ec.fieldContext_user_User_Wanna(ctx, field)
+			case "Username":
+				return ec.fieldContext_user_User_Username(ctx, field)
+			case "Mail":
+				return ec.fieldContext_user_User_Mail(ctx, field)
+			case "FirstName":
+				return ec.fieldContext_user_User_FirstName(ctx, field)
+			case "LastName":
+				return ec.fieldContext_user_User_LastName(ctx, field)
+			case "Password":
+				return ec.fieldContext_user_User_Password(ctx, field)
+			case "Realm":
+				return ec.fieldContext_user_User_Realm(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type user_User", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _runtimeuser_RuntimeUser_Evaluation(ctx context.Context, field graphql.CollectedField, obj *model.RuntimeuserRuntimeUser) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_runtimeuser_RuntimeUser_Evaluation(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Runtimeuser_RuntimeUser().Evaluation(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RuntimeevaluationRuntimeEvaluation)
+	fc.Result = res
+	return ec.marshalNruntimeevaluation_RuntimeEvaluation2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeevaluationRuntimeEvaluation(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_runtimeuser_RuntimeUser_Evaluation(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "runtimeuser_RuntimeUser",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_runtimeevaluation_RuntimeEvaluation_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_runtimeevaluation_RuntimeEvaluation_ParentLabels(ctx, field)
+			case "Quiz":
+				return ec.fieldContext_runtimeevaluation_RuntimeEvaluation_Quiz(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type runtimeevaluation_RuntimeEvaluation", field.Name)
 		},
 	}
 	return fc, nil
@@ -5515,6 +6671,58 @@ func (ec *executionContext) fieldContext_tenant_Tenant_Config(ctx context.Contex
 				return ec.fieldContext_config_Config_Event(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type config_Config", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _tenant_Tenant_Runtime(ctx context.Context, field graphql.CollectedField, obj *model.TenantTenant) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_tenant_Tenant_Runtime(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Tenant_Tenant().Runtime(rctx, obj)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.RuntimeRuntime)
+	fc.Result = res
+	return ec.marshalNruntime_Runtime2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeRuntime(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_tenant_Tenant_Runtime(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "tenant_Tenant",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "Id":
+				return ec.fieldContext_runtime_Runtime_Id(ctx, field)
+			case "ParentLabels":
+				return ec.fieldContext_runtime_Runtime_ParentLabels(ctx, field)
+			case "User":
+				return ec.fieldContext_runtime_Runtime_User(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type runtime_Runtime", field.Name)
 		},
 	}
 	return fc, nil
@@ -6822,6 +8030,10 @@ func (ec *executionContext) _quizchoice_QuizChoice(ctx context.Context, sel ast.
 
 			out.Values[i] = ec._quizchoice_QuizChoice_PictureName(ctx, field, obj)
 
+		case "Answer":
+
+			out.Values[i] = ec._quizchoice_QuizChoice_Answer(ctx, field, obj)
+
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6875,10 +8087,6 @@ func (ec *executionContext) _quizquestion_QuizQuestion(ctx context.Context, sel 
 		case "Hint":
 
 			out.Values[i] = ec._quizquestion_QuizQuestion_Hint(ctx, field, obj)
-
-		case "Answer":
-
-			out.Values[i] = ec._quizquestion_QuizQuestion_Answer(ctx, field, obj)
 
 		case "Format":
 
@@ -6973,6 +8181,286 @@ func (ec *executionContext) _root_Root(ctx context.Context, sel ast.SelectionSet
 	return out
 }
 
+var runtime_RuntimeImplementors = []string{"runtime_Runtime"}
+
+func (ec *executionContext) _runtime_Runtime(ctx context.Context, sel ast.SelectionSet, obj *model.RuntimeRuntime) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, runtime_RuntimeImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("runtime_Runtime")
+		case "Id":
+
+			out.Values[i] = ec._runtime_Runtime_Id(ctx, field, obj)
+
+		case "ParentLabels":
+
+			out.Values[i] = ec._runtime_Runtime_ParentLabels(ctx, field, obj)
+
+		case "User":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtime_Runtime_User(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var runtimeanswer_RuntimeAnswerImplementors = []string{"runtimeanswer_RuntimeAnswer"}
+
+func (ec *executionContext) _runtimeanswer_RuntimeAnswer(ctx context.Context, sel ast.SelectionSet, obj *model.RuntimeanswerRuntimeAnswer) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, runtimeanswer_RuntimeAnswerImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("runtimeanswer_RuntimeAnswer")
+		case "Id":
+
+			out.Values[i] = ec._runtimeanswer_RuntimeAnswer_Id(ctx, field, obj)
+
+		case "ParentLabels":
+
+			out.Values[i] = ec._runtimeanswer_RuntimeAnswer_ParentLabels(ctx, field, obj)
+
+		case "Answer":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtimeanswer_RuntimeAnswer_Answer(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "ProvidedAnswer":
+
+			out.Values[i] = ec._runtimeanswer_RuntimeAnswer_ProvidedAnswer(ctx, field, obj)
+
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var runtimeevaluation_RuntimeEvaluationImplementors = []string{"runtimeevaluation_RuntimeEvaluation"}
+
+func (ec *executionContext) _runtimeevaluation_RuntimeEvaluation(ctx context.Context, sel ast.SelectionSet, obj *model.RuntimeevaluationRuntimeEvaluation) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, runtimeevaluation_RuntimeEvaluationImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("runtimeevaluation_RuntimeEvaluation")
+		case "Id":
+
+			out.Values[i] = ec._runtimeevaluation_RuntimeEvaluation_Id(ctx, field, obj)
+
+		case "ParentLabels":
+
+			out.Values[i] = ec._runtimeevaluation_RuntimeEvaluation_ParentLabels(ctx, field, obj)
+
+		case "Quiz":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtimeevaluation_RuntimeEvaluation_Quiz(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var runtimequiz_RuntimeQuizImplementors = []string{"runtimequiz_RuntimeQuiz"}
+
+func (ec *executionContext) _runtimequiz_RuntimeQuiz(ctx context.Context, sel ast.SelectionSet, obj *model.RuntimequizRuntimeQuiz) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, runtimequiz_RuntimeQuizImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("runtimequiz_RuntimeQuiz")
+		case "Id":
+
+			out.Values[i] = ec._runtimequiz_RuntimeQuiz_Id(ctx, field, obj)
+
+		case "ParentLabels":
+
+			out.Values[i] = ec._runtimequiz_RuntimeQuiz_ParentLabels(ctx, field, obj)
+
+		case "Quiz":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtimequiz_RuntimeQuiz_Quiz(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "Answers":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtimequiz_RuntimeQuiz_Answers(ctx, field, obj)
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var runtimeuser_RuntimeUserImplementors = []string{"runtimeuser_RuntimeUser"}
+
+func (ec *executionContext) _runtimeuser_RuntimeUser(ctx context.Context, sel ast.SelectionSet, obj *model.RuntimeuserRuntimeUser) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, runtimeuser_RuntimeUserImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("runtimeuser_RuntimeUser")
+		case "Id":
+
+			out.Values[i] = ec._runtimeuser_RuntimeUser_Id(ctx, field, obj)
+
+		case "ParentLabels":
+
+			out.Values[i] = ec._runtimeuser_RuntimeUser_ParentLabels(ctx, field, obj)
+
+		case "User":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtimeuser_RuntimeUser_User(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "Evaluation":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._runtimeuser_RuntimeUser_Evaluation(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var tenant_TenantImplementors = []string{"tenant_Tenant"}
 
 func (ec *executionContext) _tenant_Tenant(ctx context.Context, sel ast.SelectionSet, obj *model.TenantTenant) graphql.Marshaler {
@@ -7018,6 +8506,26 @@ func (ec *executionContext) _tenant_Tenant(ctx context.Context, sel ast.Selectio
 					}
 				}()
 				res = ec._tenant_Tenant_Config(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return innerFunc(ctx)
+
+			})
+		case "Runtime":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._tenant_Tenant_Runtime(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&invalids, 1)
 				}
@@ -7501,6 +9009,10 @@ func (ec *executionContext) marshalNinterest_Interest2ᚖnexustempmoduleᚋnexus
 	return ec._interest_Interest(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNquiz_Quiz2nexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐQuizQuiz(ctx context.Context, sel ast.SelectionSet, v model.QuizQuiz) graphql.Marshaler {
+	return ec._quiz_Quiz(ctx, sel, &v)
+}
+
 func (ec *executionContext) marshalNquiz_Quiz2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐQuizQuiz(ctx context.Context, sel ast.SelectionSet, v *model.QuizQuiz) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7509,6 +9021,10 @@ func (ec *executionContext) marshalNquiz_Quiz2ᚖnexustempmoduleᚋnexusᚑgql�
 		return graphql.Null
 	}
 	return ec._quiz_Quiz(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNquizchoice_QuizChoice2nexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐQuizchoiceQuizChoice(ctx context.Context, sel ast.SelectionSet, v model.QuizchoiceQuizChoice) graphql.Marshaler {
+	return ec._quizchoice_QuizChoice(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNquizchoice_QuizChoice2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐQuizchoiceQuizChoice(ctx context.Context, sel ast.SelectionSet, v *model.QuizchoiceQuizChoice) graphql.Marshaler {
@@ -7531,6 +9047,64 @@ func (ec *executionContext) marshalNquizquestion_QuizQuestion2ᚖnexustempmodule
 	return ec._quizquestion_QuizQuestion(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNruntime_Runtime2nexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeRuntime(ctx context.Context, sel ast.SelectionSet, v model.RuntimeRuntime) graphql.Marshaler {
+	return ec._runtime_Runtime(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNruntime_Runtime2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeRuntime(ctx context.Context, sel ast.SelectionSet, v *model.RuntimeRuntime) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._runtime_Runtime(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNruntimeanswer_RuntimeAnswer2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeanswerRuntimeAnswer(ctx context.Context, sel ast.SelectionSet, v *model.RuntimeanswerRuntimeAnswer) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._runtimeanswer_RuntimeAnswer(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNruntimeevaluation_RuntimeEvaluation2nexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeevaluationRuntimeEvaluation(ctx context.Context, sel ast.SelectionSet, v model.RuntimeevaluationRuntimeEvaluation) graphql.Marshaler {
+	return ec._runtimeevaluation_RuntimeEvaluation(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNruntimeevaluation_RuntimeEvaluation2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeevaluationRuntimeEvaluation(ctx context.Context, sel ast.SelectionSet, v *model.RuntimeevaluationRuntimeEvaluation) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._runtimeevaluation_RuntimeEvaluation(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNruntimequiz_RuntimeQuiz2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimequizRuntimeQuiz(ctx context.Context, sel ast.SelectionSet, v *model.RuntimequizRuntimeQuiz) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._runtimequiz_RuntimeQuiz(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNruntimeuser_RuntimeUser2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeuserRuntimeUser(ctx context.Context, sel ast.SelectionSet, v *model.RuntimeuserRuntimeUser) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._runtimeuser_RuntimeUser(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNtenant_Tenant2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐTenantTenant(ctx context.Context, sel ast.SelectionSet, v *model.TenantTenant) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
@@ -7539,6 +9113,10 @@ func (ec *executionContext) marshalNtenant_Tenant2ᚖnexustempmoduleᚋnexusᚑg
 		return graphql.Null
 	}
 	return ec._tenant_Tenant(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNuser_User2nexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐUserUser(ctx context.Context, sel ast.SelectionSet, v model.UserUser) graphql.Marshaler {
+	return ec._user_User(ctx, sel, &v)
 }
 
 func (ec *executionContext) marshalNuser_User2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐUserUser(ctx context.Context, sel ast.SelectionSet, v *model.UserUser) graphql.Marshaler {
@@ -8093,6 +9671,147 @@ func (ec *executionContext) marshalOroot_Root2ᚖnexustempmoduleᚋnexusᚑgql�
 		return graphql.Null
 	}
 	return ec._root_Root(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOruntimeanswer_RuntimeAnswer2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeanswerRuntimeAnswerᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RuntimeanswerRuntimeAnswer) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNruntimeanswer_RuntimeAnswer2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeanswerRuntimeAnswer(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOruntimequiz_RuntimeQuiz2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimequizRuntimeQuizᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RuntimequizRuntimeQuiz) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNruntimequiz_RuntimeQuiz2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimequizRuntimeQuiz(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalOruntimeuser_RuntimeUser2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeuserRuntimeUserᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.RuntimeuserRuntimeUser) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNruntimeuser_RuntimeUser2ᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐRuntimeuserRuntimeUser(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalOtenant_Tenant2ᚕᚖnexustempmoduleᚋnexusᚑgqlᚋgraphᚋmodelᚐTenantTenantᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TenantTenant) graphql.Marshaler {

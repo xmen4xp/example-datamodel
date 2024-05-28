@@ -33,7 +33,6 @@ type quizquestion_QuizQuestion {
     Choice(Id: ID): [quizchoice_QuizChoice!]
     Question: String
     Hint: String
-    Answer: String
     Format: String
     Score: Int
     AnimationFilePath: String
@@ -47,6 +46,7 @@ type quizchoice_QuizChoice {
     Choice: String
     Hint: String
     PictureName: String
+    Answer: Boolean
 }
 
 type tenant_Tenant {
@@ -55,6 +55,7 @@ type tenant_Tenant {
 
     Interest(Id: ID): [interest_Interest!]
     Config: config_Config!
+    Runtime: runtime_Runtime!
 }
 
 type config_Config {
@@ -101,6 +102,44 @@ type interest_Interest {
 	ParentLabels: Map
 
     Name: String
+}
+
+type runtime_Runtime {
+    Id: ID
+	ParentLabels: Map
+
+    User(Id: ID): [runtimeuser_RuntimeUser!]
+}
+
+type runtimeuser_RuntimeUser {
+    Id: ID
+	ParentLabels: Map
+
+    User: user_User!
+    Evaluation: runtimeevaluation_RuntimeEvaluation!
+}
+
+type runtimeevaluation_RuntimeEvaluation {
+    Id: ID
+	ParentLabels: Map
+
+    Quiz(Id: ID): [runtimequiz_RuntimeQuiz!]
+}
+
+type runtimequiz_RuntimeQuiz {
+    Id: ID
+	ParentLabels: Map
+
+    Quiz: quiz_Quiz!
+    Answers(Id: ID): [runtimeanswer_RuntimeAnswer!]
+}
+
+type runtimeanswer_RuntimeAnswer {
+    Id: ID
+	ParentLabels: Map
+
+    Answer: quizchoice_QuizChoice!
+    ProvidedAnswer: String
 }
 
 type NexusGraphqlResponse {

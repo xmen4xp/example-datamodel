@@ -68,12 +68,11 @@ func (c *QuizQuestion) DisplayName() string {
 // +k8s:openapi-gen=true
 type QuizQuestionSpec struct {
 	Question          string           `json:"question" yaml:"question"`
-	Hint              string           `json:"hint" yaml:"hint"`
-	Answer            string           `json:",omitempty" yaml:",omitempty"`
+	Hint              string           `json:",omitempty" yaml:",omitempty"`
 	Format            string           `json:"format" yaml:"format"`
-	Score             int              `json:"score" yaml:"score"`
-	AnimationFilePath string           `json:"animationFilePath" yaml:"animationFilePath"`
-	PictureFilePath   string           `json:"pictureFilePath" yaml:"pictureFilePath"`
+	Score             int              `json:",omitempty" yaml:",omitempty"`
+	AnimationFilePath string           `json:",omitempty" yaml:",omitempty"`
+	PictureFilePath   string           `json:",omitempty" yaml:",omitempty"`
 	ChoiceGvk         map[string]Child `json:"choiceGvk,omitempty" yaml:"choiceGvk,omitempty" nexus:"children"`
 }
 

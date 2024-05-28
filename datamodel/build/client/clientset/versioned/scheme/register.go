@@ -27,6 +27,11 @@ import (
 	quizchoiceexamplev1 "example/build/apis/quizchoice.example.com/v1"
 	quizquestionexamplev1 "example/build/apis/quizquestion.example.com/v1"
 	rootexamplev1 "example/build/apis/root.example.com/v1"
+	runtimeexamplev1 "example/build/apis/runtime.example.com/v1"
+	runtimeanswerexamplev1 "example/build/apis/runtimeanswer.example.com/v1"
+	runtimeevaluationexamplev1 "example/build/apis/runtimeevaluation.example.com/v1"
+	runtimequizexamplev1 "example/build/apis/runtimequiz.example.com/v1"
+	runtimeuserexamplev1 "example/build/apis/runtimeuser.example.com/v1"
 	tenantexamplev1 "example/build/apis/tenant.example.com/v1"
 	userexamplev1 "example/build/apis/user.example.com/v1"
 	wannaexamplev1 "example/build/apis/wanna.example.com/v1"
@@ -50,6 +55,11 @@ var localSchemeBuilder = runtime.SchemeBuilder{
 	quizchoiceexamplev1.AddToScheme,
 	quizquestionexamplev1.AddToScheme,
 	rootexamplev1.AddToScheme,
+	runtimeexamplev1.AddToScheme,
+	runtimeanswerexamplev1.AddToScheme,
+	runtimeevaluationexamplev1.AddToScheme,
+	runtimequizexamplev1.AddToScheme,
+	runtimeuserexamplev1.AddToScheme,
 	tenantexamplev1.AddToScheme,
 	userexamplev1.AddToScheme,
 	wannaexamplev1.AddToScheme,

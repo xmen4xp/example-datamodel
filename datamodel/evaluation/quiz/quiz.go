@@ -27,4 +27,10 @@ type Quiz struct {
 
 	// Name for this children will be numerical string to help sequence the choices.
 	Question quizquestion.QuizQuestion `nexus:"children"`
+
+	Status QuizStatus `nexus:"status"`
+}
+
+type QuizStatus struct {
+	TotalScore int
 }

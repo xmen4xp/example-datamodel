@@ -277,7 +277,6 @@ func getQuizQuizQuestionResolver(obj *model.QuizQuiz, id *string) ([]*model.Quiz
 		parentLabels := map[string]interface{}{"quizquestions.quizquestion.example.com": dn}
 		vQuestion := string(vQuizQuestion.Spec.Question)
 		vHint := string(vQuizQuestion.Spec.Hint)
-		vAnswer := string(vQuizQuestion.Spec.Answer)
 		vFormat := string(vQuizQuestion.Spec.Format)
 		vScore := int(vQuizQuestion.Spec.Score)
 		vAnimationFilePath := string(vQuizQuestion.Spec.AnimationFilePath)
@@ -291,7 +290,6 @@ func getQuizQuizQuestionResolver(obj *model.QuizQuiz, id *string) ([]*model.Quiz
 			ParentLabels:      parentLabels,
 			Question:          &vQuestion,
 			Hint:              &vHint,
-			Answer:            &vAnswer,
 			Format:            &vFormat,
 			Score:             &vScore,
 			AnimationFilePath: &vAnimationFilePath,
@@ -326,7 +324,6 @@ func getQuizQuizQuestionResolver(obj *model.QuizQuiz, id *string) ([]*model.Quiz
 		parentLabels := map[string]interface{}{"quizquestions.quizquestion.example.com": dn}
 		vQuestion := string(vQuizQuestion.Spec.Question)
 		vHint := string(vQuizQuestion.Spec.Hint)
-		vAnswer := string(vQuizQuestion.Spec.Answer)
 		vFormat := string(vQuizQuestion.Spec.Format)
 		vScore := int(vQuizQuestion.Spec.Score)
 		vAnimationFilePath := string(vQuizQuestion.Spec.AnimationFilePath)
@@ -340,7 +337,6 @@ func getQuizQuizQuestionResolver(obj *model.QuizQuiz, id *string) ([]*model.Quiz
 			ParentLabels:      parentLabels,
 			Question:          &vQuestion,
 			Hint:              &vHint,
-			Answer:            &vAnswer,
 			Format:            &vFormat,
 			Score:             &vScore,
 			AnimationFilePath: &vAnimationFilePath,
@@ -373,6 +369,7 @@ func getQuizquestionQuizQuestionChoiceResolver(obj *model.QuizquestionQuizQuesti
 		vChoice := string(vQuizChoice.Spec.Choice)
 		vHint := string(vQuizChoice.Spec.Hint)
 		vPictureName := string(vQuizChoice.Spec.PictureName)
+		vAnswer := bool(vQuizChoice.Spec.Answer)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -383,6 +380,7 @@ func getQuizquestionQuizQuestionChoiceResolver(obj *model.QuizquestionQuizQuesti
 			Choice:       &vChoice,
 			Hint:         &vHint,
 			PictureName:  &vPictureName,
+			Answer:       &vAnswer,
 		}
 		vQuizchoiceQuizChoiceList = append(vQuizchoiceQuizChoiceList, ret)
 
@@ -414,6 +412,7 @@ func getQuizquestionQuizQuestionChoiceResolver(obj *model.QuizquestionQuizQuesti
 		vChoice := string(vQuizChoice.Spec.Choice)
 		vHint := string(vQuizChoice.Spec.Hint)
 		vPictureName := string(vQuizChoice.Spec.PictureName)
+		vAnswer := bool(vQuizChoice.Spec.Answer)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -424,6 +423,7 @@ func getQuizquestionQuizQuestionChoiceResolver(obj *model.QuizquestionQuizQuesti
 			Choice:       &vChoice,
 			Hint:         &vHint,
 			PictureName:  &vPictureName,
+			Answer:       &vAnswer,
 		}
 		vQuizchoiceQuizChoiceList = append(vQuizchoiceQuizChoiceList, ret)
 	}
@@ -456,6 +456,32 @@ func getTenantTenantConfigResolver(obj *model.TenantTenant) (*model.ConfigConfig
 	}
 
 	log.Debugf("[getTenantTenantConfigResolver]Output object %+v", ret)
+	return ret, nil
+}
+
+// ////////////////////////////////////
+// CHILD RESOLVER (Singleton)
+// FieldName: Runtime Node: Tenant PKG: Tenant
+// ////////////////////////////////////
+func getTenantTenantRuntimeResolver(obj *model.TenantTenant) (*model.RuntimeRuntime, error) {
+	log.Debugf("[getTenantTenantRuntimeResolver]Parent Object %+v", obj)
+	vRuntime, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).GetRuntime(context.TODO())
+	if err != nil {
+		log.Errorf("[getTenantTenantRuntimeResolver]Error getting Tenant node %s", err)
+		return &model.RuntimeRuntime{}, nil
+	}
+	dn := vRuntime.DisplayName()
+	parentLabels := map[string]interface{}{"runtimes.runtime.example.com": dn}
+
+	for k, v := range obj.ParentLabels {
+		parentLabels[k] = v
+	}
+	ret := &model.RuntimeRuntime{
+		Id:           &dn,
+		ParentLabels: parentLabels,
+	}
+
+	log.Debugf("[getTenantTenantRuntimeResolver]Output object %+v", ret)
 	return ret, nil
 }
 
@@ -806,6 +832,352 @@ func getWannaWannaInterestResolver(obj *model.WannaWanna) (*model.InterestIntere
 		Name:         &vName,
 	}
 	log.Debugf("[getWannaWannaInterestResolver]Output object %v", ret)
+
+	return ret, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: User Node: Runtime PKG: Runtime
+// ////////////////////////////////////
+func getRuntimeRuntimeUserResolver(obj *model.RuntimeRuntime, id *string) ([]*model.RuntimeuserRuntimeUser, error) {
+	log.Debugf("[getRuntimeRuntimeUserResolver]Parent Object %+v", obj)
+	var vRuntimeuserRuntimeUserList []*model.RuntimeuserRuntimeUser
+	if id != nil && *id != "" {
+		log.Debugf("[getRuntimeRuntimeUserResolver]Id %q", *id)
+		vRuntimeUser, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().GetUser(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getRuntimeRuntimeUserResolver]Error getting User node %q : %s", *id, err)
+			return vRuntimeuserRuntimeUserList, nil
+		}
+		dn := vRuntimeUser.DisplayName()
+		parentLabels := map[string]interface{}{"runtimeusers.runtimeuser.example.com": dn}
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.RuntimeuserRuntimeUser{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+		}
+		vRuntimeuserRuntimeUserList = append(vRuntimeuserRuntimeUserList, ret)
+
+		log.Debugf("[getRuntimeRuntimeUserResolver]Output User objects %v", vRuntimeuserRuntimeUserList)
+
+		return vRuntimeuserRuntimeUserList, nil
+	}
+
+	log.Debug("[getRuntimeRuntimeUserResolver]Id is empty, process all Users")
+
+	vRuntimeUserParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).GetRuntime(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeRuntimeUserResolver]Error getting parent node %s", err)
+		return vRuntimeuserRuntimeUserList, nil
+	}
+	vRuntimeUserAllObj, err := vRuntimeUserParent.GetAllUser(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeRuntimeUserResolver]Error getting User objects %s", err)
+		return vRuntimeuserRuntimeUserList, nil
+	}
+	for _, i := range vRuntimeUserAllObj {
+		vRuntimeUser, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().GetUser(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getRuntimeRuntimeUserResolver]Error getting User node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vRuntimeUser.DisplayName()
+		parentLabels := map[string]interface{}{"runtimeusers.runtimeuser.example.com": dn}
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.RuntimeuserRuntimeUser{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+		}
+		vRuntimeuserRuntimeUserList = append(vRuntimeuserRuntimeUserList, ret)
+	}
+
+	log.Debugf("[getRuntimeRuntimeUserResolver]Output User objects %v", vRuntimeuserRuntimeUserList)
+
+	return vRuntimeuserRuntimeUserList, nil
+}
+
+// ////////////////////////////////////
+// CHILD RESOLVER (Singleton)
+// FieldName: Evaluation Node: RuntimeUser PKG: Runtimeuser
+// ////////////////////////////////////
+func getRuntimeuserRuntimeUserEvaluationResolver(obj *model.RuntimeuserRuntimeUser) (*model.RuntimeevaluationRuntimeEvaluation, error) {
+	log.Debugf("[getRuntimeuserRuntimeUserEvaluationResolver]Parent Object %+v", obj)
+	vRuntimeEvaluation, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).GetEvaluation(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeuserRuntimeUserEvaluationResolver]Error getting RuntimeUser node %s", err)
+		return &model.RuntimeevaluationRuntimeEvaluation{}, nil
+	}
+	dn := vRuntimeEvaluation.DisplayName()
+	parentLabels := map[string]interface{}{"runtimeevaluations.runtimeevaluation.example.com": dn}
+
+	for k, v := range obj.ParentLabels {
+		parentLabels[k] = v
+	}
+	ret := &model.RuntimeevaluationRuntimeEvaluation{
+		Id:           &dn,
+		ParentLabels: parentLabels,
+	}
+
+	log.Debugf("[getRuntimeuserRuntimeUserEvaluationResolver]Output object %+v", ret)
+	return ret, nil
+}
+
+// ////////////////////////////////////
+// LINK RESOLVER
+// FieldName: User Node: RuntimeUser PKG: Runtimeuser
+// ////////////////////////////////////
+func getRuntimeuserRuntimeUserUserResolver(obj *model.RuntimeuserRuntimeUser) (*model.UserUser, error) {
+	log.Debugf("[getRuntimeuserRuntimeUserUserResolver]Parent Object %+v", obj)
+	vUserParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().GetUser(context.TODO(), getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com"))
+	if err != nil {
+		log.Errorf("[getRuntimeuserRuntimeUserUserResolver]Error getting parent node %s", err)
+		return &model.UserUser{}, nil
+	}
+	vUser, err := vUserParent.GetUser(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeuserRuntimeUserUserResolver]Error getting User object %s", err)
+		return &model.UserUser{}, nil
+	}
+	dn := vUser.DisplayName()
+	parentLabels := map[string]interface{}{"users.user.example.com": dn}
+	vUsername := string(vUser.Spec.Username)
+	vMail := string(vUser.Spec.Mail)
+	vFirstName := string(vUser.Spec.FirstName)
+	vLastName := string(vUser.Spec.LastName)
+	vPassword := string(vUser.Spec.Password)
+	vRealm := string(vUser.Spec.Realm)
+
+	for k, v := range obj.ParentLabels {
+		parentLabels[k] = v
+	}
+	ret := &model.UserUser{
+		Id:           &dn,
+		ParentLabels: parentLabels,
+		Username:     &vUsername,
+		Mail:         &vMail,
+		FirstName:    &vFirstName,
+		LastName:     &vLastName,
+		Password:     &vPassword,
+		Realm:        &vRealm,
+	}
+	log.Debugf("[getRuntimeuserRuntimeUserUserResolver]Output object %v", ret)
+
+	return ret, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: Quiz Node: RuntimeEvaluation PKG: Runtimeevaluation
+// ////////////////////////////////////
+func getRuntimeevaluationRuntimeEvaluationQuizResolver(obj *model.RuntimeevaluationRuntimeEvaluation, id *string) ([]*model.RuntimequizRuntimeQuiz, error) {
+	log.Debugf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Parent Object %+v", obj)
+	var vRuntimequizRuntimeQuizList []*model.RuntimequizRuntimeQuiz
+	if id != nil && *id != "" {
+		log.Debugf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Id %q", *id)
+		vRuntimeQuiz, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().GetQuiz(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Error getting Quiz node %q : %s", *id, err)
+			return vRuntimequizRuntimeQuizList, nil
+		}
+		dn := vRuntimeQuiz.DisplayName()
+		parentLabels := map[string]interface{}{"runtimequizes.runtimequiz.example.com": dn}
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.RuntimequizRuntimeQuiz{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+		}
+		vRuntimequizRuntimeQuizList = append(vRuntimequizRuntimeQuizList, ret)
+
+		log.Debugf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Output Quiz objects %v", vRuntimequizRuntimeQuizList)
+
+		return vRuntimequizRuntimeQuizList, nil
+	}
+
+	log.Debug("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Id is empty, process all Quizs")
+
+	vRuntimeQuizParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).GetEvaluation(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Error getting parent node %s", err)
+		return vRuntimequizRuntimeQuizList, nil
+	}
+	vRuntimeQuizAllObj, err := vRuntimeQuizParent.GetAllQuiz(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Error getting Quiz objects %s", err)
+		return vRuntimequizRuntimeQuizList, nil
+	}
+	for _, i := range vRuntimeQuizAllObj {
+		vRuntimeQuiz, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().GetQuiz(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Error getting Quiz node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vRuntimeQuiz.DisplayName()
+		parentLabels := map[string]interface{}{"runtimequizes.runtimequiz.example.com": dn}
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.RuntimequizRuntimeQuiz{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+		}
+		vRuntimequizRuntimeQuizList = append(vRuntimequizRuntimeQuizList, ret)
+	}
+
+	log.Debugf("[getRuntimeevaluationRuntimeEvaluationQuizResolver]Output Quiz objects %v", vRuntimequizRuntimeQuizList)
+
+	return vRuntimequizRuntimeQuizList, nil
+}
+
+// ////////////////////////////////////
+// LINK RESOLVER
+// FieldName: Quiz Node: RuntimeQuiz PKG: Runtimequiz
+// ////////////////////////////////////
+func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*model.QuizQuiz, error) {
+	log.Debugf("[getRuntimequizRuntimeQuizQuizResolver]Parent Object %+v", obj)
+	vQuizParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().GetQuiz(context.TODO(), getParentName(obj.ParentLabels, "runtimequizes.runtimequiz.example.com"))
+	if err != nil {
+		log.Errorf("[getRuntimequizRuntimeQuizQuizResolver]Error getting parent node %s", err)
+		return &model.QuizQuiz{}, nil
+	}
+	vQuiz, err := vQuizParent.GetQuiz(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimequizRuntimeQuizQuizResolver]Error getting Quiz object %s", err)
+		return &model.QuizQuiz{}, nil
+	}
+	dn := vQuiz.DisplayName()
+	parentLabels := map[string]interface{}{"quizes.quiz.example.com": dn}
+	vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
+
+	for k, v := range obj.ParentLabels {
+		parentLabels[k] = v
+	}
+	ret := &model.QuizQuiz{
+		Id:                      &dn,
+		ParentLabels:            parentLabels,
+		DefaultScorePerQuestion: &vDefaultScorePerQuestion,
+	}
+	log.Debugf("[getRuntimequizRuntimeQuizQuizResolver]Output object %v", ret)
+
+	return ret, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
+// FieldName: Answers Node: RuntimeQuiz PKG: Runtimequiz
+// ////////////////////////////////////
+func getRuntimequizRuntimeQuizAnswersResolver(obj *model.RuntimequizRuntimeQuiz, id *string) ([]*model.RuntimeanswerRuntimeAnswer, error) {
+	log.Debugf("[getRuntimequizRuntimeQuizAnswersResolver]Parent Object %+v", obj)
+	var vRuntimeanswerRuntimeAnswerList []*model.RuntimeanswerRuntimeAnswer
+	if id != nil && *id != "" {
+		log.Debugf("[getRuntimequizRuntimeQuizAnswersResolver]Id %q", *id)
+		vRuntimeAnswer, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().Quiz(getParentName(obj.ParentLabels, "runtimequizes.runtimequiz.example.com")).GetAnswers(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getRuntimequizRuntimeQuizAnswersResolver]Error getting Answers node %q : %s", *id, err)
+			return vRuntimeanswerRuntimeAnswerList, nil
+		}
+		dn := vRuntimeAnswer.DisplayName()
+		parentLabels := map[string]interface{}{"runtimeanswers.runtimeanswer.example.com": dn}
+		vProvidedAnswer := string(vRuntimeAnswer.Spec.ProvidedAnswer)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.RuntimeanswerRuntimeAnswer{
+			Id:             &dn,
+			ParentLabels:   parentLabels,
+			ProvidedAnswer: &vProvidedAnswer,
+		}
+		vRuntimeanswerRuntimeAnswerList = append(vRuntimeanswerRuntimeAnswerList, ret)
+
+		log.Debugf("[getRuntimequizRuntimeQuizAnswersResolver]Output Answers objects %v", vRuntimeanswerRuntimeAnswerList)
+
+		return vRuntimeanswerRuntimeAnswerList, nil
+	}
+
+	log.Debug("[getRuntimequizRuntimeQuizAnswersResolver]Id is empty, process all Answerss")
+
+	vRuntimeAnswerParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().GetQuiz(context.TODO(), getParentName(obj.ParentLabels, "runtimequizes.runtimequiz.example.com"))
+	if err != nil {
+		log.Errorf("[getRuntimequizRuntimeQuizAnswersResolver]Error getting parent node %s", err)
+		return vRuntimeanswerRuntimeAnswerList, nil
+	}
+	vRuntimeAnswerAllObj, err := vRuntimeAnswerParent.GetAllAnswers(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimequizRuntimeQuizAnswersResolver]Error getting Answers objects %s", err)
+		return vRuntimeanswerRuntimeAnswerList, nil
+	}
+	for _, i := range vRuntimeAnswerAllObj {
+		vRuntimeAnswer, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().Quiz(getParentName(obj.ParentLabels, "runtimequizes.runtimequiz.example.com")).GetAnswers(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getRuntimequizRuntimeQuizAnswersResolver]Error getting Answers node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vRuntimeAnswer.DisplayName()
+		parentLabels := map[string]interface{}{"runtimeanswers.runtimeanswer.example.com": dn}
+		vProvidedAnswer := string(vRuntimeAnswer.Spec.ProvidedAnswer)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.RuntimeanswerRuntimeAnswer{
+			Id:             &dn,
+			ParentLabels:   parentLabels,
+			ProvidedAnswer: &vProvidedAnswer,
+		}
+		vRuntimeanswerRuntimeAnswerList = append(vRuntimeanswerRuntimeAnswerList, ret)
+	}
+
+	log.Debugf("[getRuntimequizRuntimeQuizAnswersResolver]Output Answers objects %v", vRuntimeanswerRuntimeAnswerList)
+
+	return vRuntimeanswerRuntimeAnswerList, nil
+}
+
+// ////////////////////////////////////
+// LINK RESOLVER
+// FieldName: Answer Node: RuntimeAnswer PKG: Runtimeanswer
+// ////////////////////////////////////
+func getRuntimeanswerRuntimeAnswerAnswerResolver(obj *model.RuntimeanswerRuntimeAnswer) (*model.QuizchoiceQuizChoice, error) {
+	log.Debugf("[getRuntimeanswerRuntimeAnswerAnswerResolver]Parent Object %+v", obj)
+	vQuizChoiceParent, err := nc.RootRoot().Tenant(getParentName(obj.ParentLabels, "tenants.tenant.example.com")).Runtime().User(getParentName(obj.ParentLabels, "runtimeusers.runtimeuser.example.com")).Evaluation().Quiz(getParentName(obj.ParentLabels, "runtimequizes.runtimequiz.example.com")).GetAnswers(context.TODO(), getParentName(obj.ParentLabels, "runtimeanswers.runtimeanswer.example.com"))
+	if err != nil {
+		log.Errorf("[getRuntimeanswerRuntimeAnswerAnswerResolver]Error getting parent node %s", err)
+		return &model.QuizchoiceQuizChoice{}, nil
+	}
+	vQuizChoice, err := vQuizChoiceParent.GetAnswer(context.TODO())
+	if err != nil {
+		log.Errorf("[getRuntimeanswerRuntimeAnswerAnswerResolver]Error getting Answer object %s", err)
+		return &model.QuizchoiceQuizChoice{}, nil
+	}
+	dn := vQuizChoice.DisplayName()
+	parentLabels := map[string]interface{}{"quizchoices.quizchoice.example.com": dn}
+	vChoice := string(vQuizChoice.Spec.Choice)
+	vHint := string(vQuizChoice.Spec.Hint)
+	vPictureName := string(vQuizChoice.Spec.PictureName)
+	vAnswer := bool(vQuizChoice.Spec.Answer)
+
+	for k, v := range obj.ParentLabels {
+		parentLabels[k] = v
+	}
+	ret := &model.QuizchoiceQuizChoice{
+		Id:           &dn,
+		ParentLabels: parentLabels,
+		Choice:       &vChoice,
+		Hint:         &vHint,
+		PictureName:  &vPictureName,
+		Answer:       &vAnswer,
+	}
+	log.Debugf("[getRuntimeanswerRuntimeAnswerAnswerResolver]Output object %v", ret)
 
 	return ret, nil
 }

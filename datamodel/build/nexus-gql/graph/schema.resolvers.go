@@ -49,6 +49,41 @@ func (r *root_RootResolver) Evaluation(ctx context.Context, obj *model.RootRoot)
 	return getRootRootEvaluationResolver(obj)
 }
 
+// User is the resolver for the User field.
+func (r *runtime_RuntimeResolver) User(ctx context.Context, obj *model.RuntimeRuntime, id *string) ([]*model.RuntimeuserRuntimeUser, error) {
+	return getRuntimeRuntimeUserResolver(obj, id)
+}
+
+// Answer is the resolver for the Answer field.
+func (r *runtimeanswer_RuntimeAnswerResolver) Answer(ctx context.Context, obj *model.RuntimeanswerRuntimeAnswer) (*model.QuizchoiceQuizChoice, error) {
+	return getRuntimeanswerRuntimeAnswerAnswerResolver(obj)
+}
+
+// Quiz is the resolver for the Quiz field.
+func (r *runtimeevaluation_RuntimeEvaluationResolver) Quiz(ctx context.Context, obj *model.RuntimeevaluationRuntimeEvaluation, id *string) ([]*model.RuntimequizRuntimeQuiz, error) {
+	return getRuntimeevaluationRuntimeEvaluationQuizResolver(obj, id)
+}
+
+// Quiz is the resolver for the Quiz field.
+func (r *runtimequiz_RuntimeQuizResolver) Quiz(ctx context.Context, obj *model.RuntimequizRuntimeQuiz) (*model.QuizQuiz, error) {
+	return getRuntimequizRuntimeQuizQuizResolver(obj)
+}
+
+// Answers is the resolver for the Answers field.
+func (r *runtimequiz_RuntimeQuizResolver) Answers(ctx context.Context, obj *model.RuntimequizRuntimeQuiz, id *string) ([]*model.RuntimeanswerRuntimeAnswer, error) {
+	return getRuntimequizRuntimeQuizAnswersResolver(obj, id)
+}
+
+// User is the resolver for the User field.
+func (r *runtimeuser_RuntimeUserResolver) User(ctx context.Context, obj *model.RuntimeuserRuntimeUser) (*model.UserUser, error) {
+	return getRuntimeuserRuntimeUserUserResolver(obj)
+}
+
+// Evaluation is the resolver for the Evaluation field.
+func (r *runtimeuser_RuntimeUserResolver) Evaluation(ctx context.Context, obj *model.RuntimeuserRuntimeUser) (*model.RuntimeevaluationRuntimeEvaluation, error) {
+	return getRuntimeuserRuntimeUserEvaluationResolver(obj)
+}
+
 // Interest is the resolver for the Interest field.
 func (r *tenant_TenantResolver) Interest(ctx context.Context, obj *model.TenantTenant, id *string) ([]*model.InterestInterest, error) {
 	return getTenantTenantInterestResolver(obj, id)
@@ -57,6 +92,11 @@ func (r *tenant_TenantResolver) Interest(ctx context.Context, obj *model.TenantT
 // Config is the resolver for the Config field.
 func (r *tenant_TenantResolver) Config(ctx context.Context, obj *model.TenantTenant) (*model.ConfigConfig, error) {
 	return getTenantTenantConfigResolver(obj)
+}
+
+// Runtime is the resolver for the Runtime field.
+func (r *tenant_TenantResolver) Runtime(ctx context.Context, obj *model.TenantTenant) (*model.RuntimeRuntime, error) {
+	return getTenantTenantRuntimeResolver(obj)
 }
 
 // Wanna is the resolver for the Wanna field.
@@ -91,6 +131,31 @@ func (r *Resolver) Quizquestion_QuizQuestion() generated.Quizquestion_QuizQuesti
 // Root_Root returns generated.Root_RootResolver implementation.
 func (r *Resolver) Root_Root() generated.Root_RootResolver { return &root_RootResolver{r} }
 
+// Runtime_Runtime returns generated.Runtime_RuntimeResolver implementation.
+func (r *Resolver) Runtime_Runtime() generated.Runtime_RuntimeResolver {
+	return &runtime_RuntimeResolver{r}
+}
+
+// Runtimeanswer_RuntimeAnswer returns generated.Runtimeanswer_RuntimeAnswerResolver implementation.
+func (r *Resolver) Runtimeanswer_RuntimeAnswer() generated.Runtimeanswer_RuntimeAnswerResolver {
+	return &runtimeanswer_RuntimeAnswerResolver{r}
+}
+
+// Runtimeevaluation_RuntimeEvaluation returns generated.Runtimeevaluation_RuntimeEvaluationResolver implementation.
+func (r *Resolver) Runtimeevaluation_RuntimeEvaluation() generated.Runtimeevaluation_RuntimeEvaluationResolver {
+	return &runtimeevaluation_RuntimeEvaluationResolver{r}
+}
+
+// Runtimequiz_RuntimeQuiz returns generated.Runtimequiz_RuntimeQuizResolver implementation.
+func (r *Resolver) Runtimequiz_RuntimeQuiz() generated.Runtimequiz_RuntimeQuizResolver {
+	return &runtimequiz_RuntimeQuizResolver{r}
+}
+
+// Runtimeuser_RuntimeUser returns generated.Runtimeuser_RuntimeUserResolver implementation.
+func (r *Resolver) Runtimeuser_RuntimeUser() generated.Runtimeuser_RuntimeUserResolver {
+	return &runtimeuser_RuntimeUserResolver{r}
+}
+
 // Tenant_Tenant returns generated.Tenant_TenantResolver implementation.
 func (r *Resolver) Tenant_Tenant() generated.Tenant_TenantResolver { return &tenant_TenantResolver{r} }
 
@@ -106,6 +171,11 @@ type evaluation_EvaluationResolver struct{ *Resolver }
 type quiz_QuizResolver struct{ *Resolver }
 type quizquestion_QuizQuestionResolver struct{ *Resolver }
 type root_RootResolver struct{ *Resolver }
+type runtime_RuntimeResolver struct{ *Resolver }
+type runtimeanswer_RuntimeAnswerResolver struct{ *Resolver }
+type runtimeevaluation_RuntimeEvaluationResolver struct{ *Resolver }
+type runtimequiz_RuntimeQuizResolver struct{ *Resolver }
+type runtimeuser_RuntimeUserResolver struct{ *Resolver }
 type tenant_TenantResolver struct{ *Resolver }
 type user_UserResolver struct{ *Resolver }
 type wanna_WannaResolver struct{ *Resolver }

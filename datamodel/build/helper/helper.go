@@ -19,17 +19,22 @@ const IS_NAME_HASHED_LABEL = "nexus/is_name_hashed"
 
 func GetCRDParentsMap() map[string][]string {
 	return map[string][]string{
-		"configs.config.example.com":             {"roots.root.example.com", "tenants.tenant.example.com"},
-		"evaluations.evaluation.example.com":     {"roots.root.example.com"},
-		"events.event.example.com":               {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com"},
-		"interests.interest.example.com":         {"roots.root.example.com", "tenants.tenant.example.com"},
-		"quizchoices.quizchoice.example.com":     {"roots.root.example.com", "evaluations.evaluation.example.com", "quizes.quiz.example.com", "quizquestions.quizquestion.example.com"},
-		"quizes.quiz.example.com":                {"roots.root.example.com", "evaluations.evaluation.example.com"},
-		"quizquestions.quizquestion.example.com": {"roots.root.example.com", "evaluations.evaluation.example.com", "quizes.quiz.example.com"},
-		"roots.root.example.com":                 {},
-		"tenants.tenant.example.com":             {"roots.root.example.com"},
-		"users.user.example.com":                 {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com"},
-		"wannas.wanna.example.com":               {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com", "users.user.example.com"},
+		"configs.config.example.com":                       {"roots.root.example.com", "tenants.tenant.example.com"},
+		"evaluations.evaluation.example.com":               {"roots.root.example.com"},
+		"events.event.example.com":                         {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com"},
+		"interests.interest.example.com":                   {"roots.root.example.com", "tenants.tenant.example.com"},
+		"quizchoices.quizchoice.example.com":               {"roots.root.example.com", "evaluations.evaluation.example.com", "quizes.quiz.example.com", "quizquestions.quizquestion.example.com"},
+		"quizes.quiz.example.com":                          {"roots.root.example.com", "evaluations.evaluation.example.com"},
+		"quizquestions.quizquestion.example.com":           {"roots.root.example.com", "evaluations.evaluation.example.com", "quizes.quiz.example.com"},
+		"roots.root.example.com":                           {},
+		"runtimeanswers.runtimeanswer.example.com":         {"roots.root.example.com", "tenants.tenant.example.com", "runtimes.runtime.example.com", "runtimeusers.runtimeuser.example.com", "runtimeevaluations.runtimeevaluation.example.com", "runtimequizes.runtimequiz.example.com"},
+		"runtimeevaluations.runtimeevaluation.example.com": {"roots.root.example.com", "tenants.tenant.example.com", "runtimes.runtime.example.com", "runtimeusers.runtimeuser.example.com"},
+		"runtimequizes.runtimequiz.example.com":            {"roots.root.example.com", "tenants.tenant.example.com", "runtimes.runtime.example.com", "runtimeusers.runtimeuser.example.com", "runtimeevaluations.runtimeevaluation.example.com"},
+		"runtimes.runtime.example.com":                     {"roots.root.example.com", "tenants.tenant.example.com"},
+		"runtimeusers.runtimeuser.example.com":             {"roots.root.example.com", "tenants.tenant.example.com", "runtimes.runtime.example.com"},
+		"tenants.tenant.example.com":                       {"roots.root.example.com"},
+		"users.user.example.com":                           {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com"},
+		"wannas.wanna.example.com":                         {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com", "users.user.example.com"},
 	}
 }
 
@@ -85,6 +90,41 @@ func GetObjectByCRDName(dmClient *datamodel.Clientset, crdName string, name stri
 	}
 	if crdName == "roots.root.example.com" {
 		obj, err := dmClient.RootExampleV1().Roots().Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			return nil
+		}
+		return obj
+	}
+	if crdName == "runtimeanswers.runtimeanswer.example.com" {
+		obj, err := dmClient.RuntimeanswerExampleV1().RuntimeAnswers().Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			return nil
+		}
+		return obj
+	}
+	if crdName == "runtimeevaluations.runtimeevaluation.example.com" {
+		obj, err := dmClient.RuntimeevaluationExampleV1().RuntimeEvaluations().Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			return nil
+		}
+		return obj
+	}
+	if crdName == "runtimequizes.runtimequiz.example.com" {
+		obj, err := dmClient.RuntimequizExampleV1().RuntimeQuizes().Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			return nil
+		}
+		return obj
+	}
+	if crdName == "runtimes.runtime.example.com" {
+		obj, err := dmClient.RuntimeExampleV1().Runtimes().Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			return nil
+		}
+		return obj
+	}
+	if crdName == "runtimeusers.runtimeuser.example.com" {
+		obj, err := dmClient.RuntimeuserExampleV1().RuntimeUsers().Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {
 			return nil
 		}
