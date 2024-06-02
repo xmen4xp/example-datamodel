@@ -14,6 +14,7 @@ type Evaluation_Evaluation @nexus(group:"evaluation.example.com",version:"v1",ki
 type Quiz_Quiz @nexus(group:"quiz.example.com",version:"v1",kind:"Quiz",resource:"quizes",name:"Quiz",crdName:"quizes.quiz.example.com",singleton:"false"){
     id: ID
     question(id: ID): [Quizquestion_QuizQuestion!]
+    labels: [String]
     defaultScorePerQuestion: Int
 }
 

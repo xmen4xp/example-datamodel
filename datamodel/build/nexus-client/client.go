@@ -2964,6 +2964,27 @@ func (group *QuizExampleV1) UpdateQuizByName(ctx context.Context,
 
 	var rt reflect.Type
 
+	rt = reflect.TypeOf(objToUpdate.Spec.Labels)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.Labels).IsNil() {
+			patchValueLabels := objToUpdate.Spec.Labels
+			patchOpLabels := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/labels",
+				Value: patchValueLabels,
+			}
+			patch = append(patch, patchOpLabels)
+		}
+	} else {
+		patchValueLabels := objToUpdate.Spec.Labels
+		patchOpLabels := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/labels",
+			Value: patchValueLabels,
+		}
+		patch = append(patch, patchOpLabels)
+	}
+
 	rt = reflect.TypeOf(objToUpdate.Spec.DefaultScorePerQuestion)
 	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
 		if !reflect.ValueOf(objToUpdate.Spec.DefaultScorePerQuestion).IsNil() {

@@ -50,6 +50,7 @@ type QuizQuiz struct {
 	Id                      *string                     `json:"Id"`
 	ParentLabels            map[string]interface{}      `json:"ParentLabels"`
 	Question                []*QuizquestionQuizQuestion `json:"Question"`
+	Labels                  *string                     `json:"Labels"`
 	DefaultScorePerQuestion *int                        `json:"DefaultScorePerQuestion"`
 }
 

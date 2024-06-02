@@ -204,6 +204,8 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		}
 		dn := vQuiz.DisplayName()
 		parentLabels := map[string]interface{}{"quizes.quiz.example.com": dn}
+		Labels, _ := json.Marshal(vQuiz.Spec.Labels)
+		LabelsData := string(Labels)
 		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
 
 		for k, v := range obj.ParentLabels {
@@ -212,6 +214,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		ret := &model.QuizQuiz{
 			Id:                      &dn,
 			ParentLabels:            parentLabels,
+			Labels:                  &LabelsData,
 			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
 		}
 		vQuizQuizList = append(vQuizQuizList, ret)
@@ -241,6 +244,8 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		}
 		dn := vQuiz.DisplayName()
 		parentLabels := map[string]interface{}{"quizes.quiz.example.com": dn}
+		Labels, _ := json.Marshal(vQuiz.Spec.Labels)
+		LabelsData := string(Labels)
 		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
 
 		for k, v := range obj.ParentLabels {
@@ -249,6 +254,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		ret := &model.QuizQuiz{
 			Id:                      &dn,
 			ParentLabels:            parentLabels,
+			Labels:                  &LabelsData,
 			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
 		}
 		vQuizQuizList = append(vQuizQuizList, ret)
@@ -1057,6 +1063,8 @@ func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*
 	}
 	dn := vQuiz.DisplayName()
 	parentLabels := map[string]interface{}{"quizes.quiz.example.com": dn}
+	Labels, _ := json.Marshal(vQuiz.Spec.Labels)
+	LabelsData := string(Labels)
 	vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
 
 	for k, v := range obj.ParentLabels {
@@ -1065,6 +1073,7 @@ func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*
 	ret := &model.QuizQuiz{
 		Id:                      &dn,
 		ParentLabels:            parentLabels,
+		Labels:                  &LabelsData,
 		DefaultScorePerQuestion: &vDefaultScorePerQuestion,
 	}
 	log.Debugf("[getRuntimequizRuntimeQuizQuizResolver]Output object %v", ret)

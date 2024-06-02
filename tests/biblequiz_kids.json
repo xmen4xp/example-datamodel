@@ -1,0 +1,102 @@
+[
+    {
+        "question": "What did God create on the first day?",
+        "choices": [
+            "A. Light",
+            "B. Land",
+            "C. Plants",
+            "D. Animals"
+        ],
+        "answer": "A. Light"
+    },
+    {
+        "question": "Who built the ark?",
+        "choices": [
+            "A. Abraham",
+            "B. Moses",
+            "C. Noah",
+            "D. David"
+        ],
+        "answer": "C. Noah"
+    },
+    {
+        "question": "What was the sign of God's promise to Noah?",
+        "choices": [
+            "A. A star",
+            "B. A rainbow",
+            "C. A dove",
+            "D. An olive branch"
+        ],
+        "answer": "B. A rainbow"
+    },
+    {
+        "question": "Who was thrown into the lion's den?",
+        "choices": [
+            "A. Daniel",
+            "B. Joseph",
+            "C. David",
+            "D. Samson"
+        ],
+        "answer": "A. Daniel"
+    },
+    {
+        "question": "What did David use to defeat Goliath?",
+        "choices": [
+            "A. A sword",
+            "B. A spear",
+            "C. A slingshot and a stone",
+            "D. A bow and arrow"
+        ],
+        "answer": "C. A slingshot and a stone"
+    },
+    {
+        "question": "How many disciples did Jesus have?",
+        "choices": [
+            "A. 10",
+            "B. 12",
+            "C. 7",
+            "D. 15"
+        ],
+        "answer": "B. 12"
+    },
+    {
+        "question": "Who was swallowed by a big fish?",
+        "choices": [
+            "A. Elijah",
+            "B. Moses",
+            "C. Jonah",
+            "D. Peter"
+        ],
+        "answer": "C. Jonah"
+    },
+    {
+        "question": "What did Jesus turn water into at the wedding in Cana?",
+        "choices": [
+            "A. Milk",
+            "B. Wine",
+            "C. Juice",
+            "D. Honey"
+        ],
+        "answer": "B. Wine"
+    },
+    {
+        "question": "Who betrayed Jesus for thirty pieces of silver?",
+        "choices": [
+            "A. Peter",
+            "B. John",
+            "C. Judas",
+            "D. Thomas"
+        ],
+        "answer": "C. Judas"
+    },
+    {
+        "question": "Who is known as the 'father of many nations'?",
+        "choices": [
+            "A. Isaac",
+            "B. Jacob",
+            "C. Abraham",
+            "D. Joseph"
+        ],
+        "answer": "C. Abraham"
+    }
+]

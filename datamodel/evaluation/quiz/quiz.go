@@ -23,7 +23,8 @@ var QuizRestAPISpec = nexus.RestAPISpec{
 type Quiz struct {
 	nexus.Node
 
-	DefaultScorePerQuestion int `json:",omitempty"`
+	Labels                  []string `json:",omitempty"`
+	DefaultScorePerQuestion int      `json:",omitempty"`
 
 	// Name for this children will be numerical string to help sequence the choices.
 	Question quizquestion.QuizQuestion `nexus:"children"`

@@ -23,6 +23,7 @@ type quiz_Quiz {
 	ParentLabels: Map
 
     Question(Id: ID): [quizquestion_QuizQuestion!]
+    Labels: String
     DefaultScorePerQuestion: Int
 }
 
