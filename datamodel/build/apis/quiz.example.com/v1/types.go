@@ -68,8 +68,9 @@ func (c *Quiz) DisplayName() string {
 
 // +k8s:openapi-gen=true
 type QuizSpec struct {
-	Labels                  []string         `json:",omitempty" yaml:",omitempty"`
-	DefaultScorePerQuestion int              `json:",omitempty" yaml:",omitempty"`
+	Labels                  []string         `json:"labels,omitempty" yaml:"labels,omitempty"`
+	DefaultScorePerQuestion int              `json:"default_score_per_question,omitempty" yaml:"default_score_per_question,omitempty"`
+	Description             string           `json:"description" yaml:"description"`
 	QuestionGvk             map[string]Child `json:"questionGvk,omitempty" yaml:"questionGvk,omitempty" nexus:"children"`
 }
 

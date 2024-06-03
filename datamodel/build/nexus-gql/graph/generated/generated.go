@@ -110,6 +110,7 @@ type ComplexityRoot struct {
 
 	Quiz_Quiz struct {
 		DefaultScorePerQuestion func(childComplexity int) int
+		Description             func(childComplexity int) int
 		Id                      func(childComplexity int) int
 		Labels                  func(childComplexity int) int
 		ParentLabels            func(childComplexity int) int
@@ -479,6 +480,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Quiz_Quiz.DefaultScorePerQuestion(childComplexity), true
+
+	case "quiz_Quiz.Description":
+		if e.complexity.Quiz_Quiz.Description == nil {
+			break
+		}
+
+		return e.complexity.Quiz_Quiz.Description(childComplexity), true
 
 	case "quiz_Quiz.Id":
 		if e.complexity.Quiz_Quiz.Id == nil {
@@ -1012,6 +1020,7 @@ type quiz_Quiz {
     Question(Id: ID): [quizquestion_QuizQuestion!]
     Labels: String
     DefaultScorePerQuestion: Int
+    Description: String
 }
 
 type quizquestion_QuizQuestion {
@@ -4206,6 +4215,8 @@ func (ec *executionContext) fieldContext_evaluation_Evaluation_Quiz(ctx context.
 				return ec.fieldContext_quiz_Quiz_Labels(ctx, field)
 			case "DefaultScorePerQuestion":
 				return ec.fieldContext_quiz_Quiz_DefaultScorePerQuestion(ctx, field)
+			case "Description":
+				return ec.fieldContext_quiz_Quiz_Description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type quiz_Quiz", field.Name)
 		},
@@ -4824,6 +4835,47 @@ func (ec *executionContext) fieldContext_quiz_Quiz_DefaultScorePerQuestion(ctx c
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _quiz_Quiz_Description(ctx context.Context, field graphql.CollectedField, obj *model.QuizQuiz) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_quiz_Quiz_Description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Description, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_quiz_Quiz_Description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "quiz_Quiz",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6267,6 +6319,8 @@ func (ec *executionContext) fieldContext_runtimequiz_RuntimeQuiz_Quiz(ctx contex
 				return ec.fieldContext_quiz_Quiz_Labels(ctx, field)
 			case "DefaultScorePerQuestion":
 				return ec.fieldContext_quiz_Quiz_DefaultScorePerQuestion(ctx, field)
+			case "Description":
+				return ec.fieldContext_quiz_Quiz_Description(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type quiz_Quiz", field.Name)
 		},
@@ -8046,6 +8100,10 @@ func (ec *executionContext) _quiz_Quiz(ctx context.Context, sel ast.SelectionSet
 		case "DefaultScorePerQuestion":
 
 			out.Values[i] = ec._quiz_Quiz_DefaultScorePerQuestion(ctx, field, obj)
+
+		case "Description":
+
+			out.Values[i] = ec._quiz_Quiz_Description(ctx, field, obj)
 
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))

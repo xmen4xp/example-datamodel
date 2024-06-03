@@ -25,6 +25,7 @@ type quiz_Quiz {
     Question(Id: ID): [quizquestion_QuizQuestion!]
     Labels: String
     DefaultScorePerQuestion: Int
+    Description: String
 }
 
 type quizquestion_QuizQuestion {

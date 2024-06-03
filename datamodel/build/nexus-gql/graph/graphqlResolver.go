@@ -207,6 +207,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		Labels, _ := json.Marshal(vQuiz.Spec.Labels)
 		LabelsData := string(Labels)
 		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
+		vDescription := string(vQuiz.Spec.Description)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -216,6 +217,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 			ParentLabels:            parentLabels,
 			Labels:                  &LabelsData,
 			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
+			Description:             &vDescription,
 		}
 		vQuizQuizList = append(vQuizQuizList, ret)
 
@@ -247,6 +249,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		Labels, _ := json.Marshal(vQuiz.Spec.Labels)
 		LabelsData := string(Labels)
 		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
+		vDescription := string(vQuiz.Spec.Description)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -256,6 +259,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 			ParentLabels:            parentLabels,
 			Labels:                  &LabelsData,
 			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
+			Description:             &vDescription,
 		}
 		vQuizQuizList = append(vQuizQuizList, ret)
 	}
@@ -1066,6 +1070,7 @@ func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*
 	Labels, _ := json.Marshal(vQuiz.Spec.Labels)
 	LabelsData := string(Labels)
 	vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
+	vDescription := string(vQuiz.Spec.Description)
 
 	for k, v := range obj.ParentLabels {
 		parentLabels[k] = v
@@ -1075,6 +1080,7 @@ func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*
 		ParentLabels:            parentLabels,
 		Labels:                  &LabelsData,
 		DefaultScorePerQuestion: &vDefaultScorePerQuestion,
+		Description:             &vDescription,
 	}
 	log.Debugf("[getRuntimequizRuntimeQuizQuizResolver]Output object %v", ret)
 

@@ -2991,7 +2991,7 @@ func (group *QuizExampleV1) UpdateQuizByName(ctx context.Context,
 			patchValueDefaultScorePerQuestion := objToUpdate.Spec.DefaultScorePerQuestion
 			patchOpDefaultScorePerQuestion := PatchOp{
 				Op:    "replace",
-				Path:  "/spec/defaultScorePerQuestion",
+				Path:  "/spec/default_score_per_question",
 				Value: patchValueDefaultScorePerQuestion,
 			}
 			patch = append(patch, patchOpDefaultScorePerQuestion)
@@ -3000,10 +3000,31 @@ func (group *QuizExampleV1) UpdateQuizByName(ctx context.Context,
 		patchValueDefaultScorePerQuestion := objToUpdate.Spec.DefaultScorePerQuestion
 		patchOpDefaultScorePerQuestion := PatchOp{
 			Op:    "replace",
-			Path:  "/spec/defaultScorePerQuestion",
+			Path:  "/spec/default_score_per_question",
 			Value: patchValueDefaultScorePerQuestion,
 		}
 		patch = append(patch, patchOpDefaultScorePerQuestion)
+	}
+
+	rt = reflect.TypeOf(objToUpdate.Spec.Description)
+	if rt.Kind() == reflect.Slice || rt.Kind() == reflect.Array || rt.Kind() == reflect.Map {
+		if !reflect.ValueOf(objToUpdate.Spec.Description).IsNil() {
+			patchValueDescription := objToUpdate.Spec.Description
+			patchOpDescription := PatchOp{
+				Op:    "replace",
+				Path:  "/spec/description",
+				Value: patchValueDescription,
+			}
+			patch = append(patch, patchOpDescription)
+		}
+	} else {
+		patchValueDescription := objToUpdate.Spec.Description
+		patchOpDescription := PatchOp{
+			Op:    "replace",
+			Path:  "/spec/description",
+			Value: patchValueDescription,
+		}
+		patch = append(patch, patchOpDescription)
 	}
 
 	marshaled, err := patch.Marshal()

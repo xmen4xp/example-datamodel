@@ -52,6 +52,7 @@ type QuizQuiz struct {
 	Question                []*QuizquestionQuizQuestion `json:"Question"`
 	Labels                  *string                     `json:"Labels"`
 	DefaultScorePerQuestion *int                        `json:"DefaultScorePerQuestion"`
+	Description             *string                     `json:"Description"`
 }
 
 type QuizchoiceQuizChoice struct {

@@ -16,6 +16,7 @@ type Quiz_Quiz @nexus(group:"quiz.example.com",version:"v1",kind:"Quiz",resource
     question(id: ID): [Quizquestion_QuizQuestion!]
     labels: [String]
     defaultScorePerQuestion: Int
+    description: String
 }
 
 type Quizquestion_QuizQuestion @nexus(group:"quizquestion.example.com",version:"v1",kind:"QuizQuestion",resource:"quizquestions",name:"QuizQuestion",crdName:"quizquestions.quizquestion.example.com",singleton:"false"){

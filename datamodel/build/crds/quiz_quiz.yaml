@@ -38,6 +38,15 @@ spec:
             type: object
           spec:
             properties:
+              default_score_per_question:
+                format: int32
+                type: integer
+              description:
+                type: string
+              labels:
+                items:
+                  type: string
+                type: array
               questionGvk:
                 additionalProperties:
                   properties:
@@ -53,6 +62,8 @@ spec:
                   - name
                   type: object
                 type: object
+            required:
+            - description
             type: object
           status:
             properties:
