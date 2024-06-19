@@ -190,6 +190,77 @@ func getRootRootTenantResolver(obj *model.RootRoot, id *string) ([]*model.Tenant
 
 // ////////////////////////////////////
 // CHILDREN RESOLVER
+// FieldName: Category Node: Root PKG: Root
+// ////////////////////////////////////
+func getRootRootCategoryResolver(obj *model.RootRoot, id *string) ([]*model.CategoryCategory, error) {
+	log.Debugf("[getRootRootCategoryResolver]Parent Object %+v", obj)
+	var vCategoryCategoryList []*model.CategoryCategory
+	if id != nil && *id != "" {
+		log.Debugf("[getRootRootCategoryResolver]Id %q", *id)
+		vCategory, err := nc.RootRoot().GetCategory(context.TODO(), *id)
+		if err != nil {
+			log.Errorf("[getRootRootCategoryResolver]Error getting Category node %q : %s", *id, err)
+			return vCategoryCategoryList, nil
+		}
+		dn := vCategory.DisplayName()
+		parentLabels := map[string]interface{}{"categories.category.example.com": dn}
+		vDesription := string(vCategory.Spec.Desription)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.CategoryCategory{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Desription:   &vDesription,
+		}
+		vCategoryCategoryList = append(vCategoryCategoryList, ret)
+
+		log.Debugf("[getRootRootCategoryResolver]Output Category objects %v", vCategoryCategoryList)
+
+		return vCategoryCategoryList, nil
+	}
+
+	log.Debug("[getRootRootCategoryResolver]Id is empty, process all Categorys")
+
+	vCategoryParent, err := nc.GetRootRoot(context.TODO())
+	if err != nil {
+		log.Errorf("[getRootRootCategoryResolver]Error getting parent node %s", err)
+		return vCategoryCategoryList, nil
+	}
+	vCategoryAllObj, err := vCategoryParent.GetAllCategory(context.TODO())
+	if err != nil {
+		log.Errorf("[getRootRootCategoryResolver]Error getting Category objects %s", err)
+		return vCategoryCategoryList, nil
+	}
+	for _, i := range vCategoryAllObj {
+		vCategory, err := nc.RootRoot().GetCategory(context.TODO(), i.DisplayName())
+		if err != nil {
+			log.Errorf("[getRootRootCategoryResolver]Error getting Category node %q : %s", i.DisplayName(), err)
+			continue
+		}
+		dn := vCategory.DisplayName()
+		parentLabels := map[string]interface{}{"categories.category.example.com": dn}
+		vDesription := string(vCategory.Spec.Desription)
+
+		for k, v := range obj.ParentLabels {
+			parentLabels[k] = v
+		}
+		ret := &model.CategoryCategory{
+			Id:           &dn,
+			ParentLabels: parentLabels,
+			Desription:   &vDesription,
+		}
+		vCategoryCategoryList = append(vCategoryCategoryList, ret)
+	}
+
+	log.Debugf("[getRootRootCategoryResolver]Output Category objects %v", vCategoryCategoryList)
+
+	return vCategoryCategoryList, nil
+}
+
+// ////////////////////////////////////
+// CHILDREN RESOLVER
 // FieldName: Quiz Node: Evaluation PKG: Evaluation
 // ////////////////////////////////////
 func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *string) ([]*model.QuizQuiz, error) {
@@ -208,6 +279,8 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		LabelsData := string(Labels)
 		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
 		vDescription := string(vQuiz.Spec.Description)
+		Categories, _ := json.Marshal(vQuiz.Spec.Categories)
+		CategoriesData := string(Categories)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -218,6 +291,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 			Labels:                  &LabelsData,
 			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
 			Description:             &vDescription,
+			Categories:              &CategoriesData,
 		}
 		vQuizQuizList = append(vQuizQuizList, ret)
 
@@ -250,6 +324,8 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 		LabelsData := string(Labels)
 		vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
 		vDescription := string(vQuiz.Spec.Description)
+		Categories, _ := json.Marshal(vQuiz.Spec.Categories)
+		CategoriesData := string(Categories)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -260,6 +336,7 @@ func getEvaluationEvaluationQuizResolver(obj *model.EvaluationEvaluation, id *st
 			Labels:                  &LabelsData,
 			DefaultScorePerQuestion: &vDefaultScorePerQuestion,
 			Description:             &vDescription,
+			Categories:              &CategoriesData,
 		}
 		vQuizQuizList = append(vQuizQuizList, ret)
 	}
@@ -759,6 +836,8 @@ func getUserUserWannaResolver(obj *model.UserUser, id *string) ([]*model.WannaWa
 		dn := vWanna.DisplayName()
 		parentLabels := map[string]interface{}{"wannas.wanna.example.com": dn}
 		vName := string(vWanna.Spec.Name)
+		Type, _ := json.Marshal(vWanna.Spec.Type)
+		TypeData := string(Type)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -767,6 +846,7 @@ func getUserUserWannaResolver(obj *model.UserUser, id *string) ([]*model.WannaWa
 			Id:           &dn,
 			ParentLabels: parentLabels,
 			Name:         &vName,
+			Type:         &TypeData,
 		}
 		vWannaWannaList = append(vWannaWannaList, ret)
 
@@ -796,6 +876,8 @@ func getUserUserWannaResolver(obj *model.UserUser, id *string) ([]*model.WannaWa
 		dn := vWanna.DisplayName()
 		parentLabels := map[string]interface{}{"wannas.wanna.example.com": dn}
 		vName := string(vWanna.Spec.Name)
+		Type, _ := json.Marshal(vWanna.Spec.Type)
+		TypeData := string(Type)
 
 		for k, v := range obj.ParentLabels {
 			parentLabels[k] = v
@@ -804,6 +886,7 @@ func getUserUserWannaResolver(obj *model.UserUser, id *string) ([]*model.WannaWa
 			Id:           &dn,
 			ParentLabels: parentLabels,
 			Name:         &vName,
+			Type:         &TypeData,
 		}
 		vWannaWannaList = append(vWannaWannaList, ret)
 	}
@@ -1071,6 +1154,8 @@ func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*
 	LabelsData := string(Labels)
 	vDefaultScorePerQuestion := int(vQuiz.Spec.DefaultScorePerQuestion)
 	vDescription := string(vQuiz.Spec.Description)
+	Categories, _ := json.Marshal(vQuiz.Spec.Categories)
+	CategoriesData := string(Categories)
 
 	for k, v := range obj.ParentLabels {
 		parentLabels[k] = v
@@ -1081,6 +1166,7 @@ func getRuntimequizRuntimeQuizQuizResolver(obj *model.RuntimequizRuntimeQuiz) (*
 		Labels:                  &LabelsData,
 		DefaultScorePerQuestion: &vDefaultScorePerQuestion,
 		Description:             &vDescription,
+		Categories:              &CategoriesData,
 	}
 	log.Debugf("[getRuntimequizRuntimeQuizQuizResolver]Output object %v", ret)
 

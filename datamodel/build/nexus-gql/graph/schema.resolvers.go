@@ -44,6 +44,11 @@ func (r *root_RootResolver) Tenant(ctx context.Context, obj *model.RootRoot, id 
 	return getRootRootTenantResolver(obj, id)
 }
 
+// Category is the resolver for the Category field.
+func (r *root_RootResolver) Category(ctx context.Context, obj *model.RootRoot, id *string) ([]*model.CategoryCategory, error) {
+	return getRootRootCategoryResolver(obj, id)
+}
+
 // Evaluation is the resolver for the Evaluation field.
 func (r *root_RootResolver) Evaluation(ctx context.Context, obj *model.RootRoot) (*model.EvaluationEvaluation, error) {
 	return getRootRootEvaluationResolver(obj)

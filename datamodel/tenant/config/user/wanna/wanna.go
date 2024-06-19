@@ -19,11 +19,21 @@ var WannaRestAPISpec = nexus.RestAPISpec{
 	},
 }
 
+type WannaType int
+
+const (
+	Habit WannaType = iota + 1
+	Learning
+	Progression
+)
+
 // nexus-rest-api-gen:WannaRestAPISpec
 type Wanna struct {
 	nexus.Node
 
 	Name string
+
+	Type WannaType
 
 	Interest interest.Interest `nexus:"link"`
 }

@@ -19,6 +19,7 @@ limitations under the License.
 package scheme
 
 import (
+	categoryexamplev1 "example/build/apis/category.example.com/v1"
 	configexamplev1 "example/build/apis/config.example.com/v1"
 	evaluationexamplev1 "example/build/apis/evaluation.example.com/v1"
 	eventexamplev1 "example/build/apis/event.example.com/v1"
@@ -47,6 +48,7 @@ var Scheme = runtime.NewScheme()
 var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
+	categoryexamplev1.AddToScheme,
 	configexamplev1.AddToScheme,
 	evaluationexamplev1.AddToScheme,
 	eventexamplev1.AddToScheme,

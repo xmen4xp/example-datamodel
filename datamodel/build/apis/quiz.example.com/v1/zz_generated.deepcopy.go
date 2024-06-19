@@ -161,6 +161,11 @@ func (in *QuizSpec) DeepCopyInto(out *QuizSpec) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.Categories != nil {
+		in, out := &in.Categories, &out.Categories
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.QuestionGvk != nil {
 		in, out := &in.QuestionGvk, &out.QuestionGvk
 		*out = make(map[string]Child, len(*in))

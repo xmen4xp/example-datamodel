@@ -21,6 +21,7 @@ package versioned
 import (
 	"fmt"
 	"net/http"
+	categoryexamplev1 "example/build/client/clientset/versioned/typed/category.example.com/v1"
 	configexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1"
 	evaluationexamplev1 "example/build/client/clientset/versioned/typed/evaluation.example.com/v1"
 	eventexamplev1 "example/build/client/clientset/versioned/typed/event.example.com/v1"
@@ -45,6 +46,7 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
+	CategoryExampleV1() categoryexamplev1.CategoryExampleV1Interface
 	ConfigExampleV1() configexamplev1.ConfigExampleV1Interface
 	EvaluationExampleV1() evaluationexamplev1.EvaluationExampleV1Interface
 	EventExampleV1() eventexamplev1.EventExampleV1Interface
@@ -66,6 +68,7 @@ type Interface interface {
 // Clientset contains the clients for groups.
 type Clientset struct {
 	*discovery.DiscoveryClient
+	categoryExampleV1          *categoryexamplev1.CategoryExampleV1Client
 	configExampleV1            *configexamplev1.ConfigExampleV1Client
 	evaluationExampleV1        *evaluationexamplev1.EvaluationExampleV1Client
 	eventExampleV1             *eventexamplev1.EventExampleV1Client
@@ -82,6 +85,11 @@ type Clientset struct {
 	tenantExampleV1            *tenantexamplev1.TenantExampleV1Client
 	userExampleV1              *userexamplev1.UserExampleV1Client
 	wannaExampleV1             *wannaexamplev1.WannaExampleV1Client
+}
+
+// CategoryExampleV1 retrieves the CategoryExampleV1Client
+func (c *Clientset) CategoryExampleV1() categoryexamplev1.CategoryExampleV1Interface {
+	return c.categoryExampleV1
 }
 
 // ConfigExampleV1 retrieves the ConfigExampleV1Client
@@ -208,6 +216,10 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 
 	var cs Clientset
 	var err error
+	cs.categoryExampleV1, err = categoryexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	if err != nil {
+		return nil, err
+	}
 	cs.configExampleV1, err = configexamplev1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
@@ -293,6 +305,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
+	cs.categoryExampleV1 = categoryexamplev1.New(c)
 	cs.configExampleV1 = configexamplev1.New(c)
 	cs.evaluationExampleV1 = evaluationexamplev1.New(c)
 	cs.eventExampleV1 = eventexamplev1.New(c)

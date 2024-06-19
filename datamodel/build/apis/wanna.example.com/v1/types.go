@@ -67,8 +67,9 @@ func (c *Wanna) DisplayName() string {
 
 // +k8s:openapi-gen=true
 type WannaSpec struct {
-	Name        string `json:"name" yaml:"name"`
-	InterestGvk *Link  `json:"interestGvk,omitempty" yaml:"interestGvk,omitempty" nexus:"link"`
+	Name        string    `json:"name" yaml:"name"`
+	Type        WannaType `json:"type" yaml:"type"`
+	InterestGvk *Link     `json:"interestGvk,omitempty" yaml:"interestGvk,omitempty" nexus:"link"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -77,3 +78,11 @@ type WannaList struct {
 	metav1.ListMeta `json:"metadata" yaml:"metadata"`
 	Items           []Wanna `json:"items" yaml:"items"`
 }
+
+type WannaType int
+
+const (
+	Habit WannaType = iota + 1
+	Learning
+	Progression
+)

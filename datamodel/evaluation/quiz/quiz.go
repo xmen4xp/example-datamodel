@@ -25,7 +25,8 @@ type Quiz struct {
 
 	Labels                  []string `json:"labels,omitempty"`
 	DefaultScorePerQuestion int      `json:"default_score_per_question,omitempty"`
-        Description             string
+	Description             string   `json:"description,omitempty"`
+	Categories              []string `json:"categories,omitempty"`
 
 	// Name for this children will be numerical string to help sequence the choices.
 	Question quizquestion.QuizQuestion `nexus:"children"`

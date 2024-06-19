@@ -53,8 +53,12 @@ spec:
                 type: object
               name:
                 type: string
+              type:
+                format: int32
+                type: integer
             required:
             - name
+            - type
             type: object
           status:
             properties:

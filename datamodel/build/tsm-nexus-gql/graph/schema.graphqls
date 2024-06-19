@@ -4,6 +4,12 @@ type Root_Root @nexus(group:"root.example.com",version:"v1",kind:"Root",resource
     id: ID
     tenant(id: ID): [Tenant_Tenant!]
     evaluation: Evaluation_Evaluation
+    category(id: ID): [Category_Category!]
+}
+
+type Category_Category @nexus(group:"category.example.com",version:"v1",kind:"Category",resource:"categories",name:"Category",crdName:"categories.category.example.com",singleton:"false"){
+    id: ID
+    desription: String
 }
 
 type Evaluation_Evaluation @nexus(group:"evaluation.example.com",version:"v1",kind:"Evaluation",resource:"evaluations",name:"Evaluation",crdName:"evaluations.evaluation.example.com",singleton:"true"){
@@ -17,6 +23,7 @@ type Quiz_Quiz @nexus(group:"quiz.example.com",version:"v1",kind:"Quiz",resource
     labels: [String]
     defaultScorePerQuestion: Int
     description: String
+    categories: [String]
 }
 
 type Quizquestion_QuizQuestion @nexus(group:"quizquestion.example.com",version:"v1",kind:"QuizQuestion",resource:"quizquestions",name:"QuizQuestion",crdName:"quizquestions.quizquestion.example.com",singleton:"false"){
@@ -74,6 +81,7 @@ type Wanna_Wanna @nexus(group:"wanna.example.com",version:"v1",kind:"Wanna",reso
     id: ID
     interest: Interest_Interest @relation(softlink: "true")
     name: String
+    type: String @jsonencoded(gofile:"model.go", name:"WannaType", goname:"nexus_wanna.WannaType")
 }
 
 type Interest_Interest @nexus(group:"interest.example.com",version:"v1",kind:"Interest",resource:"interests",name:"Interest",crdName:"interests.interest.example.com",singleton:"false"){

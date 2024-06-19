@@ -20,6 +20,8 @@ package fake
 
 import (
 	clientset "example/build/client/clientset/versioned"
+	categoryexamplev1 "example/build/client/clientset/versioned/typed/category.example.com/v1"
+	fakecategoryexamplev1 "example/build/client/clientset/versioned/typed/category.example.com/v1/fake"
 	configexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1"
 	fakeconfigexamplev1 "example/build/client/clientset/versioned/typed/config.example.com/v1/fake"
 	evaluationexamplev1 "example/build/client/clientset/versioned/typed/evaluation.example.com/v1"
@@ -109,6 +111,11 @@ var (
 	_ clientset.Interface = &Clientset{}
 	_ testing.FakeClient  = &Clientset{}
 )
+
+// CategoryExampleV1 retrieves the CategoryExampleV1Client
+func (c *Clientset) CategoryExampleV1() categoryexamplev1.CategoryExampleV1Interface {
+	return &fakecategoryexamplev1.FakeCategoryExampleV1{Fake: &c.Fake}
+}
 
 // ConfigExampleV1 retrieves the ConfigExampleV1Client
 func (c *Clientset) ConfigExampleV1() configexamplev1.ConfigExampleV1Interface {

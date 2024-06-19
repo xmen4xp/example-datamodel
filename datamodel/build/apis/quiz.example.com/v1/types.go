@@ -70,7 +70,8 @@ func (c *Quiz) DisplayName() string {
 type QuizSpec struct {
 	Labels                  []string         `json:"labels,omitempty" yaml:"labels,omitempty"`
 	DefaultScorePerQuestion int              `json:"default_score_per_question,omitempty" yaml:"default_score_per_question,omitempty"`
-	Description             string           `json:"description" yaml:"description"`
+	Description             string           `json:"description,omitempty" yaml:"description,omitempty"`
+	Categories              []string         `json:"categories,omitempty" yaml:"categories,omitempty"`
 	QuestionGvk             map[string]Child `json:"questionGvk,omitempty" yaml:"questionGvk,omitempty" nexus:"children"`
 }
 

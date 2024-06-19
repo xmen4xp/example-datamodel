@@ -20,7 +20,8 @@ package externalversions
 
 import (
 	"fmt"
-	v1 "example/build/apis/config.example.com/v1"
+	v1 "example/build/apis/category.example.com/v1"
+	configexamplecomv1 "example/build/apis/config.example.com/v1"
 	evaluationexamplecomv1 "example/build/apis/evaluation.example.com/v1"
 	eventexamplecomv1 "example/build/apis/event.example.com/v1"
 	interestexamplecomv1 "example/build/apis/interest.example.com/v1"
@@ -67,8 +68,12 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=config.example.com, Version=v1
-	case v1.SchemeGroupVersion.WithResource("configs"):
+	// Group=category.example.com, Version=v1
+	case v1.SchemeGroupVersion.WithResource("categories"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.CategoryExample().V1().Categories().Informer()}, nil
+
+		// Group=config.example.com, Version=v1
+	case configexamplecomv1.SchemeGroupVersion.WithResource("configs"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.ConfigExample().V1().Configs().Informer()}, nil
 
 		// Group=evaluation.example.com, Version=v1

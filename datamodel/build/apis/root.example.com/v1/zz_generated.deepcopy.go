@@ -167,6 +167,13 @@ func (in *RootSpec) DeepCopyInto(out *RootSpec) {
 		*out = new(Child)
 		**out = **in
 	}
+	if in.CategoryGvk != nil {
+		in, out := &in.CategoryGvk, &out.CategoryGvk
+		*out = make(map[string]Child, len(*in))
+		for key, val := range *in {
+			(*out)[key] = val
+		}
+	}
 	return
 }
 

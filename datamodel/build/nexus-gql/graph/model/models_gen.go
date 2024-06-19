@@ -18,6 +18,12 @@ type TimeSeriesData struct {
 	TotalRecords *int    `json:"TotalRecords"`
 }
 
+type CategoryCategory struct {
+	Id           *string                `json:"Id"`
+	ParentLabels map[string]interface{} `json:"ParentLabels"`
+	Desription   *string                `json:"Desription"`
+}
+
 type ConfigConfig struct {
 	Id           *string                `json:"Id"`
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
@@ -53,6 +59,7 @@ type QuizQuiz struct {
 	Labels                  *string                     `json:"Labels"`
 	DefaultScorePerQuestion *int                        `json:"DefaultScorePerQuestion"`
 	Description             *string                     `json:"Description"`
+	Categories              *string                     `json:"Categories"`
 }
 
 type QuizchoiceQuizChoice struct {
@@ -80,6 +87,7 @@ type RootRoot struct {
 	Id           *string                `json:"Id"`
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
 	Tenant       []*TenantTenant        `json:"Tenant"`
+	Category     []*CategoryCategory    `json:"Category"`
 	Evaluation   *EvaluationEvaluation  `json:"Evaluation"`
 }
 
@@ -141,4 +149,5 @@ type WannaWanna struct {
 	ParentLabels map[string]interface{} `json:"ParentLabels"`
 	Interest     *InterestInterest      `json:"Interest"`
 	Name         *string                `json:"Name"`
+	Type         *string                `json:"Type"`
 }

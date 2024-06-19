@@ -20,6 +20,7 @@ package externalversions
 
 import (
 	versioned "example/build/client/clientset/versioned"
+	categoryexamplecom "example/build/client/informers/externalversions/category.example.com"
 	configexamplecom "example/build/client/informers/externalversions/config.example.com"
 	evaluationexamplecom "example/build/client/informers/externalversions/evaluation.example.com"
 	eventexamplecom "example/build/client/informers/externalversions/event.example.com"
@@ -258,6 +259,7 @@ type SharedInformerFactory interface {
 	// client.
 	InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer
 
+	CategoryExample() categoryexamplecom.Interface
 	ConfigExample() configexamplecom.Interface
 	EvaluationExample() evaluationexamplecom.Interface
 	EventExample() eventexamplecom.Interface
@@ -274,6 +276,10 @@ type SharedInformerFactory interface {
 	TenantExample() tenantexamplecom.Interface
 	UserExample() userexamplecom.Interface
 	WannaExample() wannaexamplecom.Interface
+}
+
+func (f *sharedInformerFactory) CategoryExample() categoryexamplecom.Interface {
+	return categoryexamplecom.New(f, f.namespace, f.tweakListOptions)
 }
 
 func (f *sharedInformerFactory) ConfigExample() configexamplecom.Interface {

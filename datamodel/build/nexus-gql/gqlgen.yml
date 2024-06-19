@@ -34,6 +34,8 @@ models:
     fields:
       Tenant:
         resolver: true
+      Category:
+        resolver: true
       Evaluation:
         resolver: true
   evaluation_Evaluation:

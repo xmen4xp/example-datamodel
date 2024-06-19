@@ -69,6 +69,7 @@ func (c *Root) DisplayName() string {
 type RootSpec struct {
 	TenantGvk     map[string]Child `json:"tenantGvk,omitempty" yaml:"tenantGvk,omitempty" nexus:"children"`
 	EvaluationGvk *Child           `json:"evaluationGvk,omitempty" yaml:"evaluationGvk,omitempty" nexus:"child"`
+	CategoryGvk   map[string]Child `json:"categoryGvk,omitempty" yaml:"categoryGvk,omitempty" nexus:"children"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

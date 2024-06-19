@@ -8,7 +8,15 @@ type root_Root {
 	ParentLabels: Map
 
     Tenant(Id: ID): [tenant_Tenant!]
+    Category(Id: ID): [category_Category!]
     Evaluation: evaluation_Evaluation!
+}
+
+type category_Category {
+    Id: ID
+	ParentLabels: Map
+
+    Desription: String
 }
 
 type evaluation_Evaluation {
@@ -26,6 +34,7 @@ type quiz_Quiz {
     Labels: String
     DefaultScorePerQuestion: Int
     Description: String
+    Categories: String
 }
 
 type quizquestion_QuizQuestion {
@@ -97,6 +106,7 @@ type wanna_Wanna {
 
     Interest: interest_Interest!
     Name: String
+    Type: String
 }
 
 type interest_Interest {

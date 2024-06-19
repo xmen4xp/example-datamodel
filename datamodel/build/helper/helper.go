@@ -19,6 +19,7 @@ const IS_NAME_HASHED_LABEL = "nexus/is_name_hashed"
 
 func GetCRDParentsMap() map[string][]string {
 	return map[string][]string{
+		"categories.category.example.com":                  {"roots.root.example.com"},
 		"configs.config.example.com":                       {"roots.root.example.com", "tenants.tenant.example.com"},
 		"evaluations.evaluation.example.com":               {"roots.root.example.com"},
 		"events.event.example.com":                         {"roots.root.example.com", "tenants.tenant.example.com", "configs.config.example.com"},
@@ -39,6 +40,13 @@ func GetCRDParentsMap() map[string][]string {
 }
 
 func GetObjectByCRDName(dmClient *datamodel.Clientset, crdName string, name string) interface{} {
+	if crdName == "categories.category.example.com" {
+		obj, err := dmClient.CategoryExampleV1().Categories().Get(context.TODO(), name, metav1.GetOptions{})
+		if err != nil {
+			return nil
+		}
+		return obj
+	}
 	if crdName == "configs.config.example.com" {
 		obj, err := dmClient.ConfigExampleV1().Configs().Get(context.TODO(), name, metav1.GetOptions{})
 		if err != nil {

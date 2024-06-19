@@ -38,6 +38,10 @@ spec:
             type: object
           spec:
             properties:
+              categories:
+                items:
+                  type: string
+                type: array
               default_score_per_question:
                 format: int32
                 type: integer
@@ -62,8 +66,6 @@ spec:
                   - name
                   type: object
                 type: object
-            required:
-            - description
             type: object
           status:
             properties:
