@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     nexus: |
-      {"name":"category.Category","hierarchy":["roots.root.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":null}}
+      {"name":"category.Category","hierarchy":["roots.root.example.com"],"is_singleton":false,"nexus-rest-api-gen":{"uris":[{"uri":"/category/{category.Category}","methods":{"DELETE":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"GET":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}},"PUT":{"200":{"description":"OK"},"201":{"description":"Created"},"501":{"description":"Not Implemented"}}}},{"uri":"/categories","methods":{"LIST":{"200":{"description":"OK"},"404":{"description":"Not Found"},"501":{"description":"Not Implemented"}}}}]}}
   creationTimestamp: null
   name: categories.category.example.com
 spec:
